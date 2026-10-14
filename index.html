@@ -212,7 +212,7 @@
                 <button class="btn-cancel" onclick="closeDBManager()">取消</button>
                 <div class="db-actions-right">
                     <button class="btn-clear" onclick="clearDBTextarea()">🗑️ 清除全部</button>
-                    <button class="btn-reset" onclick="resetToDefaultDB()">還原</button>
+                    <button class="btn-reset" onclick="resetToDefaultDB()">還原預設</button>
                     <button class="btn-save" onclick="saveCustomDB()">💾 儲存並套用</button>
                 </div>
             </div>
@@ -353,7 +353,7 @@
         };
 
         // =====================================
-        // 🎙️ 原生瀏覽器語音系統 (100% 免費無金鑰)
+        // 🎙️ 原生瀏覽器語音系統
         // =====================================
         let isPlayingAudio = false;
 
@@ -464,12 +464,12 @@
 
             // Marcus 的示範題庫
             { student: "Marcus", unit: "比賽字詞", word: "畫蛇添足", meaning: "比喻多此一舉，不但無益，反而有害。", missingFormat: "畫蛇添＿", missingTarget: "足", fillOptions: ["足", "腳", "捉", "走"], sentence: "這篇文章已經寫得很完整了，你再加這段話簡直是＿＿＿＿。" },
-            { student: "Marcus", unit: "比賽字詞", word: "千鈞一髮", meaning: "千鈞的重量繫在一根頭髮上。比喻情況極度危急。", missingFormat: "千鈞一＿", missingTarget: "髮", fillOptions: ["髮", "發", "法", "罰"], sentence: "就在小童快要掉下河的那＿＿＿＿之際，路人及時拉住了他。" },
             { student: "Marcus", unit: "比賽字詞", word: "半途而廢", meaning: "指事情做到一半就停止，沒有堅持到底完成。", missingFormat: "半＿而廢", missingTarget: "途", fillOptions: ["途", "圖", "步", "道"], sentence: "我們做事要有始有終，絕對不能＿＿＿＿。" }
         ];
 
         let database = [];
         let currentDatabase = [];
+        let questionDeck = []; // 抽牌系統用的牌堆
 
         // 🧠 全自動偵測更新系統
         function initDatabase() {
@@ -555,6 +555,9 @@
             let filteredDB = (student === 'all') ? database : database.filter(item => item.student === student);
             currentDatabase = (unit === 'all') ? filteredDB : filteredDB.filter(item => item.unit === unit);
             document.getElementById('scope-info').innerText = `這個範圍共有 ${currentDatabase.length} 個字詞。`;
+            
+            // 每當範圍改變，就將牌堆洗牌重新補滿
+            questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
         }
 
         function openDBManager() { 
@@ -643,7 +646,9 @@
             if(confirm("確定要重新開始嗎？所有的素材、進度與島嶼方塊都會被清空！")) {
                 emeralds = 0; materials = { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 };
                 inventory = {}; placedDecorations = []; selectedHotbarItem = null;
-                gridSize = 8; updateGridSize(); renderDecorations(); renderHotbar(); updateMaterialUI(); loadRPGQuest();
+                gridSize = 8; updateGridSize(); renderDecorations(); renderHotbar(); updateMaterialUI(); 
+                questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random()); // 重新洗牌
+                loadRPGQuest();
             }
         }
 
@@ -665,7 +670,13 @@
         function loadStandardQuestion() {
             document.getElementById('std-next-btn').style.display = 'none'; document.getElementById('feedback-std').innerText = "";
             let optionsContainer = document.getElementById('options-container'); optionsContainer.innerHTML = "";
-            currentTargetData = currentDatabase[Math.floor(Math.random() * currentDatabase.length)];
+            
+            // 從牌堆抽出一題，如果牌堆空了就重新洗牌
+            if (questionDeck.length === 0) {
+                questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
+            }
+            currentTargetData = questionDeck.pop();
+            
             let options = [];
 
             if (currentStdMode === 'meaning-to-word') {
@@ -734,7 +745,12 @@
             document.getElementById('rpg-next-btn').style.display = 'none'; document.getElementById('rpg-controls').style.display = 'flex';
             document.getElementById('feedback-rpg').innerText = "用方向鍵或點擊地圖移動！答對獲得素材！"; document.getElementById('feedback-rpg').style.color = "#d32f2f";
             
-            currentTargetData = currentDatabase[Math.floor(Math.random() * currentDatabase.length)];
+            // 從牌堆抽出一題，如果牌堆空了就重新洗牌
+            if (questionDeck.length === 0) {
+                questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
+            }
+            currentTargetData = questionDeck.pop();
+
             const types = ['meaning-to-word', 'word-to-meaning', 'fill-blank', 'sentence'];
             rpgQuestType = types[Math.floor(Math.random() * types.length)];
             
