@@ -104,6 +104,14 @@
         .settings-block input { width: 100%; padding: 8px; font-size: 14px; border: 1px solid #aaa; border-radius: 4px; box-sizing: border-box; }
         .settings-block .hint { font-size: 12px; color: #666; margin-top: 5px; }
 
+        .db-actions { display: flex; justify-content: space-between; margin-top: 15px; gap: 8px; flex-wrap: wrap; }
+        .db-actions button { padding: 10px 15px; font-size: 15px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; }
+        .db-actions-right { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-cancel { background: #e0e0e0; color: #333; }
+        .btn-clear { background: #ff9800; color: white; }
+        .btn-reset { background: #f44336; color: white; }
+        .btn-save { background: #4CAF50; color: white; }
+
         .craft-wrapper { background: #d7ccc8; border: 6px solid #5d4037; }
         .craft-close { position: absolute; top: 15px; right: 15px; font-size: 20px; font-weight: bold; color: #fff; cursor: pointer; background: #d32f2f; width: 35px; height: 35px; display: flex; justify-content: center; align-items: center; border-radius: 8px; border: 2px solid #b71c1c;}
         .craft-title { font-size: 26px; color: #3e2723; margin: 0 0 15px 0; font-weight: bold; border-bottom: 2px dashed #8d6e63; padding-bottom: 10px;}
@@ -215,13 +223,14 @@
             </div>
 
             <p style="font-size: 14px; font-weight: bold; color: #333;">📚 題庫資料 (JSON格式)：</p>
-            <textarea id="db-textarea" style="flex-grow: 1; min-height: 250px; font-family: monospace; padding: 10px;"></textarea>
+            <textarea id="db-textarea" style="flex-grow: 1; min-height: 200px; font-family: monospace; padding: 10px;"></textarea>
             
             <div class="db-actions">
                 <button class="btn-cancel" onclick="closeDBManager()">取消</button>
-                <div>
-                    <button class="btn-reset" onclick="resetToDefaultDB()">還原預設</button>
-                    <button class="btn-save" onclick="saveCustomDB()">💾 儲存並套用</button>
+                <div class="db-actions-right">
+                    <button class="btn-clear" onclick="clearDBTextarea()">🗑️ 清除全部</button>
+                    <button class="btn-reset" onclick="resetToDefaultDB()">還原</button>
+                    <button class="btn-save" onclick="saveCustomDB()">💾 儲存</button>
                 </div>
             </div>
         </div>
@@ -318,7 +327,6 @@
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            // 如果成功捕捉到事件，可以讓按鈕顯示得更明顯
         });
 
         function installApp() {
@@ -542,6 +550,13 @@
         }
         function closeDBManager() { document.getElementById('db-modal').style.display = 'none'; }
         
+        // 🧹 清除全部功能
+        function clearDBTextarea() {
+            let textarea = document.getElementById('db-textarea');
+            textarea.value = "";
+            textarea.focus();
+        }
+
         function saveCustomDB() {
             try {
                 let key = document.getElementById('azure-key-input').value.trim();
