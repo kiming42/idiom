@@ -25,7 +25,6 @@
         .filter-group { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
         .filter-group label { font-size: 14px; font-weight: bold; color: #555; }
         .filter-group select { padding: 10px 15px; font-size: 16px; border: 2px solid #ccc; border-radius: 8px; font-family: "PingFang HK", sans-serif; cursor: pointer; outline: none; font-weight: bold; color: #333; background: #fff; width: 100%; box-sizing: border-box; }
-        .filter-group select:focus { border-color: #8bc34a; box-shadow: 0 0 5px rgba(139, 195, 74, 0.5); }
         .scope-info-text { margin: 15px 0 0 0; font-size: 14px; color: #777; font-weight: bold; border-top: 1px dashed #ddd; padding-top: 15px; }
 
         .section-title { text-align: left; color: #2e7d32; font-size: 18px; margin-bottom: 10px; border-bottom: 3px dashed #999; padding-bottom: 5px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
@@ -48,7 +47,6 @@
         .mc-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; font-size: 15px; font-weight: bold; color: #222; background: #f0f0f0; padding: 10px; border-radius: 8px; border: 2px solid #ccc; }
         .mc-choices div { padding: 5px; }
         
-        /* 🗺️ 地圖與手機顯示修復 */
         .map-wrapper { overflow-x: auto; padding: 10px 0; text-align: center; white-space: nowrap; width: 100%; border-radius: 8px; background: #bdbdbd; box-shadow: inset 0 0 10px rgba(0,0,0,0.3);}
         .island-container { display: inline-block; position: relative; background-color: #689f38; background-image: linear-gradient(#558b2f 2px, transparent 2px), linear-gradient(90deg, #558b2f 2px, transparent 2px); background-size: 40px 40px; border: 6px solid #3c3c3c; box-shadow: 5px 5px 0px rgba(0,0,0,0.3); cursor: crosshair; box-sizing: content-box; vertical-align: top; }
 
@@ -76,20 +74,9 @@
         .next-btn { display: none; margin: 15px auto 0; padding: 12px 30px; background-color: #ff9800; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; box-shadow: 0 4px 0 #e65100; font-family: 'DotGothic16', sans-serif;}
 
         /* 🔨 題庫管理 Modal */
-        .db-modal { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 50; justify-content: center; align-items: center; padding: 10px; }
-        .db-wrapper { background: #fff; width: 100%; max-width: 700px; max-height: 90vh; border-radius: 12px; padding: 20px; text-align: left; box-sizing: border-box; display: flex; flex-direction: column; }
-        .db-wrapper h2 { margin: 0 0 10px 0; color: #2e7d32; }
-        .db-wrapper p { font-size: 14px; color: #666; font-weight: bold; margin-bottom: 15px; }
-        #db-textarea { flex-grow: 1; min-height: 250px; width: 100%; padding: 10px; font-family: monospace; font-size: 14px; border: 2px solid #ccc; border-radius: 8px; box-sizing: border-box; resize: none; background: #f9f9f9; }
-        .db-actions { display: flex; justify-content: space-between; margin-top: 15px; gap: 10px; }
-        .db-actions button { padding: 10px 20px; font-size: 16px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; }
-        .btn-cancel { background: #e0e0e0; color: #333; }
-        .btn-save { background: #4CAF50; color: white; }
-        .btn-reset { background: #f44336; color: white; }
-
-        /* 🔨 合成台 Crafting Modal */
-        .craft-modal { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 20; justify-content: center; align-items: center; padding: 10px;}
-        .craft-wrapper { background: #d7ccc8; border: 6px solid #5d4037; width: 100%; max-width: 650px; max-height: 90vh; border-radius: 10px; padding: 20px; box-sizing: border-box; position: relative; overflow-y: auto; text-align: left; }
+        .db-modal, .craft-modal { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 50; justify-content: center; align-items: center; padding: 10px; }
+        .db-wrapper, .craft-wrapper { background: #fff; width: 100%; max-width: 700px; max-height: 90vh; border-radius: 12px; padding: 20px; text-align: left; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto;}
+        .craft-wrapper { background: #d7ccc8; border: 6px solid #5d4037; }
         .craft-close { position: absolute; top: 15px; right: 15px; font-size: 20px; font-weight: bold; color: #fff; cursor: pointer; background: #d32f2f; width: 35px; height: 35px; display: flex; justify-content: center; align-items: center; border-radius: 8px; border: 2px solid #b71c1c;}
         .craft-title { font-size: 26px; color: #3e2723; margin: 0 0 15px 0; font-weight: bold; border-bottom: 2px dashed #8d6e63; padding-bottom: 10px;}
         
@@ -107,17 +94,18 @@
         .craft-buy-btn:active { transform: translateY(2px); }
         .craft-buy-btn:disabled { background: #9e9e9e; border-color: #757575; color: #e0e0e0; cursor: not-allowed; }
 
-        @media (max-width: 600px) { 
-            .craft-grid { grid-template-columns: 1fr; } 
-            .mc-choices { grid-template-columns: 1fr; } 
-            .page { padding: 10px; border-width: 4px; }
-        }
+        @media (max-width: 600px) { .craft-grid { grid-template-columns: 1fr; } .mc-choices { grid-template-columns: 1fr; } .page { padding: 10px; border-width: 4px; } }
 
         /* 標準模式 UI */
-        #question-area-std { background: #e0e0e0; border: 4px inset #fff; padding: 20px; margin-bottom: 20px; text-align: left; }
-        #question-text-std { font-size: 22px; color: #111; line-height: 1.6; font-weight: bold; font-family: "PingFang HK", "Microsoft YaHei", sans-serif; }
+        #question-area-std { background: #e0e0e0; border: 4px inset #fff; padding: 20px; margin-bottom: 20px; text-align: left; position: relative;}
+        #question-text-std { font-size: 22px; color: #111; line-height: 1.6; font-weight: bold; font-family: "PingFang HK", "Microsoft YaHei", sans-serif; margin-top: 10px;}
         .std-option-btn { display: block; width: 100%; margin: 8px 0; padding: 15px; font-size: 18px; background-color: #d6d6d6; border: 4px outset #ffffff; color: #111; cursor: pointer; text-align: center; font-weight: bold; box-sizing: border-box; }
         .std-char-block { display: inline-block; background: #d6d6d6; border: 4px outset #ffffff; color: #111; font-size: 32px; padding: 15px 25px; margin: 8px; cursor: pointer; font-weight: bold; }
+        
+        /* 🔊 語音按鈕 */
+        .tts-btn { display: inline-flex; align-items: center; gap: 6px; background: #2196F3; color: white; border: 2px solid #0d47a1; border-radius: 8px; padding: 6px 12px; font-size: 15px; font-weight: bold; cursor: pointer; margin-bottom: 5px; box-shadow: 0 3px 0 #0d47a1; transition: 0.1s;}
+        .tts-btn:active { transform: translateY(3px); box-shadow: none; }
+        .tts-btn.playing { background: #4CAF50; border-color: #1b5e20; box-shadow: 0 3px 0 #1b5e20; }
     </style>
 </head>
 <body>
@@ -127,7 +115,7 @@
         <div class="header-container">
             <div class="title-area">
                 <h1>⛏️ 知識方塊 RPG</h1>
-                <p class="subtitle">化身方塊人，邊學習邊建設世界！</p>
+                <p class="subtitle">化身方塊人，邊聽邊玩邊建設！</p>
             </div>
             <button class="db-btn" onclick="openDBManager()">⚙️ 題庫管理</button>
         </div>
@@ -160,7 +148,6 @@
             <span class="emerald-display">❇️ <span id="em-menu">0</span></span>
         </div>
         <div class="modes-grid">
-            <!-- 根據要求調轉了前兩個按鈕 -->
             <div class="mode-card" onclick="startStandardGame('word-to-meaning')">
                 <div class="mode-icon">詞</div><h3>詞語選意思</h3><p>找正確解釋</p>
             </div>
@@ -180,7 +167,7 @@
             <div class="mode-card" onclick="startRPGGame()" style="background: #e8f5e9; border-color: #8bc34a;">
                 <div class="mode-icon" style="background: #2e7d32; color: white;">🌍</div>
                 <h3 style="color: #2e7d32; font-size: 18px;">進入方塊採集世界</h3>
-                <p>在方塊地圖上接取任務，隨機掉落多種建築素材，到工作台合成你的專屬天地！</p>
+                <p>在地圖上尋寶答題，收集各種建築素材，打造你的專屬天地！</p>
             </div>
         </div>
     </div>
@@ -208,7 +195,8 @@
             <span class="emerald-display">❇️ <span id="em-std">0</span></span>
         </div>
         <div id="question-area-std">
-            <h3 id="std-title" style="margin-top:0; color:#555; border-bottom: 2px solid #999; padding-bottom: 10px;">題型載入中</h3>
+            <button class="tts-btn" id="tts-btn-std" onclick="readQuestionTTS()">🔊 朗讀題目</button>
+            <h3 id="std-title" style="margin-top:5px; color:#555; border-bottom: 2px solid #999; padding-bottom: 10px;">題型載入中</h3>
             <div id="question-text-std">載入題目中...</div>
         </div>
         <div id="options-container"></div>
@@ -225,13 +213,13 @@
         </div>
         
         <div class="mission-panel">
+            <button class="tts-btn" id="tts-btn-rpg" onclick="readQuestionTTS()" style="float: right;">🔊 朗讀</button>
             <h3 id="rpg-mission-title">📜 任務：載入中...</h3>
-            <p id="rpg-question-text">載入中...</p>
+            <p id="rpg-question-text" style="clear: both; margin-top: 5px;">載入中...</p>
             <div id="mc-choices" class="mc-choices"></div>
             <div id="feedback-rpg" style="font-size: 15px; color: #d32f2f; margin-top: 10px; font-weight: bold;">用方向鍵或直接點擊地圖移動！答對即可獲得素材！</div>
         </div>
 
-        <!-- 地圖區域 (修復了手機顯示) -->
         <div class="map-wrapper">
             <div class="island-container" id="island" onclick="handleGridClick(event)">
                 <div id="decorations-layer"></div>
@@ -273,24 +261,128 @@
 
     <script>
         // =====================================
+        // 🎵 原生音效引擎 (Web Audio API)
+        // =====================================
+        let audioCtx;
+        function initAudio() {
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+        }
+
+        function playTone(freq, type, duration, vol=0.1) {
+            if(!audioCtx) return;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + duration);
+        }
+
+        const sfx = {
+            correct: () => { playTone(523.25, 'sine', 0.1); setTimeout(() => playTone(659.25, 'sine', 0.1), 100); setTimeout(() => playTone(783.99, 'sine', 0.2), 200); },
+            wrong: () => { playTone(150, 'sawtooth', 0.3, 0.15); },
+            move: () => { playTone(300, 'sine', 0.05, 0.03); },
+            mine: () => { playTone(200, 'square', 0.1, 0.05); },
+            craft: () => { playTone(400, 'triangle', 0.1); setTimeout(() => playTone(800, 'triangle', 0.2), 100); }
+        };
+
+        // =====================================
+        // 🎙️ Azure 語音系統 (TTS)
+        // =====================================
+        const AZURE_KEY = "7rqTKvFwVlRmh84vQ8bQDNgPZjitlh44KMkom9ZMOAFYMWASiWngJQQJ99CIAC3pKaRXJ3w3AAAYACOGJ8DS";
+        const AZURE_REGION = "eastasia"; // 如非此區可修改
+        let isPlayingAudio = false;
+
+        async function playAzureTTS(textToRead) {
+            let btnStd = document.getElementById('tts-btn-std');
+            let btnRpg = document.getElementById('tts-btn-rpg');
+            
+            if(isPlayingAudio) return; // 避免重疊播放
+            isPlayingAudio = true;
+            if(btnStd) { btnStd.classList.add('playing'); btnStd.innerText = "🔊 播放中..."; }
+            if(btnRpg) { btnRpg.classList.add('playing'); btnRpg.innerText = "🔊 播放中..."; }
+
+            const url = `https://${AZURE_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
+            const headers = {
+                "Ocp-Apim-Subscription-Key": AZURE_KEY,
+                "Content-Type": "application/ssml+xml",
+                "X-Microsoft-OutputFormat": "audio-16khz-128kbitrate-mono-mp3"
+            };
+            const ssml = `<speak version='1.0' xml:lang='zh-HK'><voice xml:lang='zh-HK' xml:gender='Female' name='zh-HK-HiuMaanNeural'>${textToRead}</voice></speak>`;
+            
+            try {
+                const response = await fetch(url, { method: 'POST', headers: headers, body: ssml });
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const audioUrl = URL.createObjectURL(blob);
+                    const audio = new Audio(audioUrl);
+                    audio.onended = resetTTSBtn;
+                    audio.play();
+                } else {
+                    console.warn("Azure TTS 連線失敗，切換至瀏覽器內建語音。");
+                    fallbackTTS(textToRead);
+                }
+            } catch(e) {
+                console.warn("Azure TTS 發生錯誤，切換至瀏覽器內建語音。");
+                fallbackTTS(textToRead);
+            }
+        }
+
+        function fallbackTTS(text) {
+            let u = new SpeechSynthesisUtterance(text);
+            u.lang = 'zh-HK';
+            u.onend = resetTTSBtn;
+            speechSynthesis.speak(u);
+        }
+
+        function resetTTSBtn() {
+            isPlayingAudio = false;
+            let btnStd = document.getElementById('tts-btn-std');
+            let btnRpg = document.getElementById('tts-btn-rpg');
+            if(btnStd) { btnStd.classList.remove('playing'); btnStd.innerText = "🔊 朗讀題目"; }
+            if(btnRpg) { btnRpg.classList.remove('playing'); btnRpg.innerText = "🔊 朗讀"; }
+        }
+
+        function readQuestionTTS() {
+            if(!currentTargetData) return;
+            initAudio(); // 啟動音效引擎
+            let textToRead = "";
+            let mode = document.getElementById('standard-game').style.display === 'block' ? currentStdMode : rpgQuestType;
+
+            if (mode === 'meaning-to-word') {
+                textToRead = currentTargetData.meaning;
+            } else if (mode === 'word-to-meaning') {
+                textToRead = currentTargetData.word;
+            } else if (mode === 'sentence') {
+                // 將底線換成「什麼」讓朗讀順暢
+                textToRead = (currentTargetData.sentence || "").replace(/[＿【】_]+/g, "什麼");
+            } else if (mode === 'fill-blank') {
+                textToRead = currentTargetData.missingFormat.replace(/[＿_]+/g, "什麼");
+            }
+            if(textToRead) playAzureTTS(textToRead);
+        }
+
+        // =====================================
         // 💾 題庫系統與 Local Storage
-        // 內部屬性全部相容 word (詞語) 或 idiom
         // =====================================
         const defaultDatabaseRaw = [
             // Justin 單元一
-            { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。鼎，古代的煮食器具。", missingFormat: "人＿鼎沸", missingTarget: "聲", fillOptions: ["聲", "星", "生", "升"], sentence: "節日期間的年宵市場＿＿＿＿，熱鬧的景象令人難忘。" },
+            { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。", missingFormat: "人＿鼎沸", missingTarget: "聲", fillOptions: ["聲", "星", "生", "升"], sentence: "節日期間的年宵市場＿＿＿＿，熱鬧的景象令人難忘。" },
             { student: "Justin", unit: "單元一", word: "水泄不通", meaning: "連一滴水也流不出去，形容包圍緊密，也形容環境極度擁擠。", missingFormat: "水＿不通", missingTarget: "泄", fillOptions: ["泄", "洩", "瀉", "世"], sentence: "發生嚴重的交通事故後，這條主要幹道被車輛擠得＿＿＿＿。" },
             { student: "Justin", unit: "單元一", word: "日積月累", meaning: "指每天、每月地不斷積累。", missingFormat: "日＿月累", missingTarget: "積", fillOptions: ["積", "績", "擊", "激"], sentence: "學習語文必須依靠＿＿＿＿的閱讀和寫作，不能一蹴而就。" },
             { student: "Justin", unit: "單元一", word: "目不暇給", meaning: "形容眼前有太多美好的事物，或景物變化太快，眼睛來不及觀看。", missingFormat: "目不暇＿", missingTarget: "給", fillOptions: ["給", "及", "急", "級"], sentence: "博物館內展出的歷代珍貴文物種類繁多，實在令人＿＿＿＿。" },
             { student: "Justin", unit: "單元一", word: "世外桃源", meaning: "與世隔絕、開滿桃花的樂土。比喻風景優美的地方。", missingFormat: "世外桃＿", missingTarget: "源", fillOptions: ["源", "園", "原", "圓"], sentence: "經過長途跋涉，我們終於來到這條隱蔽於群山之間的村落，彷彿置身於＿＿＿＿。" },
-            { student: "Justin", unit: "單元一", word: "杳無人煙", meaning: "形容地方偏僻荒涼，無人居住。杳，深遠。人煙，居民。", missingFormat: "＿無人煙", missingTarget: "杳", fillOptions: ["杳", "查", "香", "杏"], sentence: "探險隊深入那片＿＿＿＿的原始森林進行考察。" },
+            { student: "Justin", unit: "單元一", word: "杳無人煙", meaning: "形容地方偏僻荒涼，無人居住。", missingFormat: "＿無人煙", missingTarget: "杳", fillOptions: ["杳", "查", "香", "杏"], sentence: "探險隊深入那片＿＿＿＿的原始森林進行考察。" },
             { student: "Justin", unit: "單元一", word: "風和日麗", meaning: "形容天氣晴朗和暖，十分宜人。", missingFormat: "風＿日麗", missingTarget: "和", fillOptions: ["和", "禾", "合", "何"], sentence: "在這個＿＿＿＿的週末，我們一家人決定前往西貢郊野公園遠足。" },
             { student: "Justin", unit: "單元一", word: "星羅棋布", meaning: "如羅列在天上的羣星，分佈在棋盤上的棋子。形容事物眾多而分散排列。", missingFormat: "星＿棋布", missingTarget: "羅", fillOptions: ["羅", "蘿", "鑼", "邏"], sentence: "登上太平山頂俯瞰維港兩岸，只見高樓大廈宛如＿＿＿＿般林立。" },
             { student: "Justin", unit: "單元一", word: "破瓦頹垣", meaning: "指屋瓦破損，牆垣倒塌。形容破敗荒涼的景象。", missingFormat: "破瓦頹＿", missingTarget: "垣", fillOptions: ["垣", "恆", "桓", "原"], sentence: "經過那場摧毀性的大地震後，原本繁榮的城鎮瞬間化為一片＿＿＿＿。" },
             { student: "Justin", unit: "單元一", word: "氣象萬千", meaning: "形容景象千變萬化，極為壯觀。", missingFormat: "氣象萬＿", missingTarget: "千", fillOptions: ["千", "天", "乾", "牽"], sentence: "站在黃山之巔觀賞雲海，只見雲霧在山峰間翻騰變幻，＿＿＿＿。" },
             { student: "Justin", unit: "單元一", word: "琳琅滿目", meaning: "形容滿眼所見都是美好而珍貴的東西。", missingFormat: "琳＿滿目", missingTarget: "琅", fillOptions: ["琅", "朗", "狼", "浪"], sentence: "展覽廳內陳列着＿＿＿＿的高科技產品，讓人大開眼界。" },
             { student: "Justin", unit: "單元一", word: "煥然一新", meaning: "形容散發光彩，呈現出新的面貌。", missingFormat: "＿然一新", missingTarget: "煥", fillOptions: ["煥", "換", "喚", "幻"], sentence: "經過社區活化工程後，這條原本殘舊破落的老街頓時＿＿＿＿。" },
-            { student: "Justin", unit: "單元一", word: "萬籟俱寂", meaning: "形容萬物無聲，一片寂靜。萬籟，自然界的各種聲音。", missingFormat: "萬＿俱寂", missingTarget: "籟", fillOptions: ["籟", "賴", "懶", "瀨"], sentence: "在＿＿＿＿的深夜裏，整座城市都陷入了沉睡，唯獨他還在挑燈夜戰。" },
+            { student: "Justin", unit: "單元一", word: "萬籟俱寂", meaning: "形容萬物無聲，一片寂靜。", missingFormat: "萬＿俱寂", missingTarget: "籟", fillOptions: ["籟", "賴", "懶", "瀨"], sentence: "在＿＿＿＿的深夜裏，整座城市都陷入了沉睡，唯獨他還在挑燈夜戰。" },
             { student: "Justin", unit: "單元一", word: "歷歷在目", meaning: "清楚明白地呈現在眼前。歷歷，清楚分明。", missingFormat: "歷歷在＿", missingTarget: "目", fillOptions: ["目", "木", "沐", "牧"], sentence: "雖然畢業已經十年，但當年與同學們在操場上共同奮鬥的情景，至今依然＿＿＿＿。" },
             { student: "Justin", unit: "單元一", word: "鑼鼓喧天", meaning: "本指鑼鼓聲音大得震天。現形容氣氛非常熱鬧。", missingFormat: "鑼鼓＿天", missingTarget: "喧", fillOptions: ["喧", "宣", "圈", "旋"], sentence: "為了慶祝國慶，主辦單位安排了盛大的舞龍表演，現場＿＿＿＿，氣氛高漲。" },
             // Justin 單元二
@@ -338,7 +430,6 @@
         let database = [];
         let currentDatabase = [];
 
-        // 初始化題庫，相容匯入舊版 idiom 格式
         function initDatabase() {
             let savedDB = localStorage.getItem('customVocabDB');
             if (savedDB) {
@@ -347,11 +438,7 @@
             } else {
                 database = JSON.parse(JSON.stringify(defaultDatabaseRaw));
             }
-            // 統一轉換 idiom 為 word
-            database = database.map(item => {
-                if(item.idiom) { item.word = item.idiom; delete item.idiom; }
-                return item;
-            });
+            database = database.map(item => { if(item.idiom) { item.word = item.idiom; delete item.idiom; } return item; });
             updateUnitDropdown();
         }
 
@@ -363,8 +450,7 @@
             let studentDB = (student === 'all') ? database : database.filter(item => item.student === student);
             let units = [...new Set(studentDB.map(item => item.unit || "未分類"))];
             units.forEach(u => {
-                let opt = document.createElement('option'); opt.value = u; opt.innerText = u;
-                select.appendChild(opt);
+                let opt = document.createElement('option'); opt.value = u; opt.innerText = u; select.appendChild(opt);
             });
             updateScopeInfo();
         }
@@ -374,27 +460,20 @@
             let unit = document.getElementById('unit-select').value;
             let filteredDB = (student === 'all') ? database : database.filter(item => item.student === student);
             currentDatabase = (unit === 'all') ? filteredDB : filteredDB.filter(item => item.unit === unit);
-            document.getElementById('scope-info').innerText = `這個範圍共有 ${currentDatabase.length} 個詞語/字詞。`;
+            document.getElementById('scope-info').innerText = `這個範圍共有 ${currentDatabase.length} 個字詞。`;
         }
 
-        function openDBManager() {
-            document.getElementById('db-textarea').value = JSON.stringify(database, null, 4);
-            document.getElementById('db-modal').style.display = 'flex';
-        }
-
+        function openDBManager() { document.getElementById('db-textarea').value = JSON.stringify(database, null, 4); document.getElementById('db-modal').style.display = 'flex'; }
         function closeDBManager() { document.getElementById('db-modal').style.display = 'none'; }
-
         function saveCustomDB() {
             try {
                 let newDB = JSON.parse(document.getElementById('db-textarea').value);
                 if (!Array.isArray(newDB) || newDB.length === 0) throw new Error("必須是包含資料的陣列格式");
                 database = newDB.map(item => { if(item.idiom) { item.word = item.idiom; delete item.idiom; } return item; });
                 localStorage.setItem('customVocabDB', JSON.stringify(database));
-                updateUnitDropdown(); closeDBManager();
-                alert("題庫已成功更新並儲存於瀏覽器！");
+                updateUnitDropdown(); closeDBManager(); alert("題庫已成功更新並儲存於瀏覽器！");
             } catch(e) { alert("儲存失敗！JSON 格式有誤。\n錯誤訊息: " + e.message); }
         }
-
         function resetToDefaultDB() {
             if(confirm("確定要還原成預設題庫嗎？這將覆蓋你目前的所有自訂題庫。")) {
                 database = JSON.parse(JSON.stringify(defaultDatabaseRaw));
@@ -412,11 +491,8 @@
         // =====================================
         let emeralds = 0; 
         let materials = { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 }; 
-        let inventory = {}; 
-        let placedDecorations = []; 
-        let selectedHotbarItem = null; 
+        let inventory = {}; let placedDecorations = []; let selectedHotbarItem = null; 
 
-        // 13 種全新合成配方
         const craftRecipes = [
             { id: 'wood_plank', name: '木板', icon: '🧱', cost: {log: 1}, desc: '建造地基 (🪵x1)' },
             { id: 'stone_brick', name: '石磚', icon: '🪨', cost: {stone: 1}, desc: '堅固外牆 (🪨x1)' },
@@ -438,19 +514,12 @@
         let isQuestionActive = false; let currentTargetData = null;
 
         function updateMaterialUI() {
-            document.getElementById('em-menu').innerText = emeralds;
-            document.getElementById('em-std').innerText = emeralds;
-            document.getElementById('mat-em').innerText = emeralds;
-            document.getElementById('mat-log').innerText = materials.log;
-            document.getElementById('mat-stone').innerText = materials.stone;
-            document.getElementById('mat-fiber').innerText = materials.fiber;
-            document.getElementById('mat-sand').innerText = materials.sand;
-            document.getElementById('mat-clay').innerText = materials.clay;
-            document.getElementById('mat-iron').innerText = materials.iron;
-            document.getElementById('mat-gold').innerText = materials.gold;
+            document.getElementById('em-menu').innerText = emeralds; document.getElementById('em-std').innerText = emeralds; document.getElementById('mat-em').innerText = emeralds;
+            document.getElementById('mat-log').innerText = materials.log; document.getElementById('mat-stone').innerText = materials.stone; document.getElementById('mat-fiber').innerText = materials.fiber;
+            document.getElementById('mat-sand').innerText = materials.sand; document.getElementById('mat-clay').innerText = materials.clay; document.getElementById('mat-iron').innerText = materials.iron; document.getElementById('mat-gold').innerText = materials.gold;
         }
 
-        function goToMenu() { document.querySelectorAll('.page').forEach(p => p.style.display = 'none'); document.getElementById('main-dashboard').style.display = 'block'; }
+        function goToMenu() { document.querySelectorAll('.page').forEach(p => p.style.display = 'none'); document.getElementById('main-dashboard').style.display = 'block'; resetTTSBtn();}
         
         function restartGame() {
             if(confirm("確定要重新開始嗎？所有的素材、進度與島嶼方塊都會被清空！")) {
@@ -461,10 +530,11 @@
         }
 
         // =====================================
-        // 📚 標準模式邏輯 (賺取寶石)
+        // 📚 標準模式邏輯
         // =====================================
         let currentStdMode = "";
         function startStandardGame(mode) {
+            initAudio(); // 啟動音效
             if(currentDatabase.length === 0) return alert("目前範圍沒有題目！");
             currentStdMode = mode;
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
@@ -475,8 +545,7 @@
         }
 
         function loadStandardQuestion() {
-            document.getElementById('std-next-btn').style.display = 'none';
-            document.getElementById('feedback-std').innerText = "";
+            document.getElementById('std-next-btn').style.display = 'none'; document.getElementById('feedback-std').innerText = "";
             let optionsContainer = document.getElementById('options-container'); optionsContainer.innerHTML = "";
             currentTargetData = currentDatabase[Math.floor(Math.random() * currentDatabase.length)];
             let options = [];
@@ -484,20 +553,19 @@
             if (currentStdMode === 'meaning-to-word') {
                 document.getElementById('question-text-std').innerText = currentTargetData.meaning;
                 options = generateOptions(currentTargetData.word, 'word');
-                renderStdButtons(options, "std-option-btn");
             } else if (currentStdMode === 'word-to-meaning') {
                 document.getElementById('question-text-std').innerText = currentTargetData.word;
                 options = generateOptions(currentTargetData.meaning, 'meaning');
-                renderStdButtons(options, "std-option-btn");
             } else if (currentStdMode === 'sentence') {
                 document.getElementById('question-text-std').innerText = (currentTargetData.sentence || "沒有例句").replace("＿＿＿＿", "【 ＿＿ 】");
                 options = generateOptions(currentTargetData.word, 'word');
-                renderStdButtons(options, "std-option-btn");
             } else if (currentStdMode === 'fill-blank') {
                 document.getElementById('question-text-std').innerText = currentTargetData.missingFormat;
                 options = [...currentTargetData.fillOptions].sort(() => 0.5 - Math.random());
-                renderStdButtons(options, "std-char-block");
             }
+            renderStdButtons(options, "std-option-btn");
+            // 自動為新題目準備音效
+            resetTTSBtn();
         }
 
         function renderStdButtons(optionsArray, className) {
@@ -515,11 +583,13 @@
             Array.from(document.getElementById('options-container').children).forEach(btn => { btn.style.pointerEvents = 'none'; if(btn.className !== "std-char-block") btn.style.filter = 'brightness(0.8)'; });
 
             if(selectedText === correctAnswer) {
+                sfx.correct(); // 播放正確音效
                 feedback.innerText = "✅ 答對了！獲得 5 綠寶石！"; feedback.style.color = "#2e7d32";
                 if(clickedElement.className !== "std-char-block") clickedElement.style.backgroundColor = "#c5e1a5";
                 emeralds += 5; updateMaterialUI();
                 if (currentStdMode === 'fill-blank') document.getElementById('question-text-std').innerText = currentTargetData.missingFormat.replace("＿", `【${correctAnswer}】`);
             } else {
+                sfx.wrong(); // 播放錯誤音效
                 feedback.innerText = "❌ 答錯了，答案是：\n" + correctAnswer; feedback.style.color = "#d32f2f";
                 if(clickedElement.className !== "std-char-block") clickedElement.style.backgroundColor = "#ffcdd2";
             }
@@ -530,15 +600,12 @@
         // ⛏️ RPG 模式邏輯
         // =====================================
         function updateGridSize() {
-            let island = document.getElementById('island');
-            let sizePx = (gridSize * TILE_SIZE) + 'px';
-            island.style.width = sizePx; 
-            island.style.height = sizePx;
-            island.style.minWidth = sizePx; 
-            island.style.minHeight = sizePx;
+            let island = document.getElementById('island'); let sizePx = (gridSize * TILE_SIZE) + 'px';
+            island.style.width = sizePx; island.style.height = sizePx; island.style.minWidth = sizePx; island.style.minHeight = sizePx;
         }
 
         function startRPGGame() {
+            initAudio(); // 啟動音效
             if(currentDatabase.length === 0) return alert("目前範圍沒有題目！");
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
             document.getElementById('rpg-game').style.display = 'block';
@@ -546,29 +613,21 @@
         }
 
         function loadRPGQuest() {
-            isQuestionActive = true;
-            document.getElementById('rpg-next-btn').style.display = 'none';
-            document.getElementById('rpg-controls').style.display = 'flex';
-            document.getElementById('feedback-rpg').innerText = "用方向鍵或直接點擊地圖移動！答對即可獲得隨機素材！";
-            document.getElementById('feedback-rpg').style.color = "#d32f2f";
+            isQuestionActive = true; resetTTSBtn();
+            document.getElementById('rpg-next-btn').style.display = 'none'; document.getElementById('rpg-controls').style.display = 'flex';
+            document.getElementById('feedback-rpg').innerText = "用方向鍵或直接點擊地圖移動！答對即可獲得隨機素材！"; document.getElementById('feedback-rpg').style.color = "#d32f2f";
             
             currentTargetData = currentDatabase[Math.floor(Math.random() * currentDatabase.length)];
             const types = ['meaning-to-word', 'word-to-meaning', 'fill-blank', 'sentence'];
             rpgQuestType = types[Math.floor(Math.random() * types.length)];
             
             let title = "", question = "", rawOptions = [], actualCorrectAnswer = "";
-            if (rpgQuestType === 'meaning-to-word') {
-                title = "📜 任務：尋找匹配詞語"; question = currentTargetData.meaning; actualCorrectAnswer = currentTargetData.word; rawOptions = generateOptions(currentTargetData.word, 'word');
-            } else if (rpgQuestType === 'word-to-meaning') {
-                title = "📜 任務：解讀告示牌"; question = currentTargetData.word; actualCorrectAnswer = currentTargetData.meaning; rawOptions = generateOptions(currentTargetData.meaning, 'meaning');
-            } else if (rpgQuestType === 'fill-blank') {
-                title = "📜 任務：修補殘缺詞語"; question = currentTargetData.missingFormat; actualCorrectAnswer = currentTargetData.missingTarget; rawOptions = [...currentTargetData.fillOptions].sort(() => 0.5 - Math.random());
-            } else if (rpgQuestType === 'sentence') {
-                title = "📜 任務：填補情境對白"; question = (currentTargetData.sentence || "無例句").replace("＿＿＿＿", "【 ＿＿ 】"); actualCorrectAnswer = currentTargetData.word; rawOptions = generateOptions(currentTargetData.word, 'word');
-            }
+            if (rpgQuestType === 'meaning-to-word') { title = "📜 任務：尋找匹配字詞"; question = currentTargetData.meaning; actualCorrectAnswer = currentTargetData.word; rawOptions = generateOptions(currentTargetData.word, 'word');
+            } else if (rpgQuestType === 'word-to-meaning') { title = "📜 任務：解讀告示牌"; question = currentTargetData.word; actualCorrectAnswer = currentTargetData.meaning; rawOptions = generateOptions(currentTargetData.meaning, 'meaning');
+            } else if (rpgQuestType === 'fill-blank') { title = "📜 任務：修補殘缺字詞"; question = currentTargetData.missingFormat; actualCorrectAnswer = currentTargetData.missingTarget; rawOptions = [...currentTargetData.fillOptions].sort(() => 0.5 - Math.random());
+            } else if (rpgQuestType === 'sentence') { title = "📜 任務：填補情境對白"; question = (currentTargetData.sentence || "無例句").replace("＿＿＿＿", "【 ＿＿ 】"); actualCorrectAnswer = currentTargetData.word; rawOptions = generateOptions(currentTargetData.word, 'word'); }
 
-            document.getElementById('rpg-mission-title').innerText = title;
-            document.getElementById('rpg-question-text').innerText = question;
+            document.getElementById('rpg-mission-title').innerText = title; document.getElementById('rpg-question-text').innerText = question;
             
             const letters = ["A", "B", "C", "D"]; let choicesHTML = "";
             rawOptions.forEach((opt, idx) => { choicesHTML += `<div>[${letters[idx]}] ${opt}</div>`; if (opt === actualCorrectAnswer) rpgCorrectAnswer = letters[idx]; });
@@ -582,8 +641,7 @@
                 let randX, randY;
                 do { randX = Math.floor(Math.random() * gridSize); randY = Math.floor(Math.random() * gridSize); } while ((randX === pX && randY === pY) || questBlocks.some(b => b.x === randX && b.y === randY));
                 el.style.left = (randX * TILE_SIZE) + 'px'; el.style.top = (randY * TILE_SIZE) + 'px';
-                document.getElementById('island').appendChild(el);
-                questBlocks.push({ element: el, label: label, x: randX, y: randY, broken: false });
+                document.getElementById('island').appendChild(el); questBlocks.push({ element: el, label: label, x: randX, y: randY, broken: false });
             });
         }
 
@@ -601,31 +659,27 @@
             let nextX = pX + dx; let nextY = pY + dy;
             if (nextX < 0 || nextX >= gridSize || nextY < 0 || nextY >= gridSize) return;
             let block = questBlocks.find(b => b.x === nextX && b.y === nextY && !b.broken);
+            
+            sfx.move(); // 播放走路聲
+            
             if (block) mineBlock(block); else { pX = nextX; pY = nextY; updatePlayerDOM(); }
         }
 
         function mineBlock(block) {
             let feedback = document.getElementById('feedback-rpg');
             if (block.label === rpgCorrectAnswer) {
-                block.broken = true; block.element.classList.add('broken');
-                isQuestionActive = false; 
+                sfx.mine(); setTimeout(sfx.correct, 150); // 挖礦聲 + 正確聲
+                block.broken = true; block.element.classList.add('broken'); isQuestionActive = false; 
                 
-                // 💎 優化：隨機掉落 1~2 個素材，並加入稀有礦石
+                // 💎 隨機掉落 1~2 個素材
                 let dropCounts = {log:0, stone:0, fiber:0, sand:0, clay:0, iron:0, gold:0};
                 let dropPool = ['log','log','stone','stone','fiber','fiber','sand','sand','clay','clay','iron','gold'];
                 let numDrops = Math.floor(Math.random() * 2) + 1; // 1 to 2 items
-                for(let i=0; i<numDrops; i++) {
-                    let t = dropPool[Math.floor(Math.random() * dropPool.length)];
-                    dropCounts[t]++; materials[t]++;
-                }
-                emeralds += 2; // RPG模式給少量寶石輔助
-                updateMaterialUI();
+                for(let i=0; i<numDrops; i++) { let t = dropPool[Math.floor(Math.random() * dropPool.length)]; dropCounts[t]++; materials[t]++; }
+                emeralds += 2; updateMaterialUI();
                 
                 let icons = {log:'🪵', stone:'🪨', fiber:'🌾', sand:'🏜️', clay:'🧱', iron:'🪙', gold:'🌟'};
-                let dropMsg = [];
-                for(let key in dropCounts) {
-                    if(dropCounts[key] > 0) dropMsg.push(`${icons[key]}x${dropCounts[key]}`);
-                }
+                let dropMsg = []; for(let key in dropCounts) { if(dropCounts[key] > 0) dropMsg.push(`${icons[key]}x${dropCounts[key]}`); }
                 feedback.innerHTML = `<span style="color:#2e7d32">✨ 採集成功！獲得: ${dropMsg.join(' ')} 及 ❇️x2</span>`;
                 
                 let realAnsText = Array.from(document.getElementById('mc-choices').children).find(div => div.innerText.startsWith(`[${rpgCorrectAnswer}]`)).innerText.substring(4); 
@@ -633,13 +687,11 @@
                 else if(rpgQuestType === 'sentence') document.getElementById('rpg-question-text').innerText = currentTargetData.sentence.replace("＿＿＿＿", `【${realAnsText}】`);
                 document.getElementById('rpg-controls').style.display = 'none'; document.getElementById('rpg-next-btn').style.display = 'block';
             } else {
+                sfx.wrong(); // 錯誤聲
                 block.element.classList.add('wrong'); feedback.innerText = "💥 鏗！這是錯誤的方塊..."; feedback.style.color = "#d32f2f";
             }
         }
 
-        // =====================================
-        // 🔨 建築與合成面板
-        // =====================================
         function handleGridClick(e) {
             const rect = document.getElementById('island').getBoundingClientRect();
             const targetX = Math.floor((e.clientX - rect.left) / TILE_SIZE);
@@ -647,6 +699,8 @@
 
             if (selectedHotbarItem && inventory[selectedHotbarItem] > 0) {
                 if (questBlocks.some(b => b.x === targetX && b.y === targetY && !b.broken)) return;
+                
+                sfx.mine(); // 放置方塊的聲音
                 inventory[selectedHotbarItem]--;
                 let catItem = craftRecipes.find(c => c.id === selectedHotbarItem);
                 placedDecorations.push({ icon: catItem.icon, x: targetX, y: targetY });
@@ -660,6 +714,9 @@
             else if (Math.abs(diffY) > 0) movePlayer(0, diffY > 0 ? 1 : -1);
         }
 
+        // =====================================
+        // 🔨 建築與合成面板
+        // =====================================
         function renderHotbar() {
             let hb = document.getElementById('hotbar'); hb.innerHTML = ""; let itemKeys = Object.keys(inventory);
             for(let i=0; i<Math.max(5, itemKeys.length); i++) {
@@ -685,10 +742,7 @@
             });
         }
 
-        function openCrafting() { 
-            document.getElementById('craft-modal').style.display = 'flex'; 
-            updateMaterialUI(); renderCraftItems(); 
-        }
+        function openCrafting() { document.getElementById('craft-modal').style.display = 'flex'; updateMaterialUI(); renderCraftItems(); }
         function closeCrafting() { document.getElementById('craft-modal').style.display = 'none'; }
         
         function canAffordCraft(cost) {
@@ -706,30 +760,14 @@
         function renderCraftItems() {
             let container = document.getElementById('craft-items-container'); container.innerHTML = "";
             craftRecipes.forEach(item => {
-                let card = document.createElement('div'); card.className = "craft-card"; 
-                let canAfford = canAffordCraft(item.cost);
-                
+                let card = document.createElement('div'); card.className = "craft-card"; let canAfford = canAffordCraft(item.cost);
                 let costMsg = [];
-                if(item.cost.log) costMsg.push(`🪵${item.cost.log}`);
-                if(item.cost.stone) costMsg.push(`🪨${item.cost.stone}`);
-                if(item.cost.fiber) costMsg.push(`🌾${item.cost.fiber}`);
-                if(item.cost.sand) costMsg.push(`🏜️${item.cost.sand}`);
-                if(item.cost.clay) costMsg.push(`🧱${item.cost.clay}`);
-                if(item.cost.iron) costMsg.push(`🪙${item.cost.iron}`);
-                if(item.cost.gold) costMsg.push(`🌟${item.cost.gold}`);
-                if(item.cost.emerald) costMsg.push(`❇️${item.cost.emerald}`);
+                if(item.cost.log) costMsg.push(`🪵${item.cost.log}`); if(item.cost.stone) costMsg.push(`🪨${item.cost.stone}`);
+                if(item.cost.fiber) costMsg.push(`🌾${item.cost.fiber}`); if(item.cost.sand) costMsg.push(`🏜️${item.cost.sand}`);
+                if(item.cost.clay) costMsg.push(`🧱${item.cost.clay}`); if(item.cost.iron) costMsg.push(`🪙${item.cost.iron}`);
+                if(item.cost.gold) costMsg.push(`🌟${item.cost.gold}`); if(item.cost.emerald) costMsg.push(`❇️${item.cost.emerald}`);
 
-                card.innerHTML = `
-                    <div class="craft-item-top">
-                        <div class="craft-item-icon">${item.icon}</div>
-                        <div class="craft-item-info">
-                            <h4>${item.name}</h4>
-                            <p>${item.desc}</p>
-                            <div class="craft-cost">需求：${costMsg.join(' ')}</div>
-                        </div>
-                    </div>
-                    <button class="craft-buy-btn" ${canAfford ? '' : 'disabled'} onclick="craftItem('${item.id}')">🔨 合成</button>
-                `;
+                card.innerHTML = `<div class="craft-item-top"><div class="craft-item-icon">${item.icon}</div><div class="craft-item-info"><h4>${item.name}</h4><p>${item.desc}</p><div class="craft-cost">需求：${costMsg.join(' ')}</div></div></div><button class="craft-buy-btn" ${canAfford ? '' : 'disabled'} onclick="craftItem('${item.id}')">🔨 合成</button>`;
                 container.appendChild(card);
             });
         }
@@ -737,21 +775,14 @@
         function craftItem(itemId) {
             let item = craftRecipes.find(i => i.id === itemId);
             if (canAffordCraft(item.cost)) {
-                if(item.cost.log) materials.log -= item.cost.log;
-                if(item.cost.stone) materials.stone -= item.cost.stone;
-                if(item.cost.fiber) materials.fiber -= item.cost.fiber;
-                if(item.cost.sand) materials.sand -= item.cost.sand;
-                if(item.cost.clay) materials.clay -= item.cost.clay;
-                if(item.cost.iron) materials.iron -= item.cost.iron;
-                if(item.cost.gold) materials.gold -= item.cost.gold;
-                if(item.cost.emerald) emeralds -= item.cost.emerald;
+                sfx.craft(); // 播放合成音效
+                if(item.cost.log) materials.log -= item.cost.log; if(item.cost.stone) materials.stone -= item.cost.stone;
+                if(item.cost.fiber) materials.fiber -= item.cost.fiber; if(item.cost.sand) materials.sand -= item.cost.sand;
+                if(item.cost.clay) materials.clay -= item.cost.clay; if(item.cost.iron) materials.iron -= item.cost.iron;
+                if(item.cost.gold) materials.gold -= item.cost.gold; if(item.cost.emerald) emeralds -= item.cost.emerald;
                 
-                if (item.type === 'upgrade' && itemId === 'expand') { 
-                    gridSize += 2; updateGridSize(); alert("綠地已成功擴大！"); 
-                } else { 
-                    if(!inventory[itemId]) inventory[itemId] = 0; 
-                    inventory[itemId]++; renderHotbar(); 
-                }
+                if (item.type === 'upgrade' && itemId === 'expand') { gridSize += 2; updateGridSize(); alert("綠地已成功擴大！"); } 
+                else { if(!inventory[itemId]) inventory[itemId] = 0; inventory[itemId]++; renderHotbar(); }
                 updateMaterialUI(); renderCraftItems();
             }
         }
