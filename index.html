@@ -98,12 +98,6 @@
         .db-modal, .craft-modal { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 50; justify-content: center; align-items: center; padding: 10px; }
         .db-wrapper, .craft-wrapper { background: #fff; width: 100%; max-width: 700px; max-height: 90vh; border-radius: 12px; padding: 20px; text-align: left; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto;}
         
-        /* 題庫管理特別樣式 */
-        .settings-block { background: #f0f0f0; border: 2px solid #ccc; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
-        .settings-block label { font-weight: bold; font-size: 14px; color: #333; display: block; margin-bottom: 5px; }
-        .settings-block input { width: 100%; padding: 8px; font-size: 14px; border: 1px solid #aaa; border-radius: 4px; box-sizing: border-box; }
-        .settings-block .hint { font-size: 12px; color: #666; margin-top: 5px; }
-
         .db-actions { display: flex; justify-content: space-between; margin-top: 15px; gap: 8px; flex-wrap: wrap; }
         .db-actions button { padding: 10px 15px; font-size: 15px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; }
         .db-actions-right { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -216,21 +210,15 @@
         <div class="db-wrapper">
             <h2>⚙️ 家長專區：設定與自訂題庫</h2>
             
-            <div class="settings-block">
-                <label>🔑 Azure 語音 API 金鑰 (選填)</label>
-                <input type="text" id="azure-key-input" placeholder="輸入金鑰 (例如 7rqTKv...)">
-                <p class="hint">如果不輸入，系統會自動使用內建的語音通道發聲。</p>
-            </div>
-
-            <p style="font-size: 14px; font-weight: bold; color: #333;">📚 題庫資料 (JSON格式)：</p>
-            <textarea id="db-textarea" style="flex-grow: 1; min-height: 200px; font-family: monospace; padding: 10px;"></textarea>
+            <p style="font-size: 14px; font-weight: bold; color: #333; margin-top: 10px;">📚 題庫資料 (JSON格式)：</p>
+            <textarea id="db-textarea" style="flex-grow: 1; min-height: 350px; font-family: monospace; padding: 10px;"></textarea>
             
             <div class="db-actions">
                 <button class="btn-cancel" onclick="closeDBManager()">取消</button>
                 <div class="db-actions-right">
                     <button class="btn-clear" onclick="clearDBTextarea()">🗑️ 清除全部</button>
                     <button class="btn-reset" onclick="resetToDefaultDB()">還原</button>
-                    <button class="btn-save" onclick="saveCustomDB()">💾 儲存</button>
+                    <button class="btn-save" onclick="saveCustomDB()">💾 儲存並套用</button>
                 </div>
             </div>
         </div>
@@ -370,69 +358,12 @@
         };
 
         // =====================================
-        // 🎙️ Azure 內建語音系統 (智能防攔截技術)
+        // 🎙️ 原生瀏覽器語音系統 (100% 免費無金鑰)
         // =====================================
         let isPlayingAudio = false;
 
-        const AZURE_KEY_PART1 = "7rqTKvFwVlRmh84vQ8bQDNgPZ";
-        const AZURE_KEY_PART2 = "jitlh44KMkom9ZMOAFYMWASiW";
-        const AZURE_KEY_PART3 = "ngJQQJ99CIAC3pKaRXJ3w3AAAYACOGJ8DS";
-        
-        async function playAzureTTS(textToRead) {
-            let btnStd = document.getElementById('tts-btn-std');
-            let btnRpg = document.getElementById('tts-btn-rpg');
-            
-            if(isPlayingAudio) return; 
-            isPlayingAudio = true;
-            if(btnStd) { btnStd.classList.add('playing'); btnStd.innerText = "🔊 播放中..."; }
-            if(btnRpg) { btnRpg.classList.add('playing'); btnRpg.innerText = "🔊 播放中..."; }
-
-            let userKey = localStorage.getItem('azureKey') || "";
-            let finalKey = userKey.trim() !== "" ? userKey.trim() : (AZURE_KEY_PART1 + AZURE_KEY_PART2 + AZURE_KEY_PART3);
-
-            const url = `https://eastasia.tts.speech.microsoft.com/cognitiveservices/v1`;
-            const headers = {
-                "Ocp-Apim-Subscription-Key": finalKey,
-                "Content-Type": "application/ssml+xml",
-                "X-Microsoft-OutputFormat": "audio-16khz-128kbitrate-mono-mp3"
-            };
-            const ssml = `<speak version='1.0' xml:lang='zh-HK'><voice xml:lang='zh-HK' xml:gender='Female' name='zh-HK-HiuMaanNeural'>${textToRead}</voice></speak>`;
-            
-            try {
-                const response = await fetch(url, { method: 'POST', headers: headers, body: ssml });
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const audioUrl = URL.createObjectURL(blob);
-                    const audio = new Audio(audioUrl);
-                    audio.onended = resetTTSBtn;
-                    audio.play();
-                } else {
-                    console.warn("Azure TTS 連線失敗，切換至瀏覽器內建語音。");
-                    fallbackTTS(textToRead);
-                }
-            } catch(e) {
-                console.warn("Azure TTS 發生錯誤，切換至瀏覽器內建語音。");
-                fallbackTTS(textToRead);
-            }
-        }
-
-        function fallbackTTS(text) {
-            let u = new SpeechSynthesisUtterance(text);
-            u.lang = 'zh-HK';
-            u.onend = resetTTSBtn;
-            speechSynthesis.speak(u);
-        }
-
-        function resetTTSBtn() {
-            isPlayingAudio = false;
-            let btnStd = document.getElementById('tts-btn-std');
-            let btnRpg = document.getElementById('tts-btn-rpg');
-            if(btnStd) { btnStd.classList.remove('playing'); btnStd.innerText = "🔊 朗讀題目"; }
-            if(btnRpg) { btnRpg.classList.remove('playing'); btnRpg.innerText = "🔊 朗讀"; }
-        }
-
         function readQuestionTTS() {
-            if(!currentTargetData) return;
+            if(!currentTargetData || isPlayingAudio) return;
             initAudio(); 
             let textToRead = "";
             let mode = document.getElementById('standard-game').style.display === 'block' ? currentStdMode : rpgQuestType;
@@ -442,7 +373,27 @@
             else if (mode === 'sentence') textToRead = (currentTargetData.sentence || "").replace(/[＿【】_]+/g, "什麼");
             else if (mode === 'fill-blank') textToRead = currentTargetData.missingFormat.replace(/[＿_]+/g, "什麼");
             
-            if(textToRead) playAzureTTS(textToRead);
+            if(textToRead) {
+                isPlayingAudio = true;
+                let btnStd = document.getElementById('tts-btn-std');
+                let btnRpg = document.getElementById('tts-btn-rpg');
+                if(btnStd) { btnStd.classList.add('playing'); btnStd.innerText = "🔊 播放中..."; }
+                if(btnRpg) { btnRpg.classList.add('playing'); btnRpg.innerText = "🔊 播放中..."; }
+
+                let u = new SpeechSynthesisUtterance(textToRead);
+                u.lang = 'zh-HK';
+                u.onend = resetTTSBtn;
+                u.onerror = resetTTSBtn;
+                speechSynthesis.speak(u);
+            }
+        }
+
+        function resetTTSBtn() {
+            isPlayingAudio = false;
+            let btnStd = document.getElementById('tts-btn-std');
+            let btnRpg = document.getElementById('tts-btn-rpg');
+            if(btnStd) { btnStd.classList.remove('playing'); btnStd.innerText = "🔊 朗讀題目"; }
+            if(btnRpg) { btnRpg.classList.remove('playing'); btnRpg.innerText = "🔊 朗讀"; }
         }
 
         // =====================================
@@ -545,9 +496,9 @@
 
         function openDBManager() { 
             document.getElementById('db-textarea').value = JSON.stringify(database, null, 4); 
-            document.getElementById('azure-key-input').value = localStorage.getItem('azureKey') || "";
             document.getElementById('db-modal').style.display = 'flex'; 
         }
+        
         function closeDBManager() { document.getElementById('db-modal').style.display = 'none'; }
         
         // 🧹 清除全部功能
@@ -559,14 +510,11 @@
 
         function saveCustomDB() {
             try {
-                let key = document.getElementById('azure-key-input').value.trim();
-                localStorage.setItem('azureKey', key);
-
                 let newDB = JSON.parse(document.getElementById('db-textarea').value);
                 if (!Array.isArray(newDB) || newDB.length === 0) throw new Error("必須是包含資料的陣列格式");
                 database = newDB.map(item => { if(item.idiom) { item.word = item.idiom; delete item.idiom; } return item; });
                 localStorage.setItem('customVocabDB', JSON.stringify(database));
-                updateUnitDropdown(); closeDBManager(); alert("設定與題庫已成功更新並儲存於瀏覽器！");
+                updateUnitDropdown(); closeDBManager(); alert("題庫已成功更新並儲存於瀏覽器！");
             } catch(e) { alert("儲存失敗！JSON 格式有誤。\n錯誤訊息: " + e.message); }
         }
 
