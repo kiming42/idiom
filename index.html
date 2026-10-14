@@ -217,7 +217,7 @@
                 <button class="btn-cancel" onclick="closeDBManager()">取消</button>
                 <div class="db-actions-right">
                     <button class="btn-clear" onclick="clearDBTextarea()">🗑️ 清除全部</button>
-                    <button class="btn-reset" onclick="resetToDefaultDB()">還原</button>
+                    <button class="btn-reset" onclick="resetToDefaultDB()">還原預設</button>
                     <button class="btn-save" onclick="saveCustomDB()">💾 儲存並套用</button>
                 </div>
             </div>
@@ -381,7 +381,7 @@
                 if(btnRpg) { btnRpg.classList.add('playing'); btnRpg.innerText = "🔊 播放中..."; }
 
                 let u = new SpeechSynthesisUtterance(textToRead);
-                u.lang = 'zh-HK';
+                u.lang = 'zh-HK'; // 強制使用廣東話
                 u.onend = resetTTSBtn;
                 u.onerror = resetTTSBtn;
                 speechSynthesis.speak(u);
@@ -449,10 +449,24 @@
             { student: "Justin", unit: "單元三", word: "驚心動魄", meaning: "指人內心感受極深，震撼很大。", missingFormat: "驚心動＿", missingTarget: "魄", fillOptions: ["魄", "魂", "拍", "百"], sentence: "這部動作電影裏的飛車追逐和爆炸場面實在太＿＿＿＿了，看得觀眾手心直冒汗。" },
             { student: "Justin", unit: "單元三", word: "樂極生悲", meaning: "歡樂到極點後，轉而發生令人悲傷的事情。", missingFormat: "樂極生＿", missingTarget: "悲", fillOptions: ["悲", "杯", "碑", "卑"], sentence: "大家在派對上玩得太興奮而忽略了安全，結果導致有人摔傷，真是＿＿＿＿。" },
 
-            // 峰 的示範題庫
-            { student: "峰", unit: "測驗範圍", word: "井底之蛙", meaning: "比喻見識淺薄的人。", missingFormat: "井底之＿", missingTarget: "蛙", fillOptions: ["蛙", "娃", "鞋", "龜"], sentence: "多去世界各地旅行，才不會讓自己成為＿＿＿＿。" },
-            { student: "峰", unit: "測驗範圍", word: "守株待兔", meaning: "比喻拘泥守成，不知變通或妄想不勞而獲。", missingFormat: "守＿待兔", missingTarget: "株", fillOptions: ["株", "珠", "樹", "豬"], sentence: "如果不努力學習，只想＿＿＿＿等好成績，是不可能的。" },
-            
+            // 峰 的題庫
+            { student: "峰", unit: "最新單元", word: "心往神馳", meaning: "形容心神嚮往，完全被吸引。", missingFormat: "心往神＿", missingTarget: "馳", fillOptions: ["馳", "池", "遲", "詞"], sentence: "看著這幅美麗的風景畫，真令人＿＿＿＿。" },
+            { student: "峰", unit: "最新單元", word: "一成不變", meaning: "指守舊不變或固守常規。", missingFormat: "一成不＿", missingTarget: "變", fillOptions: ["變", "辨", "辯", "遍"], sentence: "社會每天都在發展，我們不能用＿＿＿＿的眼光看待事物。" },
+            { student: "峰", unit: "最新單元", word: "手足之情", meaning: "兄弟間的情誼。", missingFormat: "＿足之情", missingTarget: "手", fillOptions: ["手", "首", "守", "受"], sentence: "他們倆雖然沒有血緣關係，卻有著深厚的＿＿＿＿。" },
+            { student: "峰", unit: "最新單元", word: "亡羊補牢", meaning: "比喻出了問題以後想辦法補救，可以防止繼續受損失。", missingFormat: "亡羊補＿", missingTarget: "牢", fillOptions: ["牢", "勞", "撈", "爐"], sentence: "雖然這次測驗成績不理想，但只要現在開始努力，＿＿＿＿，下次一定能考好。" },
+            { student: "峰", unit: "最新單元", word: "七嘴八舌", meaning: "形容人多口雜，議論紛紛。", missingFormat: "七嘴八＿", missingTarget: "舌", fillOptions: ["舌", "薛", "設", "泄"], sentence: "老師一宣佈要去旅行，同學們就＿＿＿＿地討論起來。" },
+            { student: "峰", unit: "最新單元", word: "不翼而飛", meaning: "沒有翅膀卻飛走了。比喻物品忽然丟失。", missingFormat: "不＿而飛", missingTarget: "翼", fillOptions: ["翼", "亦", "易", "液"], sentence: "我剛才放在桌子上的橡皮擦，怎麼一轉眼就＿＿＿＿了？" },
+            { student: "峰", unit: "最新單元", word: "不拘小節", meaning: "不被生活上的小事所約束。", missingFormat: "不拘小＿", missingTarget: "節", fillOptions: ["節", "結", "哲", "折"], sentence: "他為人豁達，＿＿＿＿，深受大家歡迎。" },
+            { student: "峰", unit: "最新單元", word: "五體投地", meaning: "兩手、兩膝和頭一起著地。比喻佩服到了極點。", missingFormat: "五體投＿", missingTarget: "地", fillOptions: ["地", "第", "帝", "遞"], sentence: "看到魔術師精湛的表演，觀眾們都佩服得＿＿＿＿。" },
+            { student: "峰", unit: "最新單元", word: "口若懸河", meaning: "說起話來像河水傾瀉一樣，說個不停。形容能言善辯。", missingFormat: "口若懸＿", missingTarget: "河", fillOptions: ["河", "何", "荷", "可"], sentence: "他在辯論比賽中表現出色，面對評判的提問＿＿＿＿，贏得了熱烈掌聲。" },
+            { student: "峰", unit: "最新單元", word: "人定勝天", meaning: "人類憑藉智慧和努力，可以戰勝自然。", missingFormat: "人定勝＿", missingTarget: "天", fillOptions: ["天", "千", "偏", "添"], sentence: "面對嚴重的旱災，農民們深信＿＿＿＿，積極引水灌溉。" },
+            { student: "峰", unit: "最新單元", word: "不勞而獲", meaning: "自己不勞動卻佔有別人的勞動成果。", missingFormat: "不勞而＿", missingTarget: "獲", fillOptions: ["獲", "穫", "惑", "或"], sentence: "天下間沒有＿＿＿＿的事，我們必須靠自己的努力去爭取成功。" },
+            { student: "峰", unit: "最新單元", word: "不合時宜", meaning: "不適合時代的形勢或當前的需要。", missingFormat: "不合時＿", missingTarget: "宜", fillOptions: ["宜", "儀", "兒", "疑"], sentence: "他提出的這套管理方法已經＿＿＿＿，需要重新檢討。" },
+            { student: "峰", unit: "最新單元", word: "一念之差", meaning: "一個念頭的差錯。指因一時的疏忽或考慮不周而犯下嚴重的錯誤。", missingFormat": "一念之＿", missingTarget: "差", fillOptions: ["差", "叉", "猜", "車"], sentence: "由於他＿＿＿＿，竟然做出了違法的事情，現在後悔也來不及了。" },
+            { student: "峰", unit: "最新單元", word: "千鈞一髮", meaning": "千鈞的重量繫在一根頭髮上。比喻情況極度危急。", missingFormat: "千鈞一＿", missingTarget: "髮", fillOptions: ["髮", "發", "法", "罰"], sentence: "就在小童快要掉下河的那＿＿＿＿之際，路人及時拉住了他。" },
+            { student: "峰", unit: "最新單元", word: "大發雷霆", meaning: "比喻大發脾氣，大聲斥責。", missingFormat: "大發雷＿", missingTarget: "霆", fillOptions: ["霆", "停", "庭", "亭"], sentence: "看到弟弟又把房間弄得一團糟而且不肯承認錯誤，媽媽頓時＿＿＿＿。" },
+            { student: "峰", unit: "最新單元", word: "人才濟濟", meaning: "形容有才能的人很多。", missingFormat: "人才濟＿", missingTarget: "濟", fillOptions: ["濟", "仔", "劑", "際"], sentence: "這間大型科技公司＿＿＿＿，聚集了來自世界各地的頂尖工程師。" },
+
             // Marcus 的示範題庫
             { student: "Marcus", unit: "比賽字詞", word: "畫蛇添足", meaning: "比喻多此一舉，不但無益，反而有害。", missingFormat: "畫蛇添＿", missingTarget: "足", fillOptions: ["足", "腳", "捉", "走"], sentence: "這篇文章已經寫得很完整了，你再加這段話簡直是＿＿＿＿。" },
             { student: "Marcus", unit: "比賽字詞", word: "半途而廢", meaning: "指事情做到一半就停止，沒有堅持到底完成。", missingFormat: "半＿而廢", missingTarget: "途", fillOptions: ["途", "圖", "步", "道"], sentence: "我們做事要有始有終，絕對不能＿＿＿＿。" }
@@ -524,7 +538,7 @@
                 database = database.map(item => { if(item.idiom) { item.word = item.idiom; delete item.idiom; } return item; });
                 localStorage.setItem('customVocabDB', JSON.stringify(database));
                 document.getElementById('db-textarea').value = JSON.stringify(database, null, 4);
-                updateUnitDropdown(); alert("已還原為完整的預設題庫！");
+                updateUnitDropdown(); alert("已還原為最新的預設題庫！");
             }
         }
 
