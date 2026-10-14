@@ -212,7 +212,7 @@
                 <button class="btn-cancel" onclick="closeDBManager()">取消</button>
                 <div class="db-actions-right">
                     <button class="btn-clear" onclick="clearDBTextarea()">🗑️ 清除全部</button>
-                    <button class="btn-reset" onclick="resetToDefaultDB()">還原預設</button>
+                    <button class="btn-reset" onclick="resetToDefaultDB()">還原</button>
                     <button class="btn-save" onclick="saveCustomDB()">💾 儲存並套用</button>
                 </div>
             </div>
@@ -470,25 +470,36 @@
         let database = [];
         let currentDatabase = [];
 
+        // 🧠 全自動偵測更新系統
         function initDatabase() {
-            let savedDB = localStorage.getItem('customVocabDB');
-            let parsedDB = null;
-            
-            if (savedDB) {
-                try { 
-                    parsedDB = JSON.parse(savedDB); 
-                    if (!Array.isArray(parsedDB)) parsedDB = null;
-                } catch(e) { 
-                    parsedDB = null; 
+            let currentDefaultStr = JSON.stringify(defaultDatabaseRaw);
+            let lastDefaultStr = localStorage.getItem('lastDefaultDB');
+
+            // 核心邏輯：如果 GitHub 的源代碼更新了，就強制洗掉手機舊存檔！
+            if (lastDefaultStr !== currentDefaultStr) {
+                console.log("偵測到 GitHub 題庫有更新，自動覆蓋手機記憶體！");
+                database = JSON.parse(currentDefaultStr);
+                localStorage.setItem('customVocabDB', JSON.stringify(database));
+                localStorage.setItem('lastDefaultDB', currentDefaultStr);
+            } else {
+                // 如果代碼沒變，就讀取手機裡的進度（可能是在 UI 裡新增的）
+                let savedDB = localStorage.getItem('customVocabDB');
+                let parsedDB = null;
+                if (savedDB) {
+                    try { 
+                        parsedDB = JSON.parse(savedDB); 
+                        if (!Array.isArray(parsedDB)) parsedDB = null;
+                    } catch(e) { parsedDB = null; }
+                }
+                if (parsedDB && parsedDB.length > 0) {
+                    database = parsedDB;
+                } else {
+                    database = JSON.parse(currentDefaultStr);
+                    localStorage.setItem('lastDefaultDB', currentDefaultStr);
                 }
             }
-            
-            if (parsedDB && parsedDB.length > 0) {
-                database = parsedDB;
-            } else {
-                database = JSON.parse(JSON.stringify(defaultDatabaseRaw));
-            }
 
+            // 確保所有資料相容最新的 word 格式
             database = database.map(item => { 
                 if(item && item.idiom) { 
                     item.word = item.idiom; 
@@ -552,6 +563,7 @@
         
         function closeDBManager() { document.getElementById('db-modal').style.display = 'none'; }
         
+        // 🧹 清除全部功能
         function clearDBTextarea() {
             let textarea = document.getElementById('db-textarea');
             textarea.value = "";
@@ -576,9 +588,11 @@
 
         function resetToDefaultDB() {
             if(confirm("確定要還原成預設題庫嗎？這將捨棄所有手機舊紀錄。")) {
-                database = JSON.parse(JSON.stringify(defaultDatabaseRaw));
+                let currentDefaultStr = JSON.stringify(defaultDatabaseRaw);
+                database = JSON.parse(currentDefaultStr);
                 database = database.map(item => { if(item.idiom) { item.word = item.idiom; delete item.idiom; } return item; });
                 localStorage.setItem('customVocabDB', JSON.stringify(database));
+                localStorage.setItem('lastDefaultDB', currentDefaultStr);
                 document.getElementById('db-textarea').value = JSON.stringify(database, null, 4);
                 
                 // 重新載入下拉選單
