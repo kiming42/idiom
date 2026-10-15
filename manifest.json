@@ -1,6 +1,6 @@
 {
-  "name": "知識方塊 RPG",
-  "short_name": "知識方塊",
+  "name": "學神領域：方塊戰記",
+  "short_name": "學神領域",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#5b8731",
