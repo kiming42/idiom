@@ -372,6 +372,7 @@
         // 新增：語音與題號追蹤
         let activeSentenceText = ""; 
         let currentQuestionCount = 0; 
+        let totalStdQuestions = 0;
 
         const craftRecipes = [
             { id: 'wood_plank', name: '木板', icon: '🧱', cost: {log: 1}, desc: '建造地基 (🪵x1)' },
@@ -619,6 +620,30 @@
         let bossCorrectAnswer = "";
         let bossQuestType = "";
 
+        // 🧠 建立智能牌堆 (自動擴展例句2)
+        function buildQuestionDeck() {
+            let deck = [];
+            currentDatabase.forEach(item => {
+                let safe = getSafeData(item);
+                
+                // 加入第一條題目 (例句 1 或 預設例句)
+                let item1 = { ...item };
+                if (safe.sentence1) item1.activeSentence = safe.sentence1;
+                else if (safe.sentence && safe.sentence !== "無例句") item1.activeSentence = safe.sentence;
+                else item1.activeSentence = "無例句";
+                deck.push(item1);
+
+                // 如果有例句 2，作為獨立新題目加入牌堆
+                if (safe.sentence2) {
+                    let item2 = { ...item };
+                    item2.activeSentence = safe.sentence2;
+                    deck.push(item2);
+                }
+            });
+            // 完全打亂順序
+            return deck.sort(() => 0.5 - Math.random());
+        }
+
         // 🧠 載入題庫
         function initDatabase() {
             try {
@@ -697,13 +722,12 @@
                 let filteredDB = (student === 'all') ? database : database.filter(item => item.student === student);
                 currentDatabase = (unit === 'all') ? filteredDB : filteredDB.filter(item => item.unit === unit);
                 
-                // 極限防錯保護：確保 currentDatabase 絕對不可能為空
                 if (!currentDatabase || currentDatabase.length === 0) {
                     currentDatabase = database.length > 0 ? [...database] : [...defaultDatabaseRaw];
                 }
                 
-                document.getElementById('scope-info').innerText = `這個範圍共有 ${currentDatabase.length} 個字詞。`;
-                questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
+                questionDeck = buildQuestionDeck();
+                document.getElementById('scope-info').innerText = `這個範圍共有 ${currentDatabase.length} 個字詞，合共 ${questionDeck.length} 條挑戰題目。`;
             } catch(e) { console.error(e); }
         }
 
@@ -801,7 +825,7 @@
                     inventory = {}; placedDecorations = []; selectedHotbarItem = null; gridSize = 8; 
                     updateGridSize(); renderDecorations(); renderHotbar(); updateMaterialUI(); 
                     saveGameState(); 
-                    questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random()); 
+                    questionDeck = buildQuestionDeck();
                     loadRPGQuest();
                     alert("🔄 遊戲紀錄已完全重置！開始新的冒險吧！");
                 }
@@ -916,7 +940,8 @@
             initAudio(); 
             if(!currentDatabase || currentDatabase.length === 0) return alert("目前範圍沒有題目！請在設定檢查題庫。");
             currentStdMode = mode;
-            questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
+            questionDeck = buildQuestionDeck();
+            totalStdQuestions = questionDeck.length;
             currentQuestionCount = 0;
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
             document.getElementById('standard-game').style.display = 'block';
@@ -946,7 +971,7 @@
                 document.getElementById('std-next-btn').style.display = 'none'; document.getElementById('feedback-std').innerText = "";
                 let optionsContainer = document.getElementById('options-container'); optionsContainer.innerHTML = "";
                 
-                if (questionDeck.length === 0) {
+                if (!questionDeck || questionDeck.length === 0) {
                     alert("🎉 恭喜！你已經完成本單元的所有題目！");
                     goToMenu();
                     return;
@@ -954,7 +979,7 @@
                 
                 currentTargetData = questionDeck.pop();
                 currentQuestionCount++;
-                document.getElementById('std-q-counter').innerText = `題號: ${currentQuestionCount} / ${currentDatabase.length}`;
+                document.getElementById('std-q-counter').innerText = `題號: ${currentQuestionCount} / ${totalStdQuestions}`;
                 
                 let safe = getSafeData(currentTargetData);
                 let options = [];
@@ -964,14 +989,8 @@
                 } else if (currentStdMode === 'word-to-meaning') {
                     document.getElementById('question-text-std').innerText = safe.word; options = generateOptions(safe.meaning, 'meaning');
                 } else if (currentStdMode === 'sentence') {
-                    let possibleSentences = [];
-                    if (safe.sentence && safe.sentence !== "無例句") possibleSentences.push(safe.sentence);
-                    if (safe.sentence1) possibleSentences.push(safe.sentence1);
-                    if (safe.sentence2) possibleSentences.push(safe.sentence2);
-                    let sText = possibleSentences.length > 0 ? possibleSentences[Math.floor(Math.random() * possibleSentences.length)] : "無例句";
-                    
+                    let sText = currentTargetData.activeSentence || "無例句";
                     activeSentenceText = sText;
-                    
                     let displaySentence = sText;
                     if (!displaySentence.includes("＿")) displaySentence = displaySentence.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】");
                     else displaySentence = displaySentence.replace(/＿＿＿＿/g, "【 ＿＿ 】");
@@ -1010,7 +1029,7 @@
                     if (Math.random() < 0.3) { foodCount++; feedback.innerText += " (並幸運獲得 🍎x1)"; }
                     updateMaterialUI(); saveGameState(); 
                     if (currentStdMode === 'fill-blank') document.getElementById('question-text-std').innerText = safe.mFormat.replace(/＿|_/g, `【${correctAnswer}】`);
-                    // 傳統模式不再觸發 Boss
+                    // 傳統溫習區不再觸發 Boss
                 } else {
                     feedback.innerText = "❌ 答錯了！遭受小妖精襲擊，扣 15 血！答案是：" + correctAnswer; feedback.style.color = "#d32f2f";
                     if(clickedElement.className !== "std-char-block") clickedElement.style.backgroundColor = "#ffcdd2";
@@ -1137,7 +1156,9 @@
             if(!currentDatabase || currentDatabase.length === 0) return alert("目前範圍沒有題目！");
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
             document.getElementById('rpg-game').style.display = 'block';
-            updateGridSize(); renderDecorations(); renderHotbar(); loadRPGQuest();
+            updateGridSize(); renderDecorations(); renderHotbar(); 
+            questionDeck = buildQuestionDeck();
+            loadRPGQuest();
         }
 
         function loadRPGQuest() {
@@ -1146,7 +1167,7 @@
                 document.getElementById('rpg-next-btn').style.display = 'none'; document.getElementById('rpg-controls').style.display = 'flex';
                 document.getElementById('feedback-rpg').innerText = "用方向鍵或點擊地圖移動！答對獲得素材！"; document.getElementById('feedback-rpg').style.color = "#d32f2f";
                 
-                if (!questionDeck || questionDeck.length === 0) questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
+                if (!questionDeck || questionDeck.length === 0) questionDeck = buildQuestionDeck();
                 currentTargetData = questionDeck.pop();
 
                 let safe = getSafeData(currentTargetData);
@@ -1162,12 +1183,7 @@
                 } else if (rpgQuestType === 'fill-blank') { title = "📜 任務：修補殘缺字詞"; question = safe.mFormat; actualCorrectAnswer = safe.mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random());
                 } else if (rpgQuestType === 'sentence') { 
                     title = "📜 任務：填補情境對白"; 
-                    let possibleSentences = [];
-                    if (safe.sentence && safe.sentence !== "無例句") possibleSentences.push(safe.sentence);
-                    if (safe.sentence1) possibleSentences.push(safe.sentence1);
-                    if (safe.sentence2) possibleSentences.push(safe.sentence2);
-                    let sText = possibleSentences.length > 0 ? possibleSentences[Math.floor(Math.random() * possibleSentences.length)] : "無例句";
-                    
+                    let sText = currentTargetData.activeSentence || "無例句";
                     activeSentenceText = sText;
                     if (!sText.includes("＿")) question = sText.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】");
                     else question = sText.replace(/＿＿＿＿/g, "【 ＿＿ 】");
