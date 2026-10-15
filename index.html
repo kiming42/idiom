@@ -190,7 +190,7 @@
             <p id="scope-info" class="scope-info-text">載入中...</p>
         </div>
 
-        <!-- 📚 新增：學習與準備區 -->
+        <!-- 📚 學習與準備區 -->
         <div class="section-title">▶ 準備區</div>
         <div class="modes-grid" style="grid-template-columns: 1fr;">
             <div class="mode-card" onclick="openLearningArea()" style="background: #e3f2fd; border-color: #64b5f6;">
@@ -233,7 +233,7 @@
     <div id="learning-area" class="page">
         <div class="rpg-header">
             <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
-            <h2 style="margin:0; color:#1565c0; font-size: 22px;">📚 詞語學習區</h2>
+            <h2 style="margin:0; color:#1565c0; font-size: 24px;">📚 詞語學習區</h2>
         </div>
         <div id="learning-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; text-align: left;">
             <!-- 學習卡片會動態生成在這裡 -->
@@ -529,20 +529,20 @@
         }
 
         // =====================================
-        // 💾 題庫系統
+        // 💾 題庫系統 (已修正錯別字)
         // =====================================
         const defaultDatabaseRaw = [
             { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。鼎，古代的煮食器具。", missingFormat: "人聲鼎＿", missingTarget: "沸", fillOptions: ["是", "你", "沸", "地"], synonyms: "喧鬧", antonyms: "鴉雀無聲、萬籟俱寂", sentence1: "酒樓內人聲鼎沸，坐滿了來吃午飯的人。", sentence2: "大家都在為球隊吶喊助威，觀眾席上人聲鼎沸。" },
-            { student: "Justin", unit: "單元一", word: "水泄不通", meaning: "連一滴水也流不出去，形容包圍緊密，也形容環境極度擁擠。", missingFormat: "水泄不＿", missingTarget: "通", fillOptions: ["雲", "天", "大", "通"], synonyms: "擁擠、人山人海", antonyms: "暢通無阻", sentence1: "警方把這幢大廈封鎖得水泄不通，躲藏在內的匪徒難以逃脫。【形容包圍緊密】", sentence2: "年三十晚，許多市民都會到年宵市場辦年貨，使場內擠得水泄不通。【形容環境極度擁擠】" },
+            { student: "Justin", unit: "單元一", word: "水泄不通", meaning: "連一滴水也流不出去，形容包圍緊密，也形容環境極度擁擠。", missingFormat: "水泄不＿", missingTarget: "通", fillOptions: ["雲", "天", "大", "通"], synonyms: "擁擠、人山人海", antonyms: "暢通無阻", sentence1: "警方把這幢大廈封鎖得水泄不通，躲藏在內的匪徒難以逃脫。", sentence2: "年三十晚，許多市民都會到年宵市場辦年貨，使場內擠得水泄不通。" },
             { student: "Justin", unit: "單元一", word: "日積月累", meaning: "指每天、每月地不斷積累。", missingFormat: "日積月＿", missingTarget: "累", fillOptions: ["月", "在", "大", "累"], synonyms: "", antonyms: "揮霍無度", sentence1: "趙女士憑藉日積月累的工作經驗，很快就替公司解決了這個難題。", sentence2: "我每天都會學習英文新詞，經過日積月累，現在認識的詞彙量已非常豐富了。" },
-            { student: "Justin", unit: "單元一", word: "目不暇給", meaning: "形容眼前有太多美好的事物，或景物變化太快，眼睛來不及觀看。", missingFormat: "目不暇＿", missingTarget: "給", fillOptions: ["了", "上", "有", "給"], synonyms: "美不勝收", antonyms: "一覽無遺", sentence1: "聯歡晚會的節目既豐富又精彩，令觀眾們目不暇給。【形容有太多美好的事物】", sentence2: "在空中綻放的煙花色彩繽紛，形態變化多端，令人目不暇給。【形容景物變化太快，來不及觀看】" },
-            { student: "Justin", unit: "單元一", word: "世外桃源", meaning: "與世隔絕、開滿桃花的樂土。比喻風景優美、人煙稀少的地方，亦比喻人們心目中的理想世界。", missingFormat: "世外桃＿", missingTarget: "源", fillOptions: ["大", "在", "雲", "源"], synonyms: "洞天福地、天府之國", antonyms: "人間地獄", sentence1: "這裡四周鳥語花香，遠離鬧市，就像住在世外桃源。【比喻風景優美、人煙稀少的地方】", sentence2: "這個城市沒遭受戰火波及，對大批流亡的難民來說就好比世外桃源。【比喻人們心目中的理想世界】" },
+            { student: "Justin", unit: "單元一", word: "目不暇給", meaning: "形容眼前有太多美好的事物，或景物變化太快，眼睛來不及觀看。", missingFormat: "目不暇＿", missingTarget: "給", fillOptions: ["了", "上", "有", "給"], synonyms: "美不勝收", antonyms: "一覽無遺", sentence1: "聯歡晚會的節目既豐富又精彩，令觀眾們目不暇給。", sentence2: "在空中綻放的煙花色彩繽紛，形態變化多端，令人目不暇給。" },
+            { student: "Justin", unit: "單元一", word: "世外桃源", meaning: "與世隔絕、開滿桃花的樂土。比喻風景優美、人煙稀少的地方，亦比喻人們心目中的理想世界。", missingFormat: "世外桃＿", missingTarget: "源", fillOptions: ["大", "在", "雲", "源"], synonyms: "洞天福地、天府之國", antonyms: "人間地獄", sentence1: "這裡四周鳥語花香，遠離鬧市，就像住在世外桃源。", sentence2: "這個城市沒遭受戰火波及，對大批流亡的難民來說就好比世外桃源。" },
             { student: "Justin", unit: "單元一", word: "杳無人煙", meaning: "形容地方偏僻荒涼，無人居住。杳，深遠。人煙，居民。", missingFormat: "杳無人＿", missingTarget: "煙", fillOptions: ["煙", "山", "大", "天"], synonyms: "人跡罕至", antonyms: "人煙稠密", sentence1: "這個村落杳無人煙，很多人已經從這兒搬到其他地方居住。", sentence2: "政府正計劃將一些杳無人煙的地區開發成新市鎮，希望增加土地供應，推動城市發展。" },
             { student: "Justin", unit: "單元一", word: "風和日麗", meaning: "形容天氣晴朗和暖，十分宜人。", missingFormat: "風和日＿", missingTarget: "麗", fillOptions: ["明", "大", "麗", "是"], synonyms: "風輕雲淡", antonyms: "烏雲密佈、風雨交加", sentence1: "今天是風和日麗的好日子，我們一家人決定到郊野公園遊玩。", sentence2: "天氣真是變幻莫測，早上還是風和日麗，傍晚卻颳起了狂風暴雨。" },
             { student: "Justin", unit: "單元一", word: "星羅棋布", meaning: "如羅列在天上的群星，分佈在棋盤上的棋子。形容事物眾多而分散排列。羅，排列；布，分佈。", missingFormat: "星羅棋＿", missingTarget: "布", fillOptions: ["中", "風", "布", "不"], synonyms: "不勝枚舉", antonyms: "疏落、寥寥無幾", sentence1: "表哥潛進深海裏，欣賞海底星羅棋布的珊瑚和魚兒。", sentence2: "從高處俯瞰，下面的房屋變成了一塊塊小積木嵌在土地上，猶如星羅棋布。" },
             { student: "Justin", unit: "單元一", word: "破瓦頹垣", meaning: "指屋瓦破損，牆垣倒塌。形容破敗荒涼的景象。頹，倒塌。垣，矮牆。", missingFormat: "破瓦頹＿", missingTarget: "垣", fillOptions: ["他", "的", "垣", "山"], synonyms: "滿目瘡痍", antonyms: "富麗堂皇", sentence1: "地震過後，這一帶盡是破瓦頹垣，不少居民因而流離失所。", sentence2: "去年這兒還有一幢幢雄偉宏偉的高樓，如今卻只留下破瓦頹垣。" },
             { student: "Justin", unit: "單元一", word: "氣象萬千", meaning: "形容景象千變萬化，極為壯觀。", missingFormat: "氣象萬＿", missingTarget: "千", fillOptions: ["千", "的", "有", "天"], synonyms: "變化無窮", antonyms: "千篇一律", sentence1: "這個新都市發展迅速，一派氣象萬千的景象。", sentence2: "雲霧繞着山峯不斷變化，景色氣象萬千，令人神往。" },
-            { student: "Justin", unit: "單元一", word: "琳琅滿目", meaning: "形容滿眼所見都是美好而珍貴的東西。琳瑯，精美的玉石。", missingFormat: "琳琅滿＿", missingTarget: "目", fillOptions: ["好", "天", "目", "月"], synonyms: "美不勝收", antonyms: "滿目瘡痍", sentence1: "這家博物館的展品琳瑯滿目，吸引了不少人於假日前來參觀。", sentence2: "哥哥打算在這些琳瑯滿目的商品中，選購一份送給媽媽作為生日禮物。" },
+            { student: "Justin", unit: "單元一", word: "琳琅滿目", meaning: "形容滿眼所見都是美好而珍貴的東西。琳琅，精美的玉石。", missingFormat: "琳琅滿＿", missingTarget: "目", fillOptions: ["好", "天", "目", "月"], synonyms: "美不勝收", antonyms: "滿目瘡痍", sentence1: "這家博物館的展品琳琅滿目，吸引了不少人於假日前來參觀。", sentence2: "哥哥打算在這些琳琅滿目的商品中，選購一份送給媽媽作為生日禮物。" },
             { student: "Justin", unit: "單元一", word: "煥然一新", meaning: "形容散發光彩，呈現出新的面貌。煥然，鮮明、光亮。", missingFormat: "煥然一＿", missingTarget: "新", fillOptions: ["新", "他", "明", "上"], synonyms: "耳目一新", antonyms: "一如既往", sentence1: "表哥到外國讀書後，改變了衣着和打扮，整個人煥然一新。", sentence2: "這家咖啡店經過裝修後，風格變得簡約清新，給人煥然一新的感覺。" },
             { student: "Justin", unit: "單元一", word: "萬籟俱寂", meaning: "形容萬物無聲，一片寂靜。萬籟，自然界的各種聲音。", missingFormat: "萬籟俱＿", missingTarget: "寂", fillOptions: ["明", "山", "寂", "中"], synonyms: "寂靜、鴉雀無聲", antonyms: "喧鬧、人聲鼎沸", sentence1: "山林中萬籟俱寂，彷彿萬物都沉睡了。", sentence2: "在這萬籟俱寂的環境下，我放輕腳步走路，以免破壞寧靜的氣氛。" },
             { student: "Justin", unit: "單元一", word: "歷歷在目", meaning: "清楚明白地出現在眼前。歷歷，清楚分明。", missingFormat: "歷歷在＿", missingTarget: "目", fillOptions: ["地", "目", "水", "了"], synonyms: "一清二楚", antonyms: "模糊不清", sentence1: "我們用望遠鏡從太平洋山頂眺望，遠處的景物全都歷歷在目。", sentence2: "堂弟不經不覺八歲了，他嬰兒時的模樣，至今仍然歷歷在目。" },
@@ -692,7 +692,6 @@
                 let filteredDB = (student === 'all') ? database : database.filter(item => item.student === student);
                 currentDatabase = (unit === 'all') ? filteredDB : filteredDB.filter(item => item.unit === unit);
                 
-                // 極限防錯保護：確保 currentDatabase 絕對不可能為空
                 if (!currentDatabase || currentDatabase.length === 0) {
                     currentDatabase = database.length > 0 ? [...database] : [...defaultDatabaseRaw];
                 }
