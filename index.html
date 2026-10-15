@@ -387,6 +387,7 @@
         let activeSentenceText = ""; 
         let currentQuestionCount = 0; 
         let totalStdQuestions = 0;
+        let hasPlayerMoved = false; 
         
         let MAX_HP = 100;
         let hp = 100;
@@ -400,10 +401,8 @@
         let bossCorrectAnswer = "";
         let bossQuestType = "";
         
-        // 保護罩系統
         let isShieldActive = false;
 
-        // 怪物遊蕩系統變數
         let activeMapMonsters = [];
         let monsterInterval = null;
 
@@ -576,7 +575,7 @@
         }
 
         // =====================================
-        // 💾 題庫系統 
+        // 💾 題庫系統 (無錯別字版)
         // =====================================
         const defaultDatabaseRaw = [
             { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。鼎，古代的煮食器具。", missingFormat: "人聲鼎＿", missingTarget: "沸", fillOptions: ["是", "你", "沸", "地"], synonyms: "喧鬧", antonyms: "鴉雀無聲、萬籟俱寂", sentence1: "酒樓內人聲鼎沸，坐滿了來吃午飯的人。", sentence2: "大家都在為球隊吶喊助威，觀眾席上人聲鼎沸。" },
@@ -624,6 +623,39 @@
             { student: "Justin", unit: "單元三", word: "憂心忡忡", meaning: "形容人心事重重，非常擔憂。忡忡，憂愁的樣子。", missingFormat: "憂心忡＿", missingTarget: "忡", fillOptions: ["你", "忡", "人", "地"], synonyms: "愁眉苦臉", antonyms: "喜氣洋洋、眉開眼笑", sentence1: "思嘉上去憂心忡忡的，不知道有甚麼事情令她如此擔心呢？", sentence2: "當他收到父親病情惡化的消息後，便憂心忡忡地立即趕往醫院。" },
             { student: "Justin", unit: "單元三", word: "驚心動魄", meaning: "指人內心感受極深，震撼很大。", missingFormat: "驚心動＿", missingTarget: "魄", fillOptions: ["上", "這", "人", "魄"], synonyms: "膽戰心驚", antonyms: "處之泰然", sentence1: "這部電影有許多驚心動魄的場面，令人回味無窮。", sentence2: "單是看着眼前的過山車高速飛馳，已經讓我感到驚心動魄了。" },
             { student: "Justin", unit: "單元三", word: "樂極生悲", meaning: "歡樂到極點後，轉而發生令人悲傷的事情。", missingFormat: "樂極生＿", missingTarget: "悲", fillOptions: ["悲", "有", "是", "上"], synonyms: "物極必反", antonyms: "否極泰來", sentence1: "自由活動前，老師告誡大家要注意安全，以免樂極生悲。", sentence2: "惠琪吃自助餐時暴飲暴食，結果樂極生悲，得了急性腸胃炎。" },
+            // Marcus 的題庫
+            { student: "Marcus", unit: "課文 2", word: "笨拙", meaning: "反應遲鈍，動作不靈巧", missingFormat: "笨＿", missingTarget: "拙", fillOptions: ["不", "水", "你", "拙"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 2", word: "四腳朝天", meaning: "形容人跌倒時仰面朝上、手腳豎起或張開的樣子", missingFormat: "四腳朝＿", missingTarget: "天", fillOptions: ["水", "了", "天", "大"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 2", word: "戰戰兢兢", meaning: "形容做事小心謹慎，或是因恐懼而顫抖的樣子", missingFormat: "戰戰兢＿", missingTarget: "兢", fillOptions: ["好", "上", "不", "兢"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 2", word: "膽怯", meaning: "膽小、害怕", missingFormat: "膽＿", missingTarget: "怯", fillOptions: ["好", "大", "是", "怯"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 2", word: "頻繁", meaning: "接連不斷，次數很多", missingFormat: "頻＿", missingTarget: "繁", fillOptions: ["不", "繁", "水", "風"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 2", word: "邁步", meaning: "抬起腳步向前走", missingFormat: "邁＿", missingTarget: "步", fillOptions: ["好", "大", "步", "的"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 2", word: "東歪西倒", meaning: "形容站不穩或物體擺放得歪斜不齊", missingFormat: "東歪西＿", missingTarget: "倒", fillOptions: ["大", "倒", "不", "地"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 2", word: "張皇失措", meaning: "慌張得不知如何是好", missingFormat: "張皇失＿", missingTarget: "措", fillOptions: ["大", "措", "了", "風"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 2", word: "無動於衷", meaning: "心裏一點也不受感動或影響", missingFormat: "無動於＿", missingTarget: "衷", fillOptions: ["衷", "水", "他", "你"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 2", word: "無可奈何", meaning: "毫無辦法，沒有別的選擇", missingFormat: "無可奈＿", missingTarget: "何", fillOptions: ["何", "山", "雲", "人"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 2", word: "啟示", meaning: "從事物中領悟出的道理或得到的啟發", missingFormat: "啟＿", missingTarget: "示", fillOptions: ["中", "他", "是", "示"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 2", word: "獲益良多", meaning: "得到很多好處或收穫", missingFormat: "獲益良＿", missingTarget: "多", fillOptions: ["個", "多", "這", "地"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 3", word: "家境", meaning: "家庭的經濟狀況", missingFormat: "家＿", missingTarget: "境", fillOptions: ["地", "了", "你", "境"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 3", word: "不滿", meaning: "不符合心意，心裡不舒服或不高興", missingFormat: "不＿", missingTarget: "滿", fillOptions: ["這", "人", "有", "滿"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 3", word: "可惜", meaning: "令人感嘆、惋惜的事物", missingFormat: "可＿", missingTarget: "惜", fillOptions: ["你", "惜", "大", "的"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 3", word: "叮囑", meaning: "再三囑咐與提醒", missingFormat: "叮＿", missingTarget: "囑", fillOptions: ["人", "囑", "在", "明"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 3", word: "整齊", meaning: "條理分明、乾淨有序，沒有雜亂", missingFormat: "整＿", missingTarget: "齊", fillOptions: ["齊", "個", "他", "大"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 3", word: "無奈", meaning: "感到沒有辦法，只能接受", missingFormat: "無＿", missingTarget: "奈", fillOptions: ["在", "奈", "不", "上"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 3", word: "悶悶不樂", meaning: "心裡有事，感到不高興或憂鬱", missingFormat: "悶悶不＿", missingTarget: "樂", fillOptions: ["天", "樂", "他", "月"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 3", word: "絆", meaning: "腳被物體擋住或勾到而差點跌倒", missingFormat: "＿", missingTarget: "絆", fillOptions: ["明", "絆", "不", "我"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 3", word: "筆挺", meaning: "形容衣服平整無褶痕、挺拔", missingFormat: "筆＿", missingTarget: "挺", fillOptions: ["天", "大", "挺", "月"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 3", word: "誤會", meaning: "對事情或別人的意思產生錯誤的理解", missingFormat: "誤＿", missingTarget: "會", fillOptions: ["會", "大", "中", "我"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 3", word: "打轉", meaning: "圍繞著某個中心旋轉、轉動", missingFormat: "打＿", missingTarget: "轉", fillOptions: ["他", "大", "在", "轉"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "課文 3", word: "心甘情願", meaning: "心裡完全願意，沒有一點勉強", missingFormat: "心甘情＿", missingTarget: "願", fillOptions: ["願", "個", "在", "這"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "成語", word: "一籌莫展", meaning: "一點計策或辦法也想不出來", missingFormat: "一籌莫＿", missingTarget: "展", fillOptions: ["不", "展", "上", "風"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "成語", word: "一竅不通", meaning: "形容對某種技術或知識完全不懂", missingFormat: "一竅不＿", missingTarget: "通", fillOptions: ["在", "有", "通", "上"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "成語", word: "一曝十寒", meaning: "比喻學習或工作沒有恆心，作輟無常", missingFormat: "一曝十＿", missingTarget: "寒", fillOptions: ["他", "寒", "人", "個"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "成語", word: "七竅生煙", meaning: "形容極度氣憤或焦急", missingFormat: "七竅生＿", missingTarget: "煙", fillOptions: ["山", "不", "月", "煙"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "成語", word: "大言不慚", meaning: "說大話卻一點也不感到羞愧", missingFormat: "大言不＿", missingTarget: "慚", fillOptions: ["天", "不", "慚", "人"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "成語", word: "不足掛齒", meaning: "微不足道，不值得一提", missingFormat: "不足掛＿", missingTarget: "齒", fillOptions: ["山", "個", "齒", "我"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "成語", word: "匹夫之勇", meaning: "形容沒有智謀、光憑蠻力的勇敢", missingFormat: "匹夫之＿", missingTarget: "勇", fillOptions: ["明", "勇", "上", "不"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
+            { student: "Marcus", unit: "成語", word: "毛遂自薦", meaning: "比喻自告奮勇，主動推薦自己擔當重任", missingFormat: "毛遂自＿", missingTarget: "薦", fillOptions: ["人", "好", "這", "薦"], synonyms: "", antonyms: "", sentence1: "", sentence2: "" },
             // 峰 的題庫
             { student: "峰", unit: "最新單元", word: "心往神馳", meaning: "形容心神嚮往，完全被吸引。", missingFormat: "心往神＿", missingTarget: "馳", fillOptions: ["馳", "池", "遲", "詞"], sentence: "看著這幅美麗的風景畫，真令人心往神馳。" },
             { student: "峰", unit: "最新單元", word: "一成不變", meaning: "指守舊不變或固守常規。", missingFormat: "一成不＿", missingTarget: "變", fillOptions: ["變", "辨", "辯", "遍"], sentence: "社會每天都在發展，我們不能用一成不變的眼光看待事物。" },
@@ -640,10 +672,7 @@
             { student: "峰", unit: "最新單元", word: "一念之差", meaning: "一個念頭的差錯。指因一時的疏忽或考慮不周而犯下嚴重的錯誤。", missingFormat: "一念之＿", missingTarget: "差", fillOptions: ["差", "叉", "猜", "車"], sentence: "由於他一念之差，竟然做出了違法的事情，現在後悔也來不及了。" },
             { student: "峰", unit: "最新單元", word: "千鈞一髮", meaning: "千鈞的重量繫在一根頭髮上。比喻情況極度危急。", missingFormat: "千鈞一＿", missingTarget: "髮", fillOptions: ["髮", "發", "法", "罰"], sentence: "就在小童快要掉下河的那千鈞一髮之際，路人及時拉住了他。" },
             { student: "峰", unit: "最新單元", word: "大發雷霆", meaning: "比喻大發脾氣，大聲斥責。", missingFormat: "大發雷＿", missingTarget: "霆", fillOptions: ["霆", "停", "庭", "亭"], sentence: "看到弟弟又把房間弄得一團糟而且不肯承認錯誤，媽媽頓時大發雷霆。" },
-            { student: "峰", unit: "最新單元", word: "人才濟濟", meaning: "形容有才能的人很多。", missingFormat: "人才濟＿", missingTarget: "濟", fillOptions: ["濟", "仔", "劑", "際"], sentence: "這間大型科技公司人才濟濟，聚集了來自世界各地的頂尖工程師。" },
-            // Marcus 的示範題庫
-            { student: "Marcus", unit: "比賽字詞", word: "畫蛇添足", meaning: "比喻多此一舉，不但無益，反而有害。", missingFormat: "畫蛇添＿", missingTarget: "足", fillOptions: ["足", "腳", "捉", "走"], sentence: "這篇文章已經寫得很完整了，你再加這段話簡直是畫蛇添足。" },
-            { student: "Marcus", unit: "比賽字詞", word: "半途而廢", meaning: "指事情做到一半就停止，沒有堅持到底完成。", missingFormat: "半＿而廢", missingTarget: "途", fillOptions: ["途", "圖", "步", "道"], sentence: "我們做事要有始有終，絕對不能半途而廢。" }
+            { student: "峰", unit: "最新單元", word: "人才濟濟", meaning: "形容有才能的人很多。", missingFormat: "人才濟＿", missingTarget: "濟", fillOptions: ["濟", "仔", "劑", "際"], sentence: "這間大型科技公司人才濟濟，聚集了來自世界各地的頂尖工程師。" }
         ];
 
         // 🧠 建立智能牌堆 (純字詞)
@@ -718,7 +747,8 @@
         }
 
         function moveMapMonsters() {
-            if(!isQuestionActive) return;
+            // 如果未行第一步，怪獸保持靜止 (Standby Mode)
+            if(!isQuestionActive || !hasPlayerMoved) return;
             
             activeMapMonsters.forEach((m, index) => {
                 let dirs = [[0,1], [0,-1], [1,0], [-1,0]];
@@ -1309,6 +1339,7 @@
         function loadRPGQuest() {
             try {
                 isQuestionActive = true; 
+                hasPlayerMoved = false; 
                 isShieldActive = true; 
                 document.getElementById('player').classList.add('shield-active');
                 
@@ -1373,6 +1404,7 @@
             
             if (isShieldActive) {
                 isShieldActive = false;
+                hasPlayerMoved = true;
                 document.getElementById('player').classList.remove('shield-active');
                 document.getElementById('feedback-rpg').innerText = "⚠️ 保護罩已消失！小心避開主動追蹤的怪物！"; 
                 document.getElementById('feedback-rpg').style.color = "#d32f2f";
@@ -1562,15 +1594,6 @@
                 saveGameState();
             }
         }
-
-        document.addEventListener('keydown', function(event) {
-            if (document.getElementById('rpg-game').style.display === 'block') {
-                if (event.key === "ArrowUp" || event.key === "w") movePlayer(0, -1);
-                if (event.key === "ArrowDown" || event.key === "s") movePlayer(0, 1);
-                if (event.key === "ArrowLeft" || event.key === "a") movePlayer(-1, 0);
-                if (event.key === "ArrowRight" || event.key === "d") movePlayer(1, 0);
-            }
-        });
 
         // =====================================
         // 🚀 初始化執行
