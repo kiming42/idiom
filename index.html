@@ -103,7 +103,7 @@
         .next-btn { display: none; margin: 15px auto 0; padding: 12px 30px; background-color: #ff9800; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; box-shadow: 0 4px 0 #e65100; font-family: 'DotGothic16', sans-serif;}
 
         /* 🔨 題庫管理 Modal */
-        .db-modal, .craft-modal { display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 50; justify-content: center; align-items: center; padding: 10px; }
+        .db-modal, .craft-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 10px; }
         .db-wrapper, .craft-wrapper { background: #fff; width: 100%; max-width: 700px; max-height: 90vh; border-radius: 12px; padding: 20px; text-align: left; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto;}
         
         .db-actions { display: flex; justify-content: space-between; margin-top: 15px; gap: 8px; flex-wrap: wrap; }
@@ -146,7 +146,7 @@
         .tts-btn.playing { background: #4CAF50; border-color: #1b5e20; box-shadow: 0 3px 0 #1b5e20; }
 
         /* 🐉 Boss 戰 Modal */
-        .boss-modal { z-index: 100; background: rgba(30,0,0,0.95); }
+        .boss-modal { background: rgba(30,0,0,0.95); }
         .boss-wrapper { background: #3e2723; color: white; border: 6px solid #b71c1c; text-align: center; max-width: 600px; }
         .boss-img { display: inline-block; margin: 10px; animation: float 2s infinite ease-in-out; }
         @keyframes float { 0% {transform: translateY(0px);} 50% {transform: translateY(-10px);} 100% {transform: translateY(0px);} }
@@ -178,7 +178,6 @@
             <div class="filter-controls">
                 <div class="filter-group">
                     <label>👤 玩家選擇</label>
-                    <!-- 預設加入選項，防卡死 -->
                     <select id="student-select" onchange="updateUnitDropdown()">
                         <option value="Justin">Justin</option>
                         <option value="峰">峰</option>
@@ -196,7 +195,6 @@
             <p id="scope-info" class="scope-info-text">準備中...</p>
         </div>
 
-        <!-- 📚 新增：學習與準備區 -->
         <div class="section-title">▶ 準備區</div>
         <div class="modes-grid" style="grid-template-columns: 1fr;">
             <div class="mode-card" onclick="openLearningArea()" style="background: #e3f2fd; border-color: #64b5f6;">
@@ -230,7 +228,7 @@
             <div class="mode-card" onclick="startRPGGame()" style="background: #e8f5e9; border-color: #8bc34a;">
                 <div class="mode-icon" style="background: #2e7d32; color: white;">🌍</div>
                 <h3 style="color: #2e7d32; font-size: 18px;">進入方塊採集世界</h3>
-                <p>在地圖上尋寶答題，避開殭屍與骷髏，收集各種建築素材！</p>
+                <p>在地圖上尋寶答題，避開主動追蹤的殭屍與骷髏，收集各種建築素材！</p>
             </div>
         </div>
     </div>
@@ -238,44 +236,10 @@
     <!-- 📚 學習區 Page -->
     <div id="learning-area" class="page">
         <div class="rpg-header">
-            <button class="header-btn" onclick="goToMenu()">⬅️ 返回大本營</button>
+            <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
             <h2 style="margin:0; color:#1565c0; font-size: 24px;">📚 詞語學習區</h2>
         </div>
-        <div id="learning-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; text-align: left;">
-            <!-- 學習卡片會動態生成在這裡 -->
-        </div>
-    </div>
-
-    <!-- 📚 題庫管理 Modal (密碼保護) -->
-    <div class="db-modal" id="db-modal">
-        <div class="db-wrapper">
-            <h2>⚙️ 家長專區：自訂題庫</h2>
-            
-            <p style="font-size: 14px; font-weight: bold; color: #333; margin-top: 10px;">📚 題庫資料 (JSON格式)：</p>
-            <textarea id="db-textarea" style="flex-grow: 1; min-height: 350px; font-family: monospace; padding: 10px;"></textarea>
-            
-            <div class="db-actions">
-                <button class="btn-cancel" onclick="closeDBManager()">取消</button>
-                <div class="db-actions-right">
-                    <button class="btn-clear" onclick="clearDBTextarea()">🗑️ 清除全部</button>
-                    <button class="btn-reset" onclick="resetToDefaultDB()">還原預設</button>
-                    <button class="btn-save" onclick="saveCustomDB()">💾 儲存並套用</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 🐉 巨龍/怪物 Boss Modal -->
-    <div class="db-modal boss-modal" id="boss-modal">
-        <div class="db-wrapper boss-wrapper">
-            <h2 id="boss-title-text" style="color:#ff5252; margin-top:0;">🔥 Boss 突襲！🔥</h2>
-            <div class="boss-img" id="boss-icon"></div>
-            <div class="boss-hp-bar"><div class="boss-hp-fill" id="boss-hp-fill"></div></div>
-            <p style="color:#ffcc80; font-weight:bold; font-size:16px;">高等怪物攔住了去路！連續答對 3 題擊退牠！</p>
-            <h3 id="boss-q-title" style="color:#fff; border-bottom: 1px solid #777; padding-bottom: 5px;">載入中...</h3>
-            <p id="boss-q-text" style="font-size:22px; font-weight:bold; color: #fff;">...</p>
-            <div id="boss-choices" class="boss-choices" style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
-        </div>
+        <div id="learning-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; text-align: left;"></div>
     </div>
 
     <!-- 📚 標準答題區 -->
@@ -318,7 +282,6 @@
         </div>
         
         <div class="rpg-content">
-            <!-- 左側地圖區 -->
             <div class="rpg-map-side">
                 <div class="map-wrapper">
                     <div class="island-container" id="island" style="width: 320px; height: 320px;" onclick="handleGridClick(event)">
@@ -329,7 +292,6 @@
                 <div class="hotbar" id="hotbar"></div>
             </div>
             
-            <!-- 右側任務區 -->
             <div class="rpg-quest-side mission-panel">
                 <button class="tts-btn" id="tts-btn-rpg" onclick="readQuestionTTS()" style="float: right;">🔊 朗讀</button>
                 <h3 id="rpg-mission-title">📜 任務：載入中...</h3>
@@ -341,6 +303,8 @@
         </div>
     </div>
 
+    <!-- 獨立放置的所有彈出視窗 (Modals) -->
+    
     <!-- 🔨 合成台 Modal -->
     <div class="craft-modal" id="craft-modal">
         <div class="craft-wrapper">
@@ -360,6 +324,36 @@
         </div>
     </div>
 
+    <!-- 📚 題庫管理 Modal -->
+    <div class="db-modal" id="db-modal">
+        <div class="db-wrapper">
+            <h2>⚙️ 家長專區：自訂題庫</h2>
+            <p style="font-size: 14px; font-weight: bold; color: #333; margin-top: 10px;">📚 題庫資料 (JSON格式)：</p>
+            <textarea id="db-textarea" style="flex-grow: 1; min-height: 350px; font-family: monospace; padding: 10px;"></textarea>
+            <div class="db-actions">
+                <button class="btn-cancel" onclick="closeDBManager()">取消</button>
+                <div class="db-actions-right">
+                    <button class="btn-clear" onclick="clearDBTextarea()">🗑️ 清除全部</button>
+                    <button class="btn-reset" onclick="resetToDefaultDB()">還原預設</button>
+                    <button class="btn-save" onclick="saveCustomDB()">💾 儲存並套用</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🐉 巨龍/怪物 Boss Modal -->
+    <div class="db-modal boss-modal" id="boss-modal">
+        <div class="db-wrapper boss-wrapper">
+            <h2 id="boss-title-text" style="color:#ff5252; margin-top:0;">🔥 Boss 突襲！🔥</h2>
+            <div class="boss-img" id="boss-icon"></div>
+            <div class="boss-hp-bar"><div class="boss-hp-fill" id="boss-hp-fill"></div></div>
+            <p style="color:#ffcc80; font-weight:bold; font-size:16px;">高等怪物攔住了去路！連續答對 3 題擊退牠！</p>
+            <h3 id="boss-q-title" style="color:#fff; border-bottom: 1px solid #777; padding-bottom: 5px;">載入中...</h3>
+            <p id="boss-q-text" style="font-size:22px; font-weight:bold; color: #fff;">...</p>
+            <div id="boss-choices" class="boss-choices" style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
+        </div>
+    </div>
+
     <script>
         // =====================================
         // 🔐 全域變數宣告區
@@ -374,7 +368,7 @@
         let activeSentenceText = ""; 
         let currentQuestionCount = 0; 
         let totalStdQuestions = 0;
-        let hasPlayerMoved = false; // 控制怪物等待玩家行第一步
+        let hasPlayerMoved = false; 
         
         let MAX_HP = 100;
         let hp = 100;
@@ -561,7 +555,7 @@
         }
 
         // =====================================
-        // 💾 題庫系統 
+        // 💾 題庫系統
         // =====================================
         const defaultDatabaseRaw = [
             { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。鼎，古代的煮食器具。", missingFormat: "人聲鼎＿", missingTarget: "沸", fillOptions: ["是", "你", "沸", "地"], synonyms: "喧鬧", antonyms: "鴉雀無聲、萬籟俱寂", sentence1: "酒樓內人聲鼎沸，坐滿了來吃午飯的人。", sentence2: "大家都在為球隊吶喊助威，觀眾席上人聲鼎沸。" },
@@ -1291,7 +1285,7 @@
         function loadRPGQuest() {
             try {
                 isQuestionActive = true; 
-                hasPlayerMoved = false; // 初始設定為未移動
+                hasPlayerMoved = false; 
                 resetTTSBtn();
                 document.getElementById('rpg-next-btn').style.display = 'none';
                 document.getElementById('feedback-rpg').innerText = "請行出第一步，怪獸就會開始行動！"; document.getElementById('feedback-rpg').style.color = "#d32f2f";
@@ -1350,7 +1344,6 @@
         function movePlayer(dx, dy) {
             if(!isQuestionActive) return; 
             
-            // 行出第一步，怪獸開始行動
             if (!hasPlayerMoved) {
                 hasPlayerMoved = true;
                 document.getElementById('feedback-rpg').innerText = "小心避開主動追蹤的怪物！"; 
@@ -1376,7 +1369,7 @@
             try {
                 let feedback = document.getElementById('feedback-rpg');
                 if (block.label === rpgCorrectAnswer) {
-                    if(monsterInterval) clearInterval(monsterInterval); // 只有答對先會停止怪物
+                    if(monsterInterval) clearInterval(monsterInterval); 
                     sfx.mine(); setTimeout(sfx.correct, 150); 
                     block.broken = true; block.element.classList.add('broken'); isQuestionActive = false; 
                     
@@ -1439,7 +1432,6 @@
             if (!isQuestionActive) return;
             const diffX = targetX - pX; const diffY = targetY - pY;
             
-            // 滑鼠點擊智能走位
             if (Math.abs(diffX) > Math.abs(diffY)) movePlayer(diffX > 0 ? 1 : -1, 0);
             else if (Math.abs(diffY) > 0) movePlayer(0, diffY > 0 ? 1 : -1);
         }
@@ -1512,6 +1504,7 @@
                 if(item.cost.clay) costMsg.push(`🧱${item.cost.clay}`); if(item.cost.iron) costMsg.push(`🪙${item.cost.iron}`);
                 if(item.cost.gold) costMsg.push(`🌟${item.cost.gold}`); if(item.cost.emerald) costMsg.push(`❇️${item.cost.emerald}`);
 
+                let card = document.createElement('div'); card.className = "craft-card";
                 card.innerHTML = `<div class="craft-item-top"><div class="craft-item-icon">${item.icon}</div><div class="craft-item-info"><h4>${item.name}${extraDesc}</h4><p>${item.desc}</p><div class="craft-cost">需求：${costMsg.join(' ')}</div></div></div><button class="craft-buy-btn" ${canAfford ? '' : 'disabled'} onclick="craftItem('${item.id}')">${btnText}</button>`;
                 container.appendChild(card);
             });
@@ -1550,7 +1543,7 @@
         });
 
         // =====================================
-        // 🚀 初始化執行 (直接呼叫 + 事件雙重保障)
+        // 🚀 初始化執行
         // =====================================
         initDatabase();
         loadGameState();
