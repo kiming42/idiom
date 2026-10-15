@@ -293,7 +293,8 @@
         </div>
 
         <div class="map-wrapper">
-            <div class="island-container" id="island" onclick="handleGridClick(event)">
+            <!-- 加上 inline style 作為終極高度防護網 -->
+            <div class="island-container" id="island" style="width: 320px; height: 320px;" onclick="handleGridClick(event)">
                 <div id="decorations-layer"></div>
                 <div id="player"></div>
             </div>
@@ -332,6 +333,32 @@
     </div>
 
     <script>
+        // =====================================
+        // 🔐 全域變數宣告區 (補回上次遺失的核心變數)
+        // =====================================
+        let emeralds = 0; 
+        let materials = { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 }; 
+        let inventory = {}; let placedDecorations = []; let selectedHotbarItem = null; 
+        const TILE_SIZE = 40; let gridSize = 8; let pX = 3, pY = 3; 
+        let questBlocks = []; let rpgQuestType = ""; let rpgCorrectAnswer = ""; 
+        let isQuestionActive = false; let currentTargetData = null;
+
+        const craftRecipes = [
+            { id: 'wood_plank', name: '木板', icon: '🧱', cost: {log: 1}, desc: '建造地基 (🪵x1)' },
+            { id: 'stone_brick', name: '石磚', icon: '🪨', cost: {stone: 1}, desc: '堅固外牆 (🪨x1)' },
+            { id: 'brick', name: '紅磚', icon: '🧱', cost: {clay: 2}, desc: '經典建材 (🧱x2)' },
+            { id: 'glass', name: '玻璃窗', icon: '🪟', cost: {sand: 2}, desc: '透光明亮 (🏜️x2)' },
+            { id: 'door', name: '木門', icon: '🚪', cost: {log: 2}, desc: '房屋入口 (🪵x2)' },
+            { id: 'bed', name: '床舖', icon: '🛏️', cost: {log: 2, fiber: 2}, desc: '溫馨家具 (🪵x2 🌾x2)' },
+            { id: 'torch', name: '火把', icon: '🏮', cost: {log: 1, stone: 1}, desc: '照明工具 (🪵x1 🪨x1)' },
+            { id: 'plant', name: '小盆栽', icon: '🌷', cost: {clay: 1, fiber: 1}, desc: '綠化環境 (🧱x1 🌾x1)' },
+            { id: 'iron_block', name: '鐵塊', icon: '🛡️', cost: {iron: 2}, desc: '堅不可摧 (🪙x2)' },
+            { id: 'gold_block', name: '黃金磚', icon: '👑', cost: {gold: 2}, desc: '閃閃發光 (🌟x2)' },
+            { id: 'chest', name: '寶箱', icon: '🧰', cost: {log: 2, iron: 1}, desc: '收藏寶物 (🪵x2 🪙x1)' },
+            { id: 'water', name: '水源', icon: '💧', cost: {emerald: 5}, desc: '建造池塘 (❇️x5)' },
+            { id: 'expand', name: '擴大領土', icon: '🗺️', cost: {emerald: 30}, desc: '增加邊界 (❇️x30)', type: 'upgrade' }
+        ];
+
         // =====================================
         // 🔐 防崩潰自動修復機制與全域錯誤捕獲
         // =====================================
@@ -461,6 +488,7 @@
         // 💾 題庫系統
         // =====================================
         const defaultDatabaseRaw = [
+            // Justin 單元一
             { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。", missingFormat: "人＿鼎沸", missingTarget: "聲", fillOptions: ["聲", "星", "生", "升"], sentence: "節日期間的年宵市場＿＿＿＿，熱鬧的景象令人難忘。" },
             { student: "Justin", unit: "單元一", word: "水泄不通", meaning: "連一滴水也流不出去，形容包圍緊密，也形容環境極度擁擠。", missingFormat: "水＿不通", missingTarget: "泄", fillOptions: ["泄", "洩", "瀉", "世"], sentence: "發生嚴重的交通事故後，這條主要幹道被車輛擠得＿＿＿＿。" },
             { student: "Justin", unit: "單元一", word: "日積月累", meaning: "指每天、每月地不斷積累。", missingFormat: "日＿月累", missingTarget: "積", fillOptions: ["積", "績", "擊", "激"], sentence: "學習語文必須依靠＿＿＿＿的閱讀和寫作，不能一蹴而就。" },
@@ -476,6 +504,7 @@
             { student: "Justin", unit: "單元一", word: "萬籟俱寂", meaning: "形容萬物無聲，一片寂靜。", missingFormat: "萬＿俱寂", missingTarget: "籟", fillOptions: ["籟", "賴", "懶", "瀨"], sentence: "在＿＿＿＿的深夜裏，整座城市都陷入了沉睡，唯獨他還在挑燈夜戰。" },
             { student: "Justin", unit: "單元一", word: "歷歷在目", meaning: "清楚明白地呈現在眼前。歷歷，清楚分明。", missingFormat: "歷歷在＿", missingTarget: "目", fillOptions: ["目", "木", "沐", "牧"], sentence: "雖然畢業已經十年，但當年與同學們在操場上共同奮鬥的情景，至今依然＿＿＿＿。" },
             { student: "Justin", unit: "單元一", word: "鑼鼓喧天", meaning: "本指鑼鼓聲音大得震天。現形容氣氛非常熱鬧。", missingFormat: "鑼鼓＿天", missingTarget: "喧", fillOptions: ["喧", "宣", "圈", "旋"], sentence: "為了慶祝國慶，主辦單位安排了盛大的舞龍表演，現場＿＿＿＿，氣氛高漲。" },
+            // Justin 單元二
             { student: "Justin", unit: "單元二", word: "大快朵頤", meaning: "飽食、愉快的樣子。朵，動。頤，下巴。", missingFormat: "大快朵＿", missingTarget: "頤", fillOptions: ["頤", "題", "頁", "順"], sentence: "母親在廚房準備了豐富的晚餐，一家人圍坐在餐桌前＿＿＿＿。" },
             { student: "Justin", unit: "單元二", word: "口若懸河", meaning: "說起話來像河水傾瀉一樣，說個不停。形容能言善辯。", missingFormat: "口若懸＿", missingTarget: "河", fillOptions: ["河", "何", "荷", "可"], sentence: "他在辯論比賽中表現出色，面對評判的提問＿＿＿＿，贏得了熱烈掌聲。" },
             { student: "Justin", unit: "單元二", word: "口蜜腹劍", meaning: "形容人把話說得動聽，事實上內心險惡，處處想陷害別人。", missingFormat: "口蜜腹＿", missingTarget: "劍", fillOptions: ["劍", "見", "健", "箭"], sentence: "我們平時結交朋友要擦亮雙眼，切忌親近那些＿＿＿＿的小人。" },
@@ -491,6 +520,7 @@
             { student: "Justin", unit: "單元二", word: "戰戰兢兢", meaning: "因害怕而發抖。形容十分害怕或小心謹慎的樣子。", missingFormat: "戰戰＿兢", missingTarget: "兢", fillOptions: ["兢", "竟", "境", "經"], sentence: "第一次踏上舞台作公開演講時，他心裏＿＿＿＿的，深怕自己會突然忘詞。" },
             { student: "Justin", unit: "單元二", word: "信口雌黃", meaning: "比喻不顧事實，隨口亂說或隨意批評。", missingFormat: "信口雌＿", missingTarget: "黃", fillOptions: ["黃", "王", "皇", "謊"], sentence: "在未搞清楚真相之前，請不要在社交平台上＿＿＿＿，以免傷害無辜者。" },
             { student: "Justin", unit: "單元二", word: "顧影自憐", meaning: "形容人孤獨失意，亦可形容自我欣賞的樣子。", missingFormat: "顧影自＿", missingTarget: "憐", fillOptions: ["憐", "鄰", "玲", "靈"], sentence: "夜深人靜時，他獨自坐在窗前看著自己的影子，心中湧起一股＿＿＿＿的落寞感。" },
+            // Justin 單元三
             { student: "Justin", unit: "單元三", word: "火冒三丈", meaning: "頭上冒出三丈高的火。形容極度生氣。", missingFormat: "火冒三＿", missingTarget: "丈", fillOptions: ["丈", "杖", "仗", "帳"], sentence: "看到弟弟又把房間弄得一團糟而且不肯承認錯誤，媽媽頓時氣得＿＿＿＿。" },
             { student: "Justin", unit: "單元三", word: "扣人心弦", meaning: "形容事物深深地牽動人心，令人心情激動或覺得感動。", missingFormat: "扣人心＿", missingTarget: "弦", fillOptions: ["弦", "懸", "旋", "咸"], sentence: "這部偵探電影的劇情發展峰迴路轉、＿＿＿＿，直到最後一刻才揭曉真兇。" },
             { student: "Justin", unit: "單元三", word: "心悅誠服", meaning: "誠心誠意地歸服或佩服。", missingFormat: "心悅誠＿", missingTarget: "服", fillOptions: ["服", "福", "幅", "富"], sentence: "老師憑藉着淵博的學識和耐心細緻的教導，讓班上所有調皮的學生都＿＿＿＿。" },
@@ -933,11 +963,8 @@
                 let island = document.getElementById('island'); 
                 if(!island) return;
                 let sizePx = (gridSize * TILE_SIZE) + 'px';
-                island.style.width = sizePx; 
-                island.style.height = sizePx; 
-                island.style.minWidth = sizePx; 
-                island.style.minHeight = sizePx;
-                island.style.display = "inline-block";
+                // 絕對保證 CSS 寫入
+                island.style.cssText = `width: ${sizePx}; height: ${sizePx}; min-width: ${sizePx}; min-height: ${sizePx}; display: inline-block; position: relative;`;
             } catch(e) { console.error("Grid Size Error:", e); }
         }
 
@@ -1168,7 +1195,6 @@
                         registration.unregister(); // 強制殺死舊記憶
                     }
                 });
-                // 重新載入最新版本
                 navigator.serviceWorker.register('./sw.js?v=' + new Date().getTime()).catch(e => console.error(e));
             });
         }
