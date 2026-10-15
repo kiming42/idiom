@@ -178,6 +178,7 @@
             <div class="filter-controls">
                 <div class="filter-group">
                     <label>👤 玩家選擇</label>
+                    <!-- 預設加入選項，防卡死 -->
                     <select id="student-select" onchange="updateUnitDropdown()">
                         <option value="Justin">Justin</option>
                         <option value="峰">峰</option>
@@ -195,7 +196,7 @@
             <p id="scope-info" class="scope-info-text">準備中...</p>
         </div>
 
-        <!-- 📚 學習與準備區 -->
+        <!-- 📚 新增：學習與準備區 -->
         <div class="section-title">▶ 準備區</div>
         <div class="modes-grid" style="grid-template-columns: 1fr;">
             <div class="mode-card" onclick="openLearningArea()" style="background: #e3f2fd; border-color: #64b5f6;">
@@ -229,7 +230,7 @@
             <div class="mode-card" onclick="startRPGGame()" style="background: #e8f5e9; border-color: #8bc34a;">
                 <div class="mode-icon" style="background: #2e7d32; color: white;">🌍</div>
                 <h3 style="color: #2e7d32; font-size: 18px;">進入方塊採集世界</h3>
-                <p>在地圖上尋寶答題，避開主動追蹤的殭屍與骷髏，收集各種建築素材！</p>
+                <p>在地圖上尋寶答題，避開殭屍與骷髏，收集各種建築素材！</p>
             </div>
         </div>
     </div>
@@ -373,6 +374,7 @@
         let activeSentenceText = ""; 
         let currentQuestionCount = 0; 
         let totalStdQuestions = 0;
+        let hasPlayerMoved = false; // 控制怪物等待玩家行第一步
         
         let MAX_HP = 100;
         let hp = 100;
@@ -559,7 +561,7 @@
         }
 
         // =====================================
-        // 💾 題庫系統 (無錯別字版)
+        // 💾 題庫系統 
         // =====================================
         const defaultDatabaseRaw = [
             { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。鼎，古代的煮食器具。", missingFormat: "人聲鼎＿", missingTarget: "沸", fillOptions: ["是", "你", "沸", "地"], synonyms: "喧鬧", antonyms: "鴉雀無聲、萬籟俱寂", sentence1: "酒樓內人聲鼎沸，坐滿了來吃午飯的人。", sentence2: "大家都在為球隊吶喊助威，觀眾席上人聲鼎沸。" },
@@ -701,7 +703,9 @@
         }
 
         function moveMapMonsters() {
-            if(!isQuestionActive) return;
+            // 如果未行第一步，怪獸保持靜止 (Standby Mode)
+            if(!isQuestionActive || !hasPlayerMoved) return;
+            
             activeMapMonsters.forEach((m, index) => {
                 let dirs = [[0,1], [0,-1], [1,0], [-1,0]];
                 
@@ -1280,16 +1284,17 @@
             document.getElementById('rpg-game').style.display = 'block';
             updateGridSize(); renderDecorations(); renderHotbar(); 
             
-            // RPG 模式涵蓋所有變化 (包含例句擴展)
             questionDeck = buildSentenceDeck();
             loadRPGQuest();
         }
 
         function loadRPGQuest() {
             try {
-                isQuestionActive = true; resetTTSBtn();
+                isQuestionActive = true; 
+                hasPlayerMoved = false; // 初始設定為未移動
+                resetTTSBtn();
                 document.getElementById('rpg-next-btn').style.display = 'none';
-                document.getElementById('feedback-rpg').innerText = "點擊地圖方格移動！小心避開主動追蹤的怪物！"; document.getElementById('feedback-rpg').style.color = "#d32f2f";
+                document.getElementById('feedback-rpg').innerText = "請行出第一步，怪獸就會開始行動！"; document.getElementById('feedback-rpg').style.color = "#d32f2f";
                 
                 if (!questionDeck || questionDeck.length === 0) questionDeck = buildSentenceDeck();
                 currentTargetData = questionDeck.pop();
@@ -1344,6 +1349,13 @@
 
         function movePlayer(dx, dy) {
             if(!isQuestionActive) return; 
+            
+            // 行出第一步，怪獸開始行動
+            if (!hasPlayerMoved) {
+                hasPlayerMoved = true;
+                document.getElementById('feedback-rpg').innerText = "小心避開主動追蹤的怪物！"; 
+            }
+            
             let nextX = pX + dx; let nextY = pY + dy;
             if (nextX < 0 || nextX >= gridSize || nextY < 0 || nextY >= gridSize) return;
             let block = questBlocks.find(b => b.x === nextX && b.y === nextY && !b.broken);
@@ -1500,7 +1512,6 @@
                 if(item.cost.clay) costMsg.push(`🧱${item.cost.clay}`); if(item.cost.iron) costMsg.push(`🪙${item.cost.iron}`);
                 if(item.cost.gold) costMsg.push(`🌟${item.cost.gold}`); if(item.cost.emerald) costMsg.push(`❇️${item.cost.emerald}`);
 
-                let card = document.createElement('div'); card.className = "craft-card";
                 card.innerHTML = `<div class="craft-item-top"><div class="craft-item-icon">${item.icon}</div><div class="craft-item-info"><h4>${item.name}${extraDesc}</h4><p>${item.desc}</p><div class="craft-cost">需求：${costMsg.join(' ')}</div></div></div><button class="craft-buy-btn" ${canAfford ? '' : 'disabled'} onclick="craftItem('${item.id}')">${btnText}</button>`;
                 container.appendChild(card);
             });
@@ -1528,6 +1539,15 @@
                 saveGameState();
             }
         }
+
+        document.addEventListener('keydown', function(event) {
+            if (document.getElementById('rpg-game').style.display === 'block') {
+                if (event.key === "ArrowUp" || event.key === "w") movePlayer(0, -1);
+                if (event.key === "ArrowDown" || event.key === "s") movePlayer(0, 1);
+                if (event.key === "ArrowLeft" || event.key === "a") movePlayer(-1, 0);
+                if (event.key === "ArrowRight" || event.key === "d") movePlayer(1, 0);
+            }
+        });
 
         // =====================================
         // 🚀 初始化執行 (直接呼叫 + 事件雙重保障)
