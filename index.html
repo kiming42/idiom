@@ -232,7 +232,7 @@
     <!-- 📚 學習區 Page -->
     <div id="learning-area" class="page">
         <div class="rpg-header">
-            <button class="header-btn" onclick="goToMenu()">⬅️ 返回大本營</button>
+            <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
             <h2 style="margin:0; color:#1565c0; font-size: 22px;">📚 詞語學習區</h2>
         </div>
         <div id="learning-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; text-align: left;">
@@ -279,7 +279,7 @@
             <div class="player-status">
                 <span style="color:#d32f2f;">❤️ <span id="hp-std">100</span></span>
                 <span style="color:#d84315;">🍎 <span id="food-std">0</span></span>
-                <button class="eat-btn" onclick="eatFood()">吃 (+30)</button>
+                <button class="eat-btn" onclick="eatFood()">吃</button>
             </div>
             <span class="emerald-display">❇️ <span id="em-std2">0</span></span>
         </div>
@@ -401,9 +401,13 @@
             let mFormat = String(dataObj.missingFormat || word);
             let mTarget = String(dataObj.missingTarget || word.charAt(0) || "字");
             let sentence = String(dataObj.sentence || "無例句");
+            let sentence1 = dataObj.sentence1 ? String(dataObj.sentence1) : "";
+            let sentence2 = dataObj.sentence2 ? String(dataObj.sentence2) : "";
+            let synonyms = dataObj.synonyms ? String(dataObj.synonyms) : "";
+            let antonyms = dataObj.antonyms ? String(dataObj.antonyms) : "";
             let unit = String(dataObj.unit || "未分類");
             let fillOpts = Array.isArray(dataObj.fillOptions) ? dataObj.fillOptions : [];
-            return { word, meaning, mFormat, mTarget, sentence, unit, fillOpts };
+            return { word, meaning, mFormat, mTarget, sentence, sentence1, sentence2, synonyms, antonyms, unit, fillOpts };
         }
 
         // =====================================
@@ -495,10 +499,12 @@
 
                 let targetData = document.getElementById('boss-modal').style.display === 'flex' ? bossTargetData : currentTargetData;
                 let safe = getSafeData(targetData);
+                
+                let sText = safe.sentence !== "無例句" ? safe.sentence : (safe.sentence1 || "無例句");
 
                 if (mode === 'meaning-to-word') textToRead = safe.meaning;
                 else if (mode === 'word-to-meaning') textToRead = safe.word;
-                else if (mode === 'sentence') textToRead = safe.sentence.replace(/[＿【】_]+/g, "什麼");
+                else if (mode === 'sentence') textToRead = sText.replace(/[＿【】_]+/g, "什麼").replace(new RegExp(safe.word, "g"), "什麼");
                 else if (mode === 'fill-blank') textToRead = safe.mFormat.replace(/[＿_]+/g, "什麼");
                 
                 if(textToRead) {
@@ -526,55 +532,51 @@
         // 💾 題庫系統
         // =====================================
         const defaultDatabaseRaw = [
-            // Justin 單元一
-            { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。", missingFormat: "人＿鼎沸", missingTarget: "聲", fillOptions: ["聲", "星", "生", "升"], sentence: "節日期間的年宵市場＿＿＿＿，熱鬧的景象令人難忘。" },
-            { student: "Justin", unit: "單元一", word: "水泄不通", meaning: "連一滴水也流不出去，形容包圍緊密，也形容環境極度擁擠。", missingFormat: "水＿不通", missingTarget: "泄", fillOptions: ["泄", "洩", "瀉", "世"], sentence: "發生嚴重的交通事故後，這條主要幹道被車輛擠得＿＿＿＿。" },
-            { student: "Justin", unit: "單元一", word: "日積月累", meaning: "指每天、每月地不斷積累。", missingFormat: "日＿月累", missingTarget: "積", fillOptions: ["積", "績", "擊", "激"], sentence: "學習語文必須依靠＿＿＿＿的閱讀和寫作，不能一蹴而就。" },
-            { student: "Justin", unit: "單元一", word: "目不暇給", meaning: "形容眼前有太多美好的事物，或景物變化太快，眼睛來不及觀看。", missingFormat: "目不暇＿", missingTarget: "給", fillOptions: ["給", "及", "急", "級"], sentence: "博物館內展出的歷代珍貴文物種類繁多，實在令人＿＿＿＿。" },
-            { student: "Justin", unit: "單元一", word: "世外桃源", meaning: "與世隔絕、開滿桃花的樂土。比喻風景優美的地方。", missingFormat: "世外桃＿", missingTarget: "源", fillOptions: ["源", "園", "原", "圓"], sentence: "經過長途跋涉，我們終於來到這條隱蔽於群山之間的村落，彷彿置身於＿＿＿＿。" },
-            { student: "Justin", unit: "單元一", word: "杳無人煙", meaning: "形容地方偏僻荒涼，無人居住。", missingFormat: "＿無人煙", missingTarget: "杳", fillOptions: ["杳", "查", "香", "杏"], sentence: "探險隊深入那片＿＿＿＿的原始森林進行考察。" },
-            { student: "Justin", unit: "單元一", word: "風和日麗", meaning: "形容天氣晴朗和暖，十分宜人。", missingFormat: "風＿日麗", missingTarget: "和", fillOptions: ["和", "禾", "合", "何"], sentence: "在這個＿＿＿＿的週末，我們一家人決定前往西貢郊野公園遠足。" },
-            { student: "Justin", unit: "單元一", word: "星羅棋布", meaning: "如羅列在天上的羣星，分佈在棋盤上的棋子。形容事物眾多而分散排列。", missingFormat: "星＿棋布", missingTarget: "羅", fillOptions: ["羅", "蘿", "鑼", "邏"], sentence: "登上太平山頂俯瞰維港兩岸，只見高樓大廈宛如＿＿＿＿般林立。" },
-            { student: "Justin", unit: "單元一", word: "破瓦頹垣", meaning: "指屋瓦破損，牆垣倒塌。形容破敗荒涼的景象。", missingFormat: "破瓦頹＿", missingTarget: "垣", fillOptions: ["垣", "恆", "桓", "原"], sentence: "經過那場摧毀性的大地震後，原本繁榮的城鎮瞬間化為一片＿＿＿＿。" },
-            { student: "Justin", unit: "單元一", word: "氣象萬千", meaning: "形容景象千變萬化，極為壯觀。", missingFormat: "氣象萬＿", missingTarget: "千", fillOptions: ["千", "天", "乾", "牽"], sentence: "站在黃山之巔觀賞雲海，只見雲霧在山峰間翻騰變幻，＿＿＿＿。" },
-            { student: "Justin", unit: "單元一", word: "琳琅滿目", meaning: "形容滿眼所見都是美好而珍貴的東西。", missingFormat: "琳＿滿目", missingTarget: "琅", fillOptions: ["琅", "朗", "狼", "浪"], sentence: "展覽廳內陳列着＿＿＿＿的高科技產品，讓人大開眼界。" },
-            { student: "Justin", unit: "單元一", word: "煥然一新", meaning: "形容散發光彩，呈現出新的面貌。", missingFormat: "＿然一新", missingTarget: "煥", fillOptions: ["煥", "換", "喚", "幻"], sentence: "經過社區活化工程後，這條原本殘舊破落的老街頓時＿＿＿＿。" },
-            { student: "Justin", unit: "單元一", word: "萬籟俱寂", meaning: "形容萬物無聲，一片寂靜。", missingFormat: "萬＿俱寂", missingTarget: "籟", fillOptions: ["籟", "賴", "懶", "瀨"], sentence: "在＿＿＿＿的深夜裏，整座城市都陷入了沉睡，唯獨他還在挑燈夜戰。" },
-            { student: "Justin", unit: "單元一", word: "歷歷在目", meaning: "清楚明白地呈現在眼前。歷歷，清楚分明。", missingFormat: "歷歷在＿", missingTarget: "目", fillOptions: ["目", "木", "沐", "牧"], sentence: "雖然畢業已經十年，但當年與同學們在操場上共同奮鬥的情景，至今依然＿＿＿＿。" },
-            { student: "Justin", unit: "單元一", word: "鑼鼓喧天", meaning: "本指鑼鼓聲音大得震天。現形容氣氛非常熱鬧。", missingFormat: "鑼鼓＿天", missingTarget: "喧", fillOptions: ["喧", "宣", "圈", "旋"], sentence: "為了慶祝國慶，主辦單位安排了盛大的舞龍表演，現場＿＿＿＿，氣氛高漲。" },
-            // Justin 單元二
-            { student: "Justin", unit: "單元二", word: "大快朵頤", meaning: "飽食、愉快的樣子。朵，動。頤，下巴。", missingFormat: "大快朵＿", missingTarget: "頤", fillOptions: ["頤", "題", "頁", "順"], sentence: "母親在廚房準備了豐富的晚餐，一家人圍坐在餐桌前＿＿＿＿。" },
-            { student: "Justin", unit: "單元二", word: "口若懸河", meaning: "說起話來像河水傾瀉一樣，說個不停。形容能言善辯。", missingFormat: "口若懸＿", missingTarget: "河", fillOptions: ["河", "何", "荷", "可"], sentence: "他在辯論比賽中表現出色，面對評判的提問＿＿＿＿，贏得了熱烈掌聲。" },
-            { student: "Justin", unit: "單元二", word: "口蜜腹劍", meaning: "形容人把話說得動聽，事實上內心險惡，處處想陷害別人。", missingFormat: "口蜜腹＿", missingTarget: "劍", fillOptions: ["劍", "見", "健", "箭"], sentence: "我們平時結交朋友要擦亮雙眼，切忌親近那些＿＿＿＿的小人。" },
-            { student: "Justin", unit: "單元二", word: "三緘其口", meaning: "形容說話小心謹慎或不說話。緘，封住、緊閉。", missingFormat: "三緘其＿", missingTarget: "口", fillOptions: ["口", "日", "中", "曰"], sentence: "對於公司的機密商業計劃，所有員工都嚴守祕密，面對記者時＿＿＿＿。" },
-            { student: "Justin", unit: "單元二", word: "不亢不卑", meaning: "表示對別人的態度合宜，既不傲慢自大，也不低聲下氣。", missingFormat: "不亢不＿", missingTarget: "卑", fillOptions: ["卑", "牌", "牌", "碑"], sentence: "他在面對外國訪客時表現得落落大方、＿＿＿＿，充分展現了良好的外交禮儀。" },
-            { student: "Justin", unit: "單元二", word: "自吹自擂", meaning: "自己吹喇叭，自己打鼓。比喻自我吹噓。", missingFormat: "自吹自＿", missingTarget: "擂", fillOptions: ["擂", "雷", "蕾", "壘"], sentence: "真正的實力是用來證明的，而不是靠在公眾面前＿＿＿＿來獲得認同。" },
-            { student: "Justin", unit: "單元二", word: "呆若木雞", meaning: "形容愚笨或受驚嚇而發呆的樣子。", missingFormat: "呆若木＿", missingTarget: "雞", fillOptions: ["雞", "基", "饑", "積"], sentence: "聽到這宗突如其來的噩耗，他整個人愣在原地，＿＿＿＿地一句話也說不出來。" },
-            { student: "Justin", unit: "單元二", word: "虎視眈眈", meaning: "比喻人心裏存着不良的意圖，貪狠地注視着，等待機會搶奪。", missingFormat: "虎視眈＿", missingTarget: "眈", fillOptions: ["眈", "擔", "耽", "淡"], sentence: "市場上的競爭對手對這份利潤豐厚的合同＿＿＿＿，我們必須加倍小心應對。" },
-            { student: "Justin", unit: "單元二", word: "拐彎抹角", meaning: "比喻說話或做事繞圈子，不直接。", missingFormat: "拐彎抹＿", missingTarget: "角", fillOptions: ["角", "腳", "覺", "決"], sentence: "有話直說就好了，何必這樣＿＿＿＿，浪費大家的寶貴時間呢？" },
-            { student: "Justin", unit: "單元二", word: "神魂顛倒", meaning: "形容對某人或某事物非常着迷，以致心神不定，失去常態。", missingFormat: "神魂顛＿", missingTarget: "倒", fillOptions: ["倒", "到", "島", "導"], sentence: "自從迷上那套科幻小說後，他每天都看得如痴如醉，快要被弄得＿＿＿＿了。" },
-            { student: "Justin", unit: "單元二", word: "規行矩步", meaning: "指嚴格地按照規矩辦事，毫不敷衍。比喻做事刻板，不知變通。", missingFormat: "規行矩＿", missingTarget: "步", fillOptions: ["步", "布", "部", "怖"], sentence: "雖然做事應該依循原則，但如果過於＿＿＿＿，往往會錯失良機。" },
-            { student: "Justin", unit: "單元二", word: "理直氣壯", meaning: "表示因理據充分，說話充滿氣勢，無所畏懼。", missingFormat: "理直氣＿", missingTarget: "壯", fillOptions: ["壯", "狀", "撞", "裝"], sentence: "這件事情本來就是對方理虧在先，我們當然可以＿＿＿＿地向他們討回公道。" },
-            { student: "Justin", unit: "單元二", word: "戰戰兢兢", meaning: "因害怕而發抖。形容十分害怕或小心謹慎的樣子。", missingFormat: "戰戰＿兢", missingTarget: "兢", fillOptions: ["兢", "竟", "境", "經"], sentence: "第一次踏上舞台作公開演講時，他心裏＿＿＿＿的，深怕自己會突然忘詞。" },
-            { student: "Justin", unit: "單元二", word: "信口雌黃", meaning: "比喻不顧事實，隨口亂說或隨意批評。", missingFormat: "信口雌＿", missingTarget: "黃", fillOptions: ["黃", "王", "皇", "謊"], sentence: "在未搞清楚真相之前，請不要在社交平台上＿＿＿＿，以免傷害無辜者。" },
-            { student: "Justin", unit: "單元二", word: "顧影自憐", meaning: "形容人孤獨失意，亦可形容自我欣賞的樣子。", missingFormat: "顧影自＿", missingTarget: "憐", fillOptions: ["憐", "鄰", "玲", "靈"], sentence: "夜深人靜時，他獨自坐在窗前看著自己的影子，心中湧起一股＿＿＿＿的落寞感。" },
-            // Justin 單元三
-            { student: "Justin", unit: "單元三", word: "火冒三丈", meaning: "頭上冒出三丈高的火。形容極度生氣。", missingFormat: "火冒三＿", missingTarget: "丈", fillOptions: ["丈", "杖", "仗", "帳"], sentence: "看到弟弟又把房間弄得一團糟而且不肯承認錯誤，媽媽頓時氣得＿＿＿＿。" },
-            { student: "Justin", unit: "單元三", word: "扣人心弦", meaning: "形容事物深深地牽動人心，令人心情激動或覺得感動。", missingFormat: "扣人心＿", missingTarget: "弦", fillOptions: ["弦", "懸", "旋", "咸"], sentence: "這部偵探電影的劇情發展峰迴路轉、＿＿＿＿，直到最後一刻才揭曉真兇。" },
-            { student: "Justin", unit: "單元三", word: "心悅誠服", meaning: "誠心誠意地歸服或佩服。", missingFormat: "心悅誠＿", missingTarget: "服", fillOptions: ["服", "福", "幅", "富"], sentence: "老師憑藉着淵博的學識和耐心細緻的教導，讓班上所有調皮的學生都＿＿＿＿。" },
-            { student: "Justin", unit: "單元三", word: "如釋重負", meaning: "像放下重擔那樣輕鬆。比喻因完成責任或渡過難關而感到身心輕快。", missingFormat: "如釋重＿", missingTarget: "負", fillOptions: ["負", "婦", "復", "附"], sentence: "當宣佈所有期末考試順利結束的那一刻，全班同學都長舒了一口氣，感到＿＿＿＿。" },
-            { student: "Justin", unit: "單元三", word: "自慚形穢", meaning: "比喻因能力不足或不如別人而感到慚愧。", missingFormat: "自慚形＿", missingTarget: "穢", fillOptions: ["穢", "慧", "歲", "惠"], sentence: "站在才華洋溢的冠軍選手旁邊，他第一次感到有些＿＿＿＿。" },
-            { student: "Justin", unit: "單元三", word: "刻骨銘心", meaning: "刻在骨頭，刻在心上。形容感受深刻，永遠不會忘記。", missingFormat: "刻骨銘＿", missingTarget: "心", fillOptions: ["心", "新", "欣", "星"], sentence: "那次在荒島上互相扶持、共同度過生死難關的經歷，成為了他們一生中＿＿＿＿的回憶。" },
-            { student: "Justin", unit: "單元三", word: "欣喜若狂", meaning: "形容高興到了極點，像失去控制一樣。", missingFormat: "欣喜若＿", missingTarget: "狂", fillOptions: ["狂", "旺", "網", "往"], sentence: "當得知香港運動員在國際賽事中勇奪金牌的那一刻，全城市民都＿＿＿＿歡呼起來。" },
-            { student: "Justin", unit: "單元三", word: "風聲鶴唳", meaning: "用來形容非常驚慌、疑懼。", missingFormat: "風聲鶴＿", missingTarget: "唳", fillOptions: ["唳", "淚", "利", "莉"], sentence: "在經歷了一連串的突發危機後，大家變得神經緊張、＿＿＿＿，稍有風吹草動就恐慌不已。" },
-            { student: "Justin", unit: "單元三", word: "晴天霹靂", meaning: "比喻突發的意外或令人吃驚的事情。", missingFormat: "晴天霹＿", missingTarget: "靂", fillOptions: ["靂", "歷", "力", "利"], sentence: "公司突然宣佈倒閉的消息對他來說簡直是＿＿＿＿，令他完全不知所措。" },
-            { student: "Justin", unit: "單元三", word: "無地自容", meaning: "指沒有地方可以藏身，形容羞愧至極。", missingFormat: "無地自＿", missingTarget: "容", fillOptions: ["容", "溶", "融", "絨"], sentence: "因一時貪念而盜竊的行為被揭發後，他在眾人嚴厲的目光下羞愧得＿＿＿＿。" },
-            { student: "Justin", unit: "單元三", word: "無動於衷", meaning: "表示對應該關心的事卻表現得很冷漠。", missingFormat: "無動於＿", missingTarget: "衷", fillOptions: ["衷", "中", "忠", "鐘"], sentence: "面對災區同胞遭受的苦難，我們絕不能冷眼旁觀、＿＿＿＿，必須伸出援手。" },
-            { student: "Justin", unit: "單元三", word: "感恩圖報", meaning: "指感激別人的恩德而想辦法報答。", missingFormat: "感恩圖＿", missingTarget: "報", fillOptions: ["報", "抱", "飽", "寶"], sentence: "他是一個懂得＿＿＿＿的人，當年受過別人的恩惠，如今發達了便立刻回饋社會。" },
-            { student: "Justin", unit: "單元三", word: "憂心忡忡", meaning: "形容人心事重重，非常擔憂。", missingFormat: "憂心忡＿", missingTarget: "忡", fillOptions: ["忡", "沖", "忠", "鐘"], sentence: "由於經濟前景不明朗加上生意連年虧損，老闆最近整天＿＿＿＿，眉頭深鎖。" },
-            { student: "Justin", unit: "單元三", word: "驚心動魄", meaning: "指人內心感受極深，震撼很大。", missingFormat: "驚心動＿", missingTarget: "魄", fillOptions: ["魄", "魂", "拍", "百"], sentence: "這部動作電影裏的飛車追逐和爆炸場面實在太＿＿＿＿了，看得觀眾手心直冒汗。" },
-            { student: "Justin", unit: "單元三", word: "樂極生悲", meaning: "歡樂到極點後，轉而發生令人悲傷的事情。", missingFormat: "樂極生＿", missingTarget: "悲", fillOptions: ["悲", "杯", "碑", "卑"], sentence: "大家在派對上玩得太興奮而忽略了安全，結果導致有人摔傷，真是＿＿＿＿。" },
-
+            { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。鼎，古代的煮食器具。", missingFormat: "人聲鼎＿", missingTarget: "沸", fillOptions: ["是", "你", "沸", "地"], synonyms: "喧鬧", antonyms: "鴉雀無聲、萬籟俱寂", sentence1: "酒樓內人聲鼎沸，坐滿了來吃午飯的人。", sentence2: "大家都在為球隊吶喊助威，觀眾席上人聲鼎沸。" },
+            { student: "Justin", unit: "單元一", word: "水泄不通", meaning: "連一滴水也流不出去，形容包圍緊密，也形容環境極度擁擠。", missingFormat: "水泄不＿", missingTarget: "通", fillOptions: ["雲", "天", "大", "通"], synonyms: "擁擠、人山人海", antonyms: "暢通無阻", sentence1: "警方把這幢大廈封鎖得水洩不通，躲藏在內的匪徒難以逃脫。【形容包圍緊密】", sentence2: "年三十晚，許多市民都會到年宵市場辦年貨，使場內擠得水洩不通。【形容環境極度擁擠】" },
+            { student: "Justin", unit: "單元一", word: "日積月累", meaning: "指每天、每月地不斷積累。", missingFormat: "日積月＿", missingTarget: "累", fillOptions: ["月", "在", "大", "累"], synonyms: "", antonyms: "揮霍無度", sentence1: "趙女士憑藉日積月累的工作經驗，很快就替公司解決了這個難題。", sentence2: "我每天都會學習英文新詞，經過日積月累，現在認識的詞彙量已非常豐富了。" },
+            { student: "Justin", unit: "單元一", word: "目不暇給", meaning: "形容眼前有太多美好的事物，或景物變化太快，眼睛來不及觀看。", missingFormat: "目不暇＿", missingTarget: "給", fillOptions: ["了", "上", "有", "給"], synonyms: "美不勝收", antonyms: "一覽無遺", sentence1: "聯歡晚會的節目既豐富又精彩，令觀眾們目不暇給。【形容有太多美好的事物】", sentence2: "在空中綻放的煙花色彩繽紛，形態變化多端，令人目不暇給。【形容景物變化太快，來不及觀看】" },
+            { student: "Justin", unit: "單元一", word: "世外桃源", meaning: "與世隔絕、開滿桃花的樂土。比喻風景優美、人煙稀少的地方，亦比喻人們心目中的理想世界。", missingFormat: "世外桃＿", missingTarget: "源", fillOptions: ["大", "在", "雲", "源"], synonyms: "洞天福地、天府之國", antonyms: "人間地獄", sentence1: "這裡四周鳥語花香，遠離鬧市，就像住在世外桃源。【比喻風景優美、人煙稀少的地方】", sentence2: "這個城市沒遭受戰火波及，對大批流亡的難民來說就好比世外桃源。【比喻人們心目中的理想世界】" },
+            { student: "Justin", unit: "單元一", word: "杳無人煙", meaning: "形容地方偏僻荒涼，無人居住。杳，深遠。人煙，居民。", missingFormat: "杳無人＿", missingTarget: "煙", fillOptions: ["煙", "山", "大", "天"], synonyms: "人跡罕至", antonyms: "人煙稠密", sentence1: "這個村落杳無人煙，很多人已經從這兒搬到其他地方居住。", sentence2: "政府正計劃將一些杳無人煙的地區開發成新市鎮，希望增加土地供應，推動城市發展。" },
+            { student: "Justin", unit: "單元一", word: "風和日麗", meaning: "形容天氣晴朗和暖，十分宜人。", missingFormat: "風和日＿", missingTarget: "麗", fillOptions: ["明", "大", "麗", "是"], synonyms: "風輕雲淡", antonyms: "烏雲密佈、風雨交加", sentence1: "今天是風和日麗的好日子，我們一家人決定到郊野公園遊玩。", sentence2: "天氣真是變幻莫測，早上還是風和日麗，傍晚卻颳起了狂風暴雨。" },
+            { student: "Justin", unit: "單元一", word: "星羅棋布", meaning: "如羅列在天上的群星，分佈在棋盤上的棋子。形容事物眾多而分散排列。羅，排列；布，分佈。", missingFormat: "星羅棋＿", missingTarget: "布", fillOptions: ["中", "風", "布", "不"], synonyms: "不勝枚舉", antonyms: "疏落、寥寥無幾", sentence1: "表哥潛進深海裏，欣賞海底星羅棋布的珊瑚和魚兒。", sentence2: "從高處俯瞰，下面的房屋變成了一塊塊小積木嵌在土地上，猶如星羅棋布。" },
+            { student: "Justin", unit: "單元一", word: "破瓦頹垣", meaning: "指屋瓦破損，牆垣倒塌。形容破敗荒涼的景象。頹，倒塌。垣，矮牆。", missingFormat: "破瓦頹＿", missingTarget: "垣", fillOptions: ["他", "的", "垣", "山"], synonyms: "滿目瘡痍", antonyms: "富麗堂皇", sentence1: "地震過後，這一帶盡是破瓦頹垣，不少居民因而流離失所。", sentence2: "去年這兒還有一幢幢雄偉宏偉的高樓，如今卻只留下破瓦頹垣。" },
+            { student: "Justin", unit: "單元一", word: "氣象萬千", meaning: "形容景象千變萬化，極為壯觀。", missingFormat: "氣象萬＿", missingTarget: "千", fillOptions: ["千", "的", "有", "天"], synonyms: "變化無窮", antonyms: "千篇一律", sentence1: "這個新都市發展迅速，一派氣象萬千的景象。", sentence2: "雲霧繞着山峯不斷變化，景色氣象萬千，令人神往。" },
+            { student: "Justin", unit: "單元一", word: "琳琅滿目", meaning: "形容滿眼所見都是美好而珍貴的東西。琳瑯，精美的玉石。", missingFormat: "琳琅滿＿", missingTarget: "目", fillOptions: ["好", "天", "目", "月"], synonyms: "美不勝收", antonyms: "滿目瘡痍", sentence1: "這家博物館的展品琳瑯滿目，吸引了不少人於假日前來參觀。", sentence2: "哥哥打算在這些琳瑯滿目的商品中，選購一份送給媽媽作為生日禮物。" },
+            { student: "Justin", unit: "單元一", word: "煥然一新", meaning: "形容散發光彩，呈現出新的面貌。煥然，鮮明、光亮。", missingFormat: "煥然一＿", missingTarget: "新", fillOptions: ["新", "他", "明", "上"], synonyms: "耳目一新", antonyms: "一如既往", sentence1: "表哥到外國讀書後，改變了衣着和打扮，整個人煥然一新。", sentence2: "這家咖啡店經過裝修後，風格變得簡約清新，給人煥然一新的感覺。" },
+            { student: "Justin", unit: "單元一", word: "萬籟俱寂", meaning: "形容萬物無聲，一片寂靜。萬籟，自然界的各種聲音。", missingFormat: "萬籟俱＿", missingTarget: "寂", fillOptions: ["明", "山", "寂", "中"], synonyms: "寂靜、鴉雀無聲", antonyms: "喧鬧、人聲鼎沸", sentence1: "山林中萬籟俱寂，彷彿萬物都沉睡了。", sentence2: "在這萬籟俱寂的環境下，我放輕腳步走路，以免破壞寧靜的氣氛。" },
+            { student: "Justin", unit: "單元一", word: "歷歷在目", meaning: "清楚明白地出現在眼前。歷歷，清楚分明。", missingFormat: "歷歷在＿", missingTarget: "目", fillOptions: ["地", "目", "水", "了"], synonyms: "一清二楚", antonyms: "模糊不清", sentence1: "我們用望遠鏡從太平洋山頂眺望，遠處的景物全都歷歷在目。", sentence2: "堂弟不經不覺八歲了，他嬰兒時的模樣，至今仍然歷歷在目。" },
+            { student: "Justin", unit: "單元一", word: "鑼鼓喧天", meaning: "本指鑼鼓聲音大得震天。現形容氣氛非常熱鬧，景象歡樂喜慶。", missingFormat: "鑼鼓喧＿", missingTarget: "天", fillOptions: ["大", "天", "是", "了"], synonyms: "鼓樂齊鳴", antonyms: "愁雲慘霧", sentence1: "龍舟比賽進行期間，城門河上鑼鼓喧天，非常熱鬧。", sentence2: "購物商場開幕時，請來了舞獅助興，鑼鼓喧天的盛況吸引了大批顧客。" },
+            { student: "Justin", unit: "單元二", word: "大快朵頤", meaning: "飽食、愉快的樣子。朵，動。頤，下巴。朵頤，動着腮頰進食。", missingFormat: "大快朵＿", missingTarget: "頤", fillOptions: ["頤", "個", "雲", "風"], synonyms: "大飽口福", antonyms: "食不知味", sentence1: "這條街道上美食店林立，總有一家能讓你大快朵頤！", sentence2: "爸爸媽媽帶柏軒到餐館大快朵頤了一番，令他感到非常滿足。" },
+            { student: "Justin", unit: "單元二", word: "口若懸河", meaning: "說起話來像河水傾瀉一樣，說個不停。形容能言善辯。", missingFormat: "口若懸＿", missingTarget: "河", fillOptions: ["河", "的", "我", "雲"], synonyms: "滔滔不絕", antonyms: "默默無言", sentence1: "惠萍發表意見時口若懸河，期望得到大家的認同。", sentence2: "售貨員口若懸河地推銷產品，吸引了很多顧客爭相購買。" },
+            { student: "Justin", unit: "單元二", word: "口蜜腹劍", meaning: "口中有蜜，肚子裏卻藏着劍。形容人把話說得動聽，事實上內心險惡，處處想陷害別人。", missingFormat: "口蜜腹＿", missingTarget: "劍", fillOptions: ["山", "有", "你", "劍"], synonyms: "笑裏藏刀、口是心非", antonyms: "苦口婆心", sentence1: "他這個人口蜜腹劍，嘴上說着好聽的話，心裏卻盤算着壞主意。", sentence2: "騙徒大多是口蜜腹劍的人，利用虛假動聽的話騙取別人的錢財。" },
+            { student: "Justin", unit: "單元二", word: "三緘其口", meaning: "嘴巴加了三道封條。形容說話小心謹慎或不說話。緘，封住、緊閉。", missingFormat: "三緘其＿", missingTarget: "口", fillOptions: ["口", "你", "明", "風"], synonyms: "默不作聲、守口如瓶", antonyms: "口若懸河、滔滔不絕", sentence1: "關於芷晴退學的原因，老師們都三緘其口，沒有透露半句。", sentence2: "你不知道事情的經過，就應該三緘其口，不要隨便發表意見。" },
+            { student: "Justin", unit: "單元二", word: "不亢不卑", meaning: "表示對別人的態度合宜，既傲慢自大，也不低聲下氣。亢，高傲。", missingFormat: "不亢不＿", missingTarget: "卑", fillOptions: ["這", "個", "卑", "雲"], synonyms: "", antonyms: "", sentence1: "這個人在公開場合的言行舉止不亢不卑，真有教養！", sentence2: "我要養成不亢不卑的處事態度，提升待人接物的技巧。" },
+            { student: "Justin", unit: "單元二", word: "自吹自擂", meaning: "自己吹喇叭，自己打鼓。比喻自我吹噓。擂，打鼓。", missingFormat: "自吹自＿", missingTarget: "擂", fillOptions: ["雲", "不", "擂", "個"], synonyms: "大言不慚", antonyms: "虛懷若谷", sentence1: "他自吹自擂的舉動令人反感，其他人都不愛跟他交往。", sentence2: "健常在別人面前自吹自擂，其實他並沒有甚麼真才實學。" },
+            { student: "Justin", unit: "單元二", word: "呆若木雞", meaning: "形容愚笨或受驚嚇而發呆的樣子。", missingFormat: "呆若木＿", missingTarget: "雞", fillOptions: ["雞", "是", "不", "有"], synonyms: "目瞪口呆", antonyms: "神色自若", sentence1: "玉儀上課時呆若木雞地看着天花板，所以被老師責罵。【形容愚笨】", sentence2: "看到不擅廚藝的媽媽又在廚房創作新菜式，姐姐呆若木雞，不知如何是好。【形容受驚嚇而發呆的樣子】" },
+            { student: "Justin", unit: "單元二", word: "虎視眈眈", meaning: "指像老虎般用威嚇的眼神盯着人，比喻人心裏存着不良的意圖，貪婪地注視着，等待機會搶奪。眈眈，注視的樣子。", missingFormat: "虎視眈＿", missingTarget: "眈", fillOptions: ["這", "有", "眈", "你"], synonyms: "", antonyms: "含情脈脈", sentence1: "花貓虎視眈眈地盯着洞口的老鼠，想要一把捉住牠。", sentence2: "貪吃的弟弟一直對我手上的這盒餅乾虎視眈眈，恨不得想要把它搶去。" },
+            { student: "Justin", unit: "單元二", word: "拐彎抹角", meaning: "比喻說話或做事繞圈子，不直接。", missingFormat: "拐彎抹＿", missingTarget: "角", fillOptions: ["大", "好", "在", "角"], synonyms: "旁敲側擊", antonyms: "開門見山", sentence1: "請你不要再拐彎抹角了，有甚麼事就直接告訴我吧！", sentence2: "麗欣說話從不拐彎抹角，因此大家都特別喜歡跟她聊天。" },
+            { student: "Justin", unit: "單元二", word: "神魂顛倒", meaning: "形容對某人或某事物非常着迷，以致心神不定，失去常態。", missingFormat: "神魂顛＿", missingTarget: "倒", fillOptions: ["倒", "個", "大", "了"], synonyms: "如痴如醉、失魂落魄", antonyms: "", sentence1: "時下不少青年人神魂顛倒地追捧偶像，甚至為了「追星」而做出很多瘋狂行為。", sentence2: "俊希最近被一款新推出的電子遊戲弄得神魂顛倒，難怪學業成績一落千丈。" },
+            { student: "Justin", unit: "單元二", word: "規行矩步", meaning: "指嚴格地按照規矩辦事，毫不敷衍。比喻做事刻板，不知變通。規、矩，分別指圓規和角尺，代指規定、準則。", missingFormat: "規行矩＿", missingTarget: "步", fillOptions: ["大", "步", "這", "水"], synonyms: "安分守己", antonyms: "胡作非為", sentence1: "叔叔是個規行矩步的人，做事謹慎，因而深得上司欣賞。【形容嚴格按規矩辦事】", sentence2: "你做事過於規行矩步了，並不適合這項講求創新思維的工作。【比喻做事刻板】" },
+            { student: "Justin", unit: "單元二", word: "理直氣壯", meaning: "表示因理據充分，說話充滿氣勢，無所畏懼。", missingFormat: "理直氣＿", missingTarget: "壯", fillOptions: ["我", "壯", "大", "他"], synonyms: "義正辭嚴", antonyms: "理屈詞窮", sentence1: "我還沒見過有人可以把謊話說得這麼理直氣壯呢！", sentence2: "只要你的觀點合理，就不妨理直氣壯地向大家說出你的想法。" },
+            { student: "Justin", unit: "單元二", word: "戰戰兢兢", meaning: "因害怕而發抖。形容十分害怕或小心謹慎的樣子。", missingFormat: "戰戰兢＿", missingTarget: "兢", fillOptions: ["你", "兢", "天", "我"], synonyms: "誠惶誠恐", antonyms: "泰然自若", sentence1: "他在校長面前露出副戰戰兢兢的樣子。【形容十分害怕】", sentence2: "這是志恒初次公開演講，所以表現得戰戰兢兢。【形容小心謹慎】" },
+            { student: "Justin", unit: "單元二", word: "信口雌黃", meaning: "比喻不顧事實，隨口亂說或隨意批評。雌黃，一種可用作原料的黃色礦物，古人用來塗改寫錯的字，作用類似現時的塗改液。", missingFormat: "信口雌＿", missingTarget: "黃", fillOptions: ["是", "黃", "有", "了"], synonyms: "口不擇言", antonyms: "言之鑿鑿", sentence1: "樂賢從不信口雌黃，他說的話一定是有事實根據的。", sentence2: "你還沒弄清真相，怎麼就在這兒信口雌黃，胡亂指控別人呢？" },
+            { student: "Justin", unit: "單元二", word: "顧影自憐", meaning: "形容人孤獨失意，亦可形容自我欣賞的樣子。顧，回頭看。", missingFormat: "顧影自＿", missingTarget: "憐", fillOptions: ["有", "憐", "上", "好"], synonyms: "孤芳自賞", antonyms: "自慚形穢", sentence1: "她想到親人已經先後離世，不免顧影自憐起來。【形容孤獨失意】", sentence2: "大家都認為他表現不理想，他卻繼續顧影自憐。【形容自我欣賞】" },
+            { student: "Justin", unit: "單元三", word: "火冒三丈", meaning: "頭上冒出三丈高的火。形容極度生氣。丈，計算長度的單位。", missingFormat: "火冒三＿", missingTarget: "丈", fillOptions: ["丈", "好", "天", "有"], synonyms: "七竅生煙、怒火中燒", antonyms: "心平氣和", sentence1: "弟弟做錯了事仍然嬉皮笑臉，令媽媽火冒三丈，破口大罵。", sentence2: "他掛上電話後立刻火冒三丈，究竟是甚麼事情讓他這麼生氣？" },
+            { student: "Justin", unit: "單元三", word: "扣人心弦", meaning: "形容事物深深地牽動人心，令人心情激動或覺得感動。扣，敲打。", missingFormat: "扣人心＿", missingTarget: "弦", fillOptions: ["弦", "水", "好", "中"], synonyms: "振奮人心、感人肺腑", antonyms: "無動於衷", sentence1: "台上的小提琴演奏扣人心弦，打動了在場的每一位觀眾。", sentence2: "這本小說充滿扣人心弦的情節，書中主角的種種遭遇都牽動我的情緒。" },
+            { student: "Justin", unit: "單元三", word: "心悅誠服", meaning: "誠心誠意地歸服或佩服。", missingFormat: "心悅誠＿", missingTarget: "服", fillOptions: ["他", "風", "服", "個"], synonyms: "心服口服、甘拜下風", antonyms: "心有不甘", sentence1: "這次比賽的對手實力高強，我對他們真是心悅誠服。", sentence2: "如果你想別人對你的觀點心悅誠服，你就必須提出充分的理據作支持。" },
+            { student: "Justin", unit: "單元三", word: "如釋重負", meaning: "像放下重擔那樣輕鬆。比喻因完成責任或渡過難關而感到身心輕快。釋，放下。重負，沉重的擔子。", missingFormat: "如釋重＿", missingTarget: "負", fillOptions: ["負", "水", "大", "不"], synonyms: "", antonyms: "", sentence1: "表哥把沉重的行李箱帶回家後，如釋重負地坐在沙發上休息。", sentence2: "期末考試結束後，我感到如釋重負，接下來終於可以計劃暑期活動了！" },
+            { student: "Justin", unit: "單元三", word: "自慚形穢", meaning: "比喻因能力不足或不如別人而感到慚愧。形穢，容貌醜陋，引申指缺點或不足的地方。", missingFormat: "自慚形＿", missingTarget: "穢", fillOptions: ["在", "穢", "好", "有"], synonyms: "自愧不如", antonyms: "自高自大", sentence1: "看到敏怡這麼積極，與她相比，真使我有自慚形穢的感覺。", sentence2: "雖然你的運動天賦沒有立賢高，但你也有自己的專長，何必自慚形穢呢？" },
+            { student: "Justin", unit: "單元三", word: "刻骨銘心", meaning: "刻在骨頭，刻在心上。形容感受深刻，永遠不會忘記。", missingFormat: "刻骨銘＿", missingTarget: "心", fillOptions: ["在", "他", "風", "心"], synonyms: "念念不忘、沒齒難忘", antonyms: "置之腦後", sentence1: "小時候在祖母家生活的一段日子，給我留下了刻骨銘心的回憶！", sentence2: "雖然張老師已離校多年，但她在課後耐心的教誨，至今依然令不少同學刻骨銘心。" },
+            { student: "Justin", unit: "單元三", word: "欣喜若狂", meaning: "形容高興到了極點，像失去控制一樣。", missingFormat: "欣喜若＿", missingTarget: "狂", fillOptions: ["了", "這", "狂", "他"], synonyms: "歡天喜地、喜不自勝", antonyms: "悲從中來", sentence1: "收到大學錄取通知後，表姐一家無不欣喜若狂。", sentence2: "在聯歡晚會上，大家都表現得欣喜若狂，沉醉於晚會的歡樂氣氛之中。" },
+            { student: "Justin", unit: "單元三", word: "風聲鶴唳", meaning: "原指聽到風聲和鶴鳴以為是敵兵，後用來形容非常驚慌、疑懼。唳，鳥類的鳴叫聲。", missingFormat: "風聲鶴＿", missingTarget: "唳", fillOptions: ["唳", "有", "他", "雲"], synonyms: "草木皆兵", antonyms: "處變不驚", sentence1: "自從這家公司傳出即將裁員的消息，員工都感到風聲鶴唳。", sentence2: "我們千萬不要被這些未經證實的消息弄得風聲鶴唳，以免自亂陣腳。" },
+            { student: "Justin", unit: "單元三", word: "晴天霹靂", meaning: "比喻突發的意外或令人吃驚的事情。霹靂，急而響的雷。", missingFormat: "晴天霹＿", missingTarget: "靂", fillOptions: ["風", "不", "你", "靂"], synonyms: "禍從天降", antonyms: "喜出望外", sentence1: "這個壞消息有如晴天霹靂，使他一時間難以接受。", sentence2: "爸爸打算把小狗叮噹送給表哥，這對我來說簡直就是晴天霹靂啊！" },
+            { student: "Justin", unit: "單元三", word: "無地自容", meaning: "指沒有地方可以藏身，形容羞愧至極。", missingFormat: "無地自＿", missingTarget: "容", fillOptions: ["容", "風", "我", "人"], synonyms: "羞愧難當", antonyms: "恬不知恥、厚顏無恥", sentence1: "梓軒知道自己闖了大禍，頓時羞愧得無地自容。", sentence2: "我曾冤枉你，現在你卻盡心盡力地幫助我，真叫我無地自容。" },
+            { student: "Justin", unit: "單元三", word: "無動於衷", meaning: "表示對應該關心的事卻表現得很冷漠。衷，內心。", missingFormat: "無動於＿", missingTarget: "衷", fillOptions: ["上", "衷", "地", "風"], synonyms: "漠不關心、麻木不仁", antonyms: "情不自禁", sentence1: "那個小孩就在你的眼前跌倒受傷，你怎麼還能無動於衷呢？", sentence2: "看過這齣舞台劇後，大家都感動落淚，只有智浩無動於衷。" },
+            { student: "Justin", unit: "單元三", word: "感恩圖報", meaning: "指感激別人的恩德而想辦法報答。", missingFormat: "感恩圖＿", missingTarget: "報", fillOptions: ["天", "報", "他", "好"], synonyms: "飲水思源", antonyms: "忘恩負義、過河拆橋", sentence1: "我是個感恩圖報的人，絕不會忘記你今天的大恩大德！", sentence2: "父母千辛萬苦地養育我們，我們應該感恩圖報，好好孝順他們。" },
+            { student: "Justin", unit: "單元三", word: "憂心忡忡", meaning: "形容人心事重重，非常擔憂。忡忡，憂愁的樣子。", missingFormat: "憂心忡＿", missingTarget: "忡", fillOptions: ["你", "忡", "人", "地"], synonyms: "愁眉苦臉", antonyms: "喜氣洋洋、眉開眼笑", sentence1: "思嘉上去憂心忡忡的，不知道有甚麼事情令她如此擔心呢？", sentence2: "當他收到父親病情惡化的消息後，便憂心忡忡地立即趕往醫院。" },
+            { student: "Justin", unit: "單元三", word: "驚心動魄", meaning: "指人內心感受極深，震撼很大。", missingFormat: "驚心動＿", missingTarget: "魄", fillOptions: ["上", "這", "人", "魄"], synonyms: "膽戰心驚", antonyms: "處之泰然", sentence1: "這部電影有許多驚心動魄的場面，令人回味無窮。", sentence2: "單是看着眼前的過山車高速飛馳，已經讓我感到驚心動魄了。" },
+            { student: "Justin", unit: "單元三", word: "樂極生悲", meaning: "歡樂到極點後，轉而發生令人悲傷的事情。", missingFormat: "樂極生＿", missingTarget: "悲", fillOptions: ["悲", "有", "是", "上"], synonyms: "物極必反", antonyms: "否極泰來", sentence1: "自由活動前，老師告誡大家要注意安全，以免樂極生悲。", sentence2: "惠琪吃自助餐時暴飲暴食，結果樂極生悲，得了急性腸胃炎。" },
             // 峰 的題庫
             { student: "峰", unit: "最新單元", word: "心往神馳", meaning: "形容心神嚮往，完全被吸引。", missingFormat: "心往神＿", missingTarget: "馳", fillOptions: ["馳", "池", "遲", "詞"], sentence: "看著這幅美麗的風景畫，真令人＿＿＿＿。" },
             { student: "峰", unit: "最新單元", word: "一成不變", meaning: "指守舊不變或固守常規。", missingFormat: "一成不＿", missingTarget: "變", fillOptions: ["變", "辨", "辯", "遍"], sentence: "社會每天都在發展，我們不能用＿＿＿＿的眼光看待事物。" },
@@ -592,7 +594,6 @@
             { student: "峰", unit: "最新單元", word: "千鈞一髮", meaning: "千鈞的重量繫在一根頭髮上。比喻情況極度危急。", missingFormat: "千鈞一＿", missingTarget: "髮", fillOptions: ["髮", "發", "法", "罰"], sentence: "就在小童快要掉下河的那＿＿＿＿之際，路人及時拉住了他。" },
             { student: "峰", unit: "最新單元", word: "大發雷霆", meaning: "比喻大發脾氣，大聲斥責。", missingFormat: "大發雷＿", missingTarget: "霆", fillOptions: ["霆", "停", "庭", "亭"], sentence: "看到弟弟又把房間弄得一團糟而且不肯承認錯誤，媽媽頓時＿＿＿＿。" },
             { student: "峰", unit: "最新單元", word: "人才濟濟", meaning: "形容有才能的人很多。", missingFormat: "人才濟＿", missingTarget: "濟", fillOptions: ["濟", "仔", "劑", "際"], sentence: "這間大型科技公司＿＿＿＿，聚集了來自世界各地的頂尖工程師。" },
-
             // Marcus 的示範題庫
             { student: "Marcus", unit: "比賽字詞", word: "畫蛇添足", meaning: "比喻多此一舉，不但無益，反而有害。", missingFormat: "畫蛇添＿", missingTarget: "足", fillOptions: ["足", "腳", "捉", "走"], sentence: "這篇文章已經寫得很完整了，你再加這段話簡直是＿＿＿＿。" },
             { student: "Marcus", unit: "比賽字詞", word: "半途而廢", meaning: "指事情做到一半就停止，沒有堅持到底完成。", missingFormat: "半＿而廢", missingTarget: "途", fillOptions: ["途", "圖", "步", "道"], sentence: "我們做事要有始有終，絕對不能＿＿＿＿。" }
@@ -738,7 +739,7 @@
             }
         }
 
-        // 📥 載入與儲存遊戲進度 (強制過濾壞存檔)
+        // 📥 載入與儲存遊戲進度
         function loadGameState() {
             let savedState = localStorage.getItem('rpgGameState');
             if (savedState) {
@@ -805,31 +806,46 @@
             initDatabase(); loadGameState();
         });
 
-        // 📚 學習區邏輯
+        // 📚 學習區邏輯 (加強版：近義詞、反義詞、雙例句不填空、放大字體)
         function openLearningArea() {
             try {
                 if(!currentDatabase || currentDatabase.length === 0) return alert("目前範圍沒有題目！請先選擇玩家與單元。");
                 document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
                 document.getElementById('learning-area').style.display = 'block';
                 
+                // 判斷是否「所有玩家」，調整字體大小
+                let isAllPlayers = document.getElementById('student-select').value === 'all';
+                let titleSize = isAllPlayers ? "28px" : "20px";
+                let meaningSize = isAllPlayers ? "22px" : "16px";
+                let sentenceSize = isAllPlayers ? "20px" : "14px";
+
                 let listContent = "";
                 currentDatabase.forEach(item => {
                     let safe = getSafeData(item);
                     let unitBadge = safe.unit ? `<span style="background:#1565c0; color:#fff; font-size:14px; padding:2px 6px; border-radius:4px; margin-right:8px; vertical-align:middle;">[${safe.unit}]</span>` : "";
                     
-                    // 將例句的底線還原為原本的字，並標示顏色
-                    let fullSentence = safe.sentence.replace(/＿+|_+/g, `<span style="color:#d32f2f; font-weight:bold; border-bottom: 2px solid #d32f2f;">${safe.word}</span>`);
-                    
-                    // 確保引號不會破壞 onclick 函數
                     let safeWord = safe.word.replace(/'/g, "\\'");
                     let safeMeaning = safe.meaning.replace(/'/g, "\\'");
 
+                    let extraInfo = "";
+                    if (safe.synonyms) extraInfo += `<p style="margin: 0 0 5px 0; font-size: ${sentenceSize}; color: #43a047;"><strong>同義詞：</strong>${safe.synonyms}</p>`;
+                    if (safe.antonyms) extraInfo += `<p style="margin: 0 0 8px 0; font-size: ${sentenceSize}; color: #e53935;"><strong>反義詞：</strong>${safe.antonyms}</p>`;
+                    
+                    let sentenceHtml = "";
+                    if (safe.sentence1) sentenceHtml += `<p style="margin: 0 0 5px 0; font-size: ${sentenceSize}; color: #666; font-style: italic;">💡 例句 1：${safe.sentence1}</p>`;
+                    if (safe.sentence2) sentenceHtml += `<p style="margin: 0 0 5px 0; font-size: ${sentenceSize}; color: #666; font-style: italic;">💡 例句 2：${safe.sentence2}</p>`;
+                    
+                    if (!safe.sentence1 && !safe.sentence2 && safe.sentence !== "無例句") {
+                        sentenceHtml += `<p style="margin: 0 0 5px 0; font-size: ${sentenceSize}; color: #666; font-style: italic;">💡 例句：${safe.sentence.replace(/＿|_/g, "")}</p>`;
+                    }
+
                     listContent += `
-                        <div style="background: #fff; border: 3px solid #ccc; border-radius: 8px; padding: 12px; box-shadow: 0 2px 0 #999; position: relative;">
-                            <button onclick="readLearningTTS('${safeWord}', '${safeMeaning}')" style="position: absolute; right: 12px; top: 12px; background: #2196F3; color: white; border: 2px solid #0d47a1; border-radius: 6px; padding: 4px 8px; font-weight: bold; cursor: pointer;">🔊 朗讀</button>
-                            <h3 style="margin: 0 0 5px 0; color: #1565c0; font-size: 20px; display: flex; align-items: center; padding-right: 60px;">${unitBadge}${safe.word}</h3>
-                            <p style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold; color: #333; padding-right: 60px;">📖 ${safe.meaning}</p>
-                            <p style="margin: 0; font-size: 14px; color: #666; font-style: italic;">💡 例句：${fullSentence}</p>
+                        <div style="background: #fff; border: 3px solid #ccc; border-radius: 8px; padding: 15px; box-shadow: 0 3px 0 #999; position: relative;">
+                            <button onclick="readLearningTTS('${safeWord}', '${safeMeaning}')" style="position: absolute; right: 12px; top: 12px; background: #2196F3; color: white; border: 2px solid #0d47a1; border-radius: 6px; padding: 6px 10px; font-weight: bold; cursor: pointer; transition: 0.1s;">🔊 朗讀</button>
+                            <h3 style="margin: 0 0 8px 0; color: #1565c0; font-size: ${titleSize}; display: flex; align-items: center; padding-right: 70px;">${unitBadge}${safe.word}</h3>
+                            <p style="margin: 0 0 10px 0; font-size: ${meaningSize}; font-weight: bold; color: #333; padding-right: 70px; line-height: 1.4;">📖 ${safe.meaning}</p>
+                            ${extraInfo}
+                            ${sentenceHtml}
                         </div>
                     `;
                 });
@@ -924,7 +940,12 @@
                 } else if (currentStdMode === 'word-to-meaning') {
                     document.getElementById('question-text-std').innerText = safe.word; options = generateOptions(safe.meaning, 'meaning');
                 } else if (currentStdMode === 'sentence') {
-                    document.getElementById('question-text-std').innerText = safe.sentence.replace(/＿＿＿＿/g, "【 ＿＿ 】"); options = generateOptions(safe.word, 'word');
+                    let sText = safe.sentence !== "無例句" ? safe.sentence : (safe.sentence1 || "無例句");
+                    let displaySentence = sText;
+                    if (!displaySentence.includes("＿")) displaySentence = displaySentence.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】");
+                    else displaySentence = displaySentence.replace(/＿＿＿＿/g, "【 ＿＿ 】");
+                    document.getElementById('question-text-std').innerText = displaySentence;
+                    options = generateOptions(safe.word, 'word');
                 } else if (currentStdMode === 'fill-blank') {
                     document.getElementById('question-text-std').innerText = safe.mFormat;
                     options = safe.fillOpts.length > 0 ? [...safe.fillOpts].sort(() => 0.5 - Math.random()) : generateOptions(safe.mTarget, 'missingTarget');
@@ -1008,7 +1029,12 @@
                 if (bossQuestType === 'meaning-to-word') { qText = safe.meaning; actualAns = safe.word; rawOptions = generateOptions(actualAns, 'word'); }
                 else if (bossQuestType === 'word-to-meaning') { qText = safe.word; actualAns = safe.meaning; rawOptions = generateOptions(actualAns, 'meaning'); }
                 else if (bossQuestType === 'fill-blank') { qText = safe.mFormat; actualAns = safe.mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random()); }
-                else if (bossQuestType === 'sentence') { qText = safe.sentence.replace(/＿＿＿＿/g, "【 ＿＿ 】"); actualAns = safe.word; rawOptions = generateOptions(actualAns, 'word'); }
+                else if (bossQuestType === 'sentence') { 
+                    let sText = safe.sentence !== "無例句" ? safe.sentence : (safe.sentence1 || "無例句");
+                    if (!sText.includes("＿")) qText = sText.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】");
+                    else qText = sText.replace(/＿＿＿＿/g, "【 ＿＿ 】");
+                    actualAns = safe.word; rawOptions = generateOptions(actualAns, 'word'); 
+                }
 
                 document.getElementById('boss-q-text').innerText = qText;
                 
@@ -1092,7 +1118,13 @@
                 if (rpgQuestType === 'meaning-to-word') { title = "📜 任務：尋找匹配字詞"; question = safe.meaning; actualCorrectAnswer = safe.word; rawOptions = generateOptions(safe.word, 'word');
                 } else if (rpgQuestType === 'word-to-meaning') { title = "📜 任務：解讀告示牌"; question = safe.word; actualCorrectAnswer = safe.meaning; rawOptions = generateOptions(safe.meaning, 'meaning');
                 } else if (rpgQuestType === 'fill-blank') { title = "📜 任務：修補殘缺字詞"; question = safe.mFormat; actualCorrectAnswer = safe.mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random());
-                } else if (rpgQuestType === 'sentence') { title = "📜 任務：填補情境對白"; question = safe.sentence.replace(/＿＿＿＿/g, "【 ＿＿ 】"); actualCorrectAnswer = safe.word; rawOptions = generateOptions(safe.word, 'word'); }
+                } else if (rpgQuestType === 'sentence') { 
+                    title = "📜 任務：填補情境對白"; 
+                    let sText = safe.sentence !== "無例句" ? safe.sentence : (safe.sentence1 || "無例句");
+                    if (!sText.includes("＿")) question = sText.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】");
+                    else question = sText.replace(/＿＿＿＿/g, "【 ＿＿ 】");
+                    actualCorrectAnswer = safe.word; rawOptions = generateOptions(safe.word, 'word'); 
+                }
 
                 document.getElementById('rpg-mission-title').innerText = title; document.getElementById('rpg-question-text').innerText = question;
                 
@@ -1152,7 +1184,10 @@
                     let realAnsText = foundEl ? foundEl.innerText.substring(4) : safe.word;
                     
                     if(rpgQuestType === 'fill-blank') document.getElementById('rpg-question-text').innerText = safe.mFormat.replace(/＿|_/g, `【${realAnsText}】`);
-                    else if(rpgQuestType === 'sentence') document.getElementById('rpg-question-text').innerText = safe.sentence.replace(/＿＿＿＿/g, `【${realAnsText}】`);
+                    else if(rpgQuestType === 'sentence') {
+                        let sText = safe.sentence !== "無例句" ? safe.sentence : (safe.sentence1 || "無例句");
+                        document.getElementById('rpg-question-text').innerText = sText.replace(/＿＿＿＿/g, `【${realAnsText}】`).replace(new RegExp(safe.word, "g"), `【${realAnsText}】`);
+                    }
                     
                     document.getElementById('rpg-controls').style.display = 'none'; 
                     checkBossTrigger();
