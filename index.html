@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>《學神領域：方塊戰記》 (Domain of the Study God: Block Chronicles)</title>
+    <title>學神領域：方塊戰記</title>
     
     <!-- 📱 PWA Web App 支援設定 -->
     <meta name="theme-color" content="#5b8731">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="學神領域：方塊戰記">
+    <meta name="apple-mobile-web-app-title" content="學神領域">
     
     <!-- 連結外部 Manifest 與設定 App 圖示 -->
     <link rel="manifest" href="./manifest.json">
@@ -31,8 +31,8 @@
 
         .header-container { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; gap: 10px;}
         .title-area { text-align: left; }
-        h1 { color: #2e7d32; font-size: 30px; margin: 0 0 5px 0; font-family: 'DotGothic16', sans-serif; text-shadow: 1px 1px 0px #fff; }
-        .subtitle { color: #555; margin: 0; font-size: 16px; font-weight: bold; }
+        h1 { color: #2e7d32; font-size: 28px; margin: 0 0 5px 0; font-family: 'DotGothic16', sans-serif; text-shadow: 1px 1px 0px #fff; }
+        .subtitle { color: #555; margin: 0; font-size: 14px; font-weight: bold; }
         
         .header-btns-group { display: flex; flex-direction: column; gap: 8px; }
         .db-btn { background: #fff; border: 3px solid #ccc; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; color: #555; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 5px; box-shadow: 0 2px 0 #ccc; }
@@ -63,11 +63,11 @@
         .mode-card p { margin: 0; font-size: 12px; color: #666; font-weight: bold; line-height: 1.4; }
 
         /* 🎮 RPG 遊戲介面 */
-        .rpg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 5px; }
-        .header-btn { background: #fff; border: 2px solid #ccc; padding: 6px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; color: #333; display: flex; align-items: center; gap: 5px; }
+        .rpg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+        .header-btn { background: #fff; border: 2px solid #ccc; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; color: #333; display: flex; align-items: center; gap: 5px; }
         
         /* ❤️ 玩家血條與食物 */
-        .player-status { display: flex; gap: 8px; align-items: center; background: #fff; padding: 4px 10px; border-radius: 8px; border: 3px inset #ccc; font-weight: bold; font-size: 14px; flex-wrap: wrap; justify-content: center; flex-grow: 1;}
+        .player-status { display: flex; gap: 10px; align-items: center; background: #fff; padding: 6px 12px; border-radius: 8px; border: 3px inset #ccc; font-weight: bold; font-size: 15px; flex-wrap: wrap; justify-content: center; flex-grow: 1;}
         .eat-btn { background: #4CAF50; border: 2px solid #2E7D32; color: white; border-radius: 6px; cursor: pointer; font-weight: bold; padding: 4px 8px; font-size: 13px;}
         .eat-btn:active { transform: scale(0.95); }
 
@@ -163,8 +163,8 @@
     <div id="main-dashboard" class="page">
         <div class="header-container">
             <div class="title-area">
-                <h1>⛏️ 《學神領域：方塊戰記》 (Domain of the Study God: Block Chronicles)</h1>
-                <p class="subtitle">化身方塊人，邊聽邊玩邊建設！</p>
+                <h1>⛏️ 學神領域：方塊戰記</h1>
+                <p class="subtitle">Domain of the Study God: Block Chronicles</p>
             </div>
             <div class="header-btns-group">
                 <button class="db-btn" onclick="checkParentPassword()">⚙️ 設定與題庫</button>
@@ -232,7 +232,7 @@
     <!-- 📚 學習區 Page -->
     <div id="learning-area" class="page">
         <div class="rpg-header">
-            <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
+            <button class="header-btn" onclick="goToMenu()">⬅️ 返回大本營</button>
             <h2 style="margin:0; color:#1565c0; font-size: 22px;">📚 詞語學習區</h2>
         </div>
         <div id="learning-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; text-align: left;">
@@ -279,7 +279,7 @@
             <div class="player-status">
                 <span style="color:#d32f2f;">❤️ <span id="hp-std">100</span></span>
                 <span style="color:#d84315;">🍎 <span id="food-std">0</span></span>
-                <button class="eat-btn" onclick="eatFood()">吃</button>
+                <button class="eat-btn" onclick="eatFood()">吃 (+30)</button>
             </div>
             <span class="emerald-display">❇️ <span id="em-std2">0</span></span>
         </div>
@@ -470,6 +470,20 @@
         // 🎙️ 原生瀏覽器語音系統
         // =====================================
         let isPlayingAudio = false;
+
+        function readLearningTTS(word, meaning) {
+            try {
+                initAudio(); 
+                if(window.speechSynthesis) window.speechSynthesis.cancel();
+                isPlayingAudio = true;
+                let text = word + "。解釋是：" + meaning;
+                let u = new SpeechSynthesisUtterance(text);
+                u.lang = 'zh-HK';
+                u.onend = () => { isPlayingAudio = false; };
+                u.onerror = () => { isPlayingAudio = false; };
+                speechSynthesis.speak(u);
+            } catch(e) { console.error("TTS Error", e); }
+        }
 
         function readQuestionTTS() {
             try {
@@ -802,11 +816,20 @@
                 currentDatabase.forEach(item => {
                     let safe = getSafeData(item);
                     let unitBadge = safe.unit ? `<span style="background:#1565c0; color:#fff; font-size:14px; padding:2px 6px; border-radius:4px; margin-right:8px; vertical-align:middle;">[${safe.unit}]</span>` : "";
+                    
+                    // 將例句的底線還原為原本的字，並標示顏色
+                    let fullSentence = safe.sentence.replace(/＿+|_+/g, `<span style="color:#d32f2f; font-weight:bold; border-bottom: 2px solid #d32f2f;">${safe.word}</span>`);
+                    
+                    // 確保引號不會破壞 onclick 函數
+                    let safeWord = safe.word.replace(/'/g, "\\'");
+                    let safeMeaning = safe.meaning.replace(/'/g, "\\'");
+
                     listContent += `
-                        <div style="background: #fff; border: 3px solid #ccc; border-radius: 8px; padding: 12px; box-shadow: 0 2px 0 #999;">
-                            <h3 style="margin: 0 0 5px 0; color: #1565c0; font-size: 20px; display: flex; align-items: center;">${unitBadge}${safe.word}</h3>
-                            <p style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold; color: #333;">📖 ${safe.meaning}</p>
-                            <p style="margin: 0; font-size: 14px; color: #666; font-style: italic;">💡 例句：${safe.sentence}</p>
+                        <div style="background: #fff; border: 3px solid #ccc; border-radius: 8px; padding: 12px; box-shadow: 0 2px 0 #999; position: relative;">
+                            <button onclick="readLearningTTS('${safeWord}', '${safeMeaning}')" style="position: absolute; right: 12px; top: 12px; background: #2196F3; color: white; border: 2px solid #0d47a1; border-radius: 6px; padding: 4px 8px; font-weight: bold; cursor: pointer;">🔊 朗讀</button>
+                            <h3 style="margin: 0 0 5px 0; color: #1565c0; font-size: 20px; display: flex; align-items: center; padding-right: 60px;">${unitBadge}${safe.word}</h3>
+                            <p style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold; color: #333; padding-right: 60px;">📖 ${safe.meaning}</p>
+                            <p style="margin: 0; font-size: 14px; color: #666; font-style: italic;">💡 例句：${fullSentence}</p>
                         </div>
                     `;
                 });
@@ -948,7 +971,7 @@
         }
 
         // =====================================
-        // 🐉 巨龍/Minecraft Boss 戰邏輯 (升級版像素圖)
+        // 🐉 巨龍/Minecraft Boss 戰邏輯
         // =====================================
         const BOSS_LIST = [
             { name: "終界龍 (Ender Dragon)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%231a1a1a'/%3E%3Crect x='1' y='3' width='2' height='1' fill='%23d800d8'/%3E%3Crect x='5' y='3' width='2' height='1' fill='%23d800d8'/%3E%3Crect x='2' y='5' width='4' height='3' fill='%230a0a0a'/%3E%3C/svg%3E", dmg: 30 },
