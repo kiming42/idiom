@@ -49,6 +49,7 @@
         .filter-group { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
         .filter-group label { font-size: 14px; font-weight: bold; color: #555; }
         .filter-group select { padding: 10px 15px; font-size: 16px; border: 2px solid #ccc; border-radius: 8px; font-family: "PingFang HK", sans-serif; cursor: pointer; outline: none; font-weight: bold; color: #333; background: #fff; width: 100%; box-sizing: border-box; }
+        .filter-group select:focus { border-color: #8bc34a; box-shadow: 0 0 5px rgba(139, 195, 74, 0.5); }
         .scope-info-text { margin: 15px 0 0 0; font-size: 14px; color: #777; font-weight: bold; border-top: 1px dashed #ddd; padding-top: 15px; }
 
         .section-title { text-align: left; color: #2e7d32; font-size: 18px; margin-bottom: 10px; border-bottom: 3px dashed #999; padding-bottom: 5px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
@@ -332,15 +333,35 @@
 
     <script>
         // =====================================
+        // 🔐 防崩潰自動修復機制與全域錯誤捕獲
+        // =====================================
+        window.onerror = function(msg, url, lineNo, columnNo, error) {
+            console.error("Game System Error:", msg, error);
+            let nextBtn1 = document.getElementById('std-next-btn');
+            let nextBtn2 = document.getElementById('rpg-next-btn');
+            if(nextBtn1) nextBtn1.style.display = 'block';
+            if(nextBtn2) nextBtn2.style.display = 'block';
+            return false;
+        };
+
+        function getSafeData(dataObj) {
+            if(!dataObj) dataObj = {};
+            let word = String(dataObj.word || "未知");
+            let meaning = String(dataObj.meaning || "無解釋");
+            let mFormat = String(dataObj.missingFormat || word);
+            let mTarget = String(dataObj.missingTarget || word.charAt(0) || "字");
+            let sentence = String(dataObj.sentence || "無例句");
+            let fillOpts = Array.isArray(dataObj.fillOptions) ? dataObj.fillOptions : [];
+            return { word, meaning, mFormat, mTarget, sentence, fillOpts };
+        }
+
+        // =====================================
         // 🔐 家長密碼系統
         // =====================================
         function checkParentPassword() {
             let pin = prompt("🔒 這是家長專區：\n請輸入 4 位數密碼以進入設定與題庫 (預設密碼：1234)");
-            if (pin === "1234") {
-                openDBManager();
-            } else if (pin !== null) {
-                alert("❌ 密碼錯誤！請由家長輸入。");
-            }
+            if (pin === "1234") openDBManager();
+            else if (pin !== null) alert("❌ 密碼錯誤！請由家長輸入。");
         }
 
         // =====================================
@@ -348,18 +369,15 @@
         // =====================================
         let deferredPrompt;
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
+            e.preventDefault(); deferredPrompt = e;
         });
 
         function installApp() {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    deferredPrompt = null;
-                });
+                deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
             } else {
-                alert("💡 安裝至手機教學：\n\n【Android / Chrome 用戶】\n請點擊瀏覽器右上角的「⋮」選單，然後選擇「加至主畫面 (Add to Home screen)」。\n\n【iPhone / Safari 用戶】\n請點擊瀏覽器底部的「分享」圖示 (方塊加上箭頭)，然後選擇「加入主畫面」。");
+                alert("💡 安裝至手機教學：\n\n【Android / Chrome 用戶】\n請點擊右上角「⋮」選單，選擇「加至主畫面」。\n\n【iPhone / Safari 用戶】\n請點擊底部「分享」圖示，選擇「加入主畫面」。");
             }
         }
 
@@ -368,20 +386,22 @@
         // =====================================
         let audioCtx;
         function initAudio() {
-            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if(audioCtx.state === 'suspended') audioCtx.resume();
+            try {
+                if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+            } catch(e) { console.error("Audio init error", e); }
         }
 
         function playTone(freq, type, duration, vol=0.1) {
-            if(!audioCtx) return;
-            let osc = audioCtx.createOscillator();
-            let gain = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + duration);
+            try {
+                if(!audioCtx) return;
+                let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+                osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
         }
 
         const sfx = {
@@ -401,52 +421,46 @@
         let isPlayingAudio = false;
 
         function readQuestionTTS() {
-            if(!currentTargetData || isPlayingAudio) return;
-            initAudio(); 
-            let textToRead = "";
-            let mode = document.getElementById('standard-game').style.display === 'block' ? currentStdMode : rpgQuestType;
-            if(document.getElementById('boss-modal').style.display === 'flex') mode = bossQuestType;
+            try {
+                if(!currentTargetData || isPlayingAudio) return;
+                initAudio(); 
+                let textToRead = "";
+                let mode = document.getElementById('standard-game').style.display === 'block' ? currentStdMode : rpgQuestType;
+                if(document.getElementById('boss-modal').style.display === 'flex') mode = bossQuestType;
 
-            let targetData = document.getElementById('boss-modal').style.display === 'flex' ? bossTargetData : currentTargetData;
-            
-            let word = targetData.word || "未知";
-            let meaning = targetData.meaning || "無解釋";
-            let mFormat = targetData.missingFormat || word;
-            let sentence = targetData.sentence || "無例句";
+                let targetData = document.getElementById('boss-modal').style.display === 'flex' ? bossTargetData : currentTargetData;
+                let safe = getSafeData(targetData);
 
-            if (mode === 'meaning-to-word') textToRead = meaning;
-            else if (mode === 'word-to-meaning') textToRead = word;
-            else if (mode === 'sentence') textToRead = sentence.replace(/[＿【】_]+/g, "什麼");
-            else if (mode === 'fill-blank') textToRead = mFormat.replace(/[＿_]+/g, "什麼");
-            
-            if(textToRead) {
-                isPlayingAudio = true;
-                let btnStd = document.getElementById('tts-btn-std');
-                let btnRpg = document.getElementById('tts-btn-rpg');
-                if(btnStd && document.getElementById('standard-game').style.display === 'block') { btnStd.classList.add('playing'); btnStd.innerText = "🔊 播放中..."; }
-                if(btnRpg && document.getElementById('rpg-game').style.display === 'block') { btnRpg.classList.add('playing'); btnRpg.innerText = "🔊 播放中..."; }
+                if (mode === 'meaning-to-word') textToRead = safe.meaning;
+                else if (mode === 'word-to-meaning') textToRead = safe.word;
+                else if (mode === 'sentence') textToRead = safe.sentence.replace(/[＿【】_]+/g, "什麼");
+                else if (mode === 'fill-blank') textToRead = safe.mFormat.replace(/[＿_]+/g, "什麼");
+                
+                if(textToRead) {
+                    isPlayingAudio = true;
+                    let btnStd = document.getElementById('tts-btn-std');
+                    let btnRpg = document.getElementById('tts-btn-rpg');
+                    if(btnStd && document.getElementById('standard-game').style.display === 'block') { btnStd.classList.add('playing'); btnStd.innerText = "🔊 播放中..."; }
+                    if(btnRpg && document.getElementById('rpg-game').style.display === 'block') { btnRpg.classList.add('playing'); btnRpg.innerText = "🔊 播放中..."; }
 
-                let u = new SpeechSynthesisUtterance(textToRead);
-                u.lang = 'zh-HK';
-                u.onend = resetTTSBtn;
-                u.onerror = resetTTSBtn;
-                speechSynthesis.speak(u);
-            }
+                    let u = new SpeechSynthesisUtterance(textToRead);
+                    u.lang = 'zh-HK'; u.onend = resetTTSBtn; u.onerror = resetTTSBtn;
+                    speechSynthesis.speak(u);
+                }
+            } catch(e) { console.error("TTS Error", e); resetTTSBtn(); }
         }
 
         function resetTTSBtn() {
             isPlayingAudio = false;
-            let btnStd = document.getElementById('tts-btn-std');
-            let btnRpg = document.getElementById('tts-btn-rpg');
+            let btnStd = document.getElementById('tts-btn-std'); let btnRpg = document.getElementById('tts-btn-rpg');
             if(btnStd) { btnStd.classList.remove('playing'); btnStd.innerText = "🔊 朗讀題目"; }
             if(btnRpg) { btnRpg.classList.remove('playing'); btnRpg.innerText = "🔊 朗讀"; }
         }
 
         // =====================================
-        // 💾 題庫與遊戲進度系統 (Auto-Save & HP)
+        // 💾 題庫系統
         // =====================================
         const defaultDatabaseRaw = [
-            // Justin 單元一
             { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。", missingFormat: "人＿鼎沸", missingTarget: "聲", fillOptions: ["聲", "星", "生", "升"], sentence: "節日期間的年宵市場＿＿＿＿，熱鬧的景象令人難忘。" },
             { student: "Justin", unit: "單元一", word: "水泄不通", meaning: "連一滴水也流不出去，形容包圍緊密，也形容環境極度擁擠。", missingFormat: "水＿不通", missingTarget: "泄", fillOptions: ["泄", "洩", "瀉", "世"], sentence: "發生嚴重的交通事故後，這條主要幹道被車輛擠得＿＿＿＿。" },
             { student: "Justin", unit: "單元一", word: "日積月累", meaning: "指每天、每月地不斷積累。", missingFormat: "日＿月累", missingTarget: "積", fillOptions: ["積", "績", "擊", "激"], sentence: "學習語文必須依靠＿＿＿＿的閱讀和寫作，不能一蹴而就。" },
@@ -462,7 +476,6 @@
             { student: "Justin", unit: "單元一", word: "萬籟俱寂", meaning: "形容萬物無聲，一片寂靜。", missingFormat: "萬＿俱寂", missingTarget: "籟", fillOptions: ["籟", "賴", "懶", "瀨"], sentence: "在＿＿＿＿的深夜裏，整座城市都陷入了沉睡，唯獨他還在挑燈夜戰。" },
             { student: "Justin", unit: "單元一", word: "歷歷在目", meaning: "清楚明白地呈現在眼前。歷歷，清楚分明。", missingFormat: "歷歷在＿", missingTarget: "目", fillOptions: ["目", "木", "沐", "牧"], sentence: "雖然畢業已經十年，但當年與同學們在操場上共同奮鬥的情景，至今依然＿＿＿＿。" },
             { student: "Justin", unit: "單元一", word: "鑼鼓喧天", meaning: "本指鑼鼓聲音大得震天。現形容氣氛非常熱鬧。", missingFormat: "鑼鼓＿天", missingTarget: "喧", fillOptions: ["喧", "宣", "圈", "旋"], sentence: "為了慶祝國慶，主辦單位安排了盛大的舞龍表演，現場＿＿＿＿，氣氛高漲。" },
-            // Justin 單元二
             { student: "Justin", unit: "單元二", word: "大快朵頤", meaning: "飽食、愉快的樣子。朵，動。頤，下巴。", missingFormat: "大快朵＿", missingTarget: "頤", fillOptions: ["頤", "題", "頁", "順"], sentence: "母親在廚房準備了豐富的晚餐，一家人圍坐在餐桌前＿＿＿＿。" },
             { student: "Justin", unit: "單元二", word: "口若懸河", meaning: "說起話來像河水傾瀉一樣，說個不停。形容能言善辯。", missingFormat: "口若懸＿", missingTarget: "河", fillOptions: ["河", "何", "荷", "可"], sentence: "他在辯論比賽中表現出色，面對評判的提問＿＿＿＿，贏得了熱烈掌聲。" },
             { student: "Justin", unit: "單元二", word: "口蜜腹劍", meaning: "形容人把話說得動聽，事實上內心險惡，處處想陷害別人。", missingFormat: "口蜜腹＿", missingTarget: "劍", fillOptions: ["劍", "見", "健", "箭"], sentence: "我們平時結交朋友要擦亮雙眼，切忌親近那些＿＿＿＿的小人。" },
@@ -478,7 +491,6 @@
             { student: "Justin", unit: "單元二", word: "戰戰兢兢", meaning: "因害怕而發抖。形容十分害怕或小心謹慎的樣子。", missingFormat: "戰戰＿兢", missingTarget: "兢", fillOptions: ["兢", "竟", "境", "經"], sentence: "第一次踏上舞台作公開演講時，他心裏＿＿＿＿的，深怕自己會突然忘詞。" },
             { student: "Justin", unit: "單元二", word: "信口雌黃", meaning: "比喻不顧事實，隨口亂說或隨意批評。", missingFormat: "信口雌＿", missingTarget: "黃", fillOptions: ["黃", "王", "皇", "謊"], sentence: "在未搞清楚真相之前，請不要在社交平台上＿＿＿＿，以免傷害無辜者。" },
             { student: "Justin", unit: "單元二", word: "顧影自憐", meaning: "形容人孤獨失意，亦可形容自我欣賞的樣子。", missingFormat: "顧影自＿", missingTarget: "憐", fillOptions: ["憐", "鄰", "玲", "靈"], sentence: "夜深人靜時，他獨自坐在窗前看著自己的影子，心中湧起一股＿＿＿＿的落寞感。" },
-            // Justin 單元三
             { student: "Justin", unit: "單元三", word: "火冒三丈", meaning: "頭上冒出三丈高的火。形容極度生氣。", missingFormat: "火冒三＿", missingTarget: "丈", fillOptions: ["丈", "杖", "仗", "帳"], sentence: "看到弟弟又把房間弄得一團糟而且不肯承認錯誤，媽媽頓時氣得＿＿＿＿。" },
             { student: "Justin", unit: "單元三", word: "扣人心弦", meaning: "形容事物深深地牽動人心，令人心情激動或覺得感動。", missingFormat: "扣人心＿", missingTarget: "弦", fillOptions: ["弦", "懸", "旋", "咸"], sentence: "這部偵探電影的劇情發展峰迴路轉、＿＿＿＿，直到最後一刻才揭曉真兇。" },
             { student: "Justin", unit: "單元三", word: "心悅誠服", meaning: "誠心誠意地歸服或佩服。", missingFormat: "心悅誠＿", missingTarget: "服", fillOptions: ["服", "福", "幅", "富"], sentence: "老師憑藉着淵博的學識和耐心細緻的教導，讓班上所有調皮的學生都＿＿＿＿。" },
@@ -535,79 +547,90 @@
 
         // 🧠 載入題庫
         function initDatabase() {
-            let currentDefaultStr = JSON.stringify(defaultDatabaseRaw);
-            let lastDefaultStr = localStorage.getItem('lastDefaultDB');
+            try {
+                let currentDefaultStr = JSON.stringify(defaultDatabaseRaw);
+                let lastDefaultStr = localStorage.getItem('lastDefaultDB');
 
-            if (lastDefaultStr !== currentDefaultStr) {
-                database = JSON.parse(currentDefaultStr);
-                localStorage.setItem('customVocabDB', JSON.stringify(database));
-                localStorage.setItem('lastDefaultDB', currentDefaultStr);
-            } else {
-                let savedDB = localStorage.getItem('customVocabDB');
-                let parsedDB = null;
-                if (savedDB) {
-                    try { 
-                        parsedDB = JSON.parse(savedDB); 
-                        if (!Array.isArray(parsedDB)) parsedDB = null;
-                    } catch(e) { parsedDB = null; }
-                }
-                if (parsedDB && parsedDB.length > 0) {
-                    database = parsedDB;
-                } else {
+                if (lastDefaultStr !== currentDefaultStr) {
                     database = JSON.parse(currentDefaultStr);
+                    localStorage.setItem('customVocabDB', JSON.stringify(database));
                     localStorage.setItem('lastDefaultDB', currentDefaultStr);
+                } else {
+                    let savedDB = localStorage.getItem('customVocabDB');
+                    let parsedDB = null;
+                    if (savedDB) {
+                        try { 
+                            parsedDB = JSON.parse(savedDB); 
+                            if (!Array.isArray(parsedDB)) parsedDB = null;
+                        } catch(e) { parsedDB = null; }
+                    }
+                    if (parsedDB && parsedDB.length > 0) {
+                        database = parsedDB;
+                    } else {
+                        database = JSON.parse(currentDefaultStr);
+                        localStorage.setItem('lastDefaultDB', currentDefaultStr);
+                    }
                 }
-            }
 
-            database = database.map(item => { 
-                if(item && item.idiom) { item.word = item.idiom; delete item.idiom; } 
-                return item; 
-            }).filter(item => item != null);
-            
-            let studentSelect = document.getElementById('student-select');
-            if (studentSelect) {
-                studentSelect.innerHTML = ''; 
-                let students = [...new Set(database.map(item => item.student || "未分類"))];
-                students.forEach(s => {
-                    let opt = document.createElement('option');
-                    opt.value = s; opt.innerText = s; studentSelect.appendChild(opt);
-                });
+                database = database.map(item => { 
+                    if(item && item.idiom) { item.word = item.idiom; delete item.idiom; } 
+                    return item; 
+                }).filter(item => item != null);
                 
-                let allOpt = document.createElement('option');
-                allOpt.value = 'all'; allOpt.innerText = '所有玩家大挑戰';
-                studentSelect.appendChild(allOpt);
+                let studentSelect = document.getElementById('student-select');
+                if (studentSelect) {
+                    studentSelect.innerHTML = ''; 
+                    let students = [...new Set(database.map(item => item.student || "未分類"))];
+                    students.forEach(s => {
+                        let opt = document.createElement('option');
+                        opt.value = s; opt.innerText = s; studentSelect.appendChild(opt);
+                    });
+                    
+                    let allOpt = document.createElement('option');
+                    allOpt.value = 'all'; allOpt.innerText = '所有玩家大挑戰';
+                    studentSelect.appendChild(allOpt);
 
-                updateUnitDropdown();
-            }
+                    updateUnitDropdown();
+                }
+            } catch(e) { console.error("Init DB Error", e); }
         }
 
         function updateUnitDropdown() {
-            let studentSelect = document.getElementById('student-select');
-            if(!studentSelect || !studentSelect.value) return;
-            
-            let student = studentSelect.value;
-            let select = document.getElementById('unit-select');
-            select.innerHTML = '<option value="all">所有範圍 (綜合挑戰)</option>';
-            
-            let studentDB = (student === 'all') ? database : database.filter(item => item.student === student);
-            let units = [...new Set(studentDB.map(item => item.unit || "未分類"))];
-            units.forEach(u => {
-                let opt = document.createElement('option'); opt.value = u; opt.innerText = u; select.appendChild(opt);
-            });
-            updateScopeInfo();
+            try {
+                let studentSelect = document.getElementById('student-select');
+                if(!studentSelect || !studentSelect.value) return;
+                
+                let student = studentSelect.value;
+                let select = document.getElementById('unit-select');
+                select.innerHTML = '<option value="all">所有範圍 (綜合挑戰)</option>';
+                
+                let studentDB = (student === 'all') ? database : database.filter(item => item.student === student);
+                let units = [...new Set(studentDB.map(item => item.unit || "未分類"))];
+                units.forEach(u => {
+                    let opt = document.createElement('option'); opt.value = u; opt.innerText = u; select.appendChild(opt);
+                });
+                updateScopeInfo();
+            } catch(e) { console.error(e); }
         }
 
         function updateScopeInfo() {
-            let studentSelect = document.getElementById('student-select');
-            if(!studentSelect || !studentSelect.value) return;
+            try {
+                let studentSelect = document.getElementById('student-select');
+                if(!studentSelect || !studentSelect.value) return;
 
-            let student = studentSelect.value;
-            let unit = document.getElementById('unit-select').value;
-            let filteredDB = (student === 'all') ? database : database.filter(item => item.student === student);
-            currentDatabase = (unit === 'all') ? filteredDB : filteredDB.filter(item => item.unit === unit);
-            document.getElementById('scope-info').innerText = `這個範圍共有 ${currentDatabase.length} 個字詞。`;
-            
-            questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
+                let student = studentSelect.value;
+                let unit = document.getElementById('unit-select').value;
+                let filteredDB = (student === 'all') ? database : database.filter(item => item.student === student);
+                currentDatabase = (unit === 'all') ? filteredDB : filteredDB.filter(item => item.unit === unit);
+                
+                // 極限防錯保護：確保 currentDatabase 絕對不可能為空
+                if (!currentDatabase || currentDatabase.length === 0) {
+                    currentDatabase = database.length > 0 ? [...database] : [...defaultDatabaseRaw];
+                }
+                
+                document.getElementById('scope-info').innerText = `這個範圍共有 ${currentDatabase.length} 個字詞。`;
+                questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
+            } catch(e) { console.error(e); }
         }
 
         function openDBManager() { 
@@ -648,47 +671,42 @@
             }
         }
 
-        // 📥 載入與儲存遊戲進度
+        // 📥 載入與儲存遊戲進度 (強制過濾壞存檔)
         function loadGameState() {
             let savedState = localStorage.getItem('rpgGameState');
             if (savedState) {
                 try {
                     let state = JSON.parse(savedState);
-                    emeralds = state.emeralds || 0;
+                    emeralds = parseInt(state.emeralds) || 0;
+                    hp = parseInt(state.hp); if(isNaN(hp)) hp = MAX_HP;
+                    foodCount = parseInt(state.foodCount) || 0;
+                    questionsAnswered = parseInt(state.questionsAnswered) || 0;
+                    gridSize = parseInt(state.gridSize); if(isNaN(gridSize) || gridSize < 6) gridSize = 8;
                     materials = state.materials || { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 };
                     inventory = state.inventory || {};
-                    placedDecorations = state.placedDecorations || [];
-                    gridSize = state.gridSize || 8;
-                    hp = state.hp !== undefined ? state.hp : MAX_HP;
-                    foodCount = state.foodCount || 0;
-                    questionsAnswered = state.questionsAnswered || 0;
-                } catch(e) { console.error("載入遊戲紀錄失敗", e); }
+                    placedDecorations = Array.isArray(state.placedDecorations) ? state.placedDecorations : [];
+                } catch(e) { console.error("載入遊戲紀錄失敗", e); gridSize = 8; }
             }
             updateMaterialUI(); updateGridSize();
         }
 
         function saveGameState() {
-            let state = { emeralds, materials, inventory, placedDecorations, gridSize, hp, foodCount, questionsAnswered };
-            localStorage.setItem('rpgGameState', JSON.stringify(state));
+            try {
+                let state = { emeralds, materials, inventory, placedDecorations, gridSize, hp, foodCount, questionsAnswered };
+                localStorage.setItem('rpgGameState', JSON.stringify(state));
+            } catch(e) { console.error("存檔失敗", e); }
         }
 
         function updateMaterialUI() {
-            const safeSet = (id, val) => { let el = document.getElementById(id); if(el) el.innerText = val; };
-            safeSet('em-menu', emeralds);
-            safeSet('em-std', emeralds); 
-            safeSet('em-std2', emeralds);
-            safeSet('mat-em', emeralds);
-            safeSet('mat-log', materials.log);
-            safeSet('mat-stone', materials.stone);
-            safeSet('mat-fiber', materials.fiber);
-            safeSet('mat-sand', materials.sand);
-            safeSet('mat-clay', materials.clay);
-            safeSet('mat-iron', materials.iron);
-            safeSet('mat-gold', materials.gold);
-            safeSet('hp-std', hp);
-            safeSet('hp-rpg', hp);
-            safeSet('food-std', foodCount);
-            safeSet('food-rpg', foodCount);
+            try {
+                const safeSet = (id, val) => { let el = document.getElementById(id); if(el) el.innerText = val; };
+                safeSet('em-menu', emeralds); safeSet('em-std', emeralds); safeSet('em-std2', emeralds); // 修復舊ID
+                safeSet('mat-em', emeralds);
+                safeSet('mat-log', materials.log); safeSet('mat-stone', materials.stone); safeSet('mat-fiber', materials.fiber);
+                safeSet('mat-sand', materials.sand); safeSet('mat-clay', materials.clay); safeSet('mat-iron', materials.iron); safeSet('mat-gold', materials.gold);
+                safeSet('hp-std', hp); safeSet('hp-rpg', hp);
+                safeSet('food-std', foodCount); safeSet('food-rpg', foodCount);
+            } catch(e) { console.error("UI Update Error", e); }
         }
 
         function goToMenu() { 
@@ -706,6 +724,7 @@
 
         // ⚔️ 戰鬥與生存系統
         function takeDamage(amount, reason) {
+            hp = parseInt(hp); if(isNaN(hp)) hp = MAX_HP;
             hp -= amount;
             sfx.hit();
             document.body.classList.add('damage-flash');
@@ -728,9 +747,7 @@
 
         function eatFood() {
             if (foodCount > 0 && hp < MAX_HP) {
-                sfx.eat();
-                foodCount--;
-                hp = Math.min(MAX_HP, hp + 30);
+                sfx.eat(); foodCount--; hp = Math.min(MAX_HP, hp + 30);
                 updateMaterialUI(); saveGameState();
             } else if (hp >= MAX_HP) {
                 alert("血量已經滿了，不需要吃東西！");
@@ -751,7 +768,7 @@
         let currentStdMode = "";
         function startStandardGame(mode) {
             initAudio(); 
-            if(currentDatabase.length === 0) return alert("目前範圍沒有題目！請在設定檢查題庫。");
+            if(!currentDatabase || currentDatabase.length === 0) return alert("目前範圍沒有題目！請在設定檢查題庫。");
             currentStdMode = mode;
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
             document.getElementById('standard-game').style.display = 'block';
@@ -777,37 +794,29 @@
         }
 
         function loadStandardQuestion() {
-            document.getElementById('std-next-btn').style.display = 'none'; document.getElementById('feedback-std').innerText = "";
-            let optionsContainer = document.getElementById('options-container'); optionsContainer.innerHTML = "";
-            
-            if (questionDeck.length === 0) questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
-            currentTargetData = questionDeck.pop();
-            
-            let options = [];
-            let word = currentTargetData.word || "未知";
-            let meaning = currentTargetData.meaning || "無解釋";
-            let mFormat = currentTargetData.missingFormat || word;
-            let mTarget = currentTargetData.missingTarget || word.charAt(0);
-            let sentence = currentTargetData.sentence || "無例句";
-            
-            let fillOpts = currentTargetData.fillOptions;
-            if (!fillOpts || !Array.isArray(fillOpts) || fillOpts.length === 0) fillOpts = generateOptions(mTarget, 'missingTarget');
+            try {
+                document.getElementById('std-next-btn').style.display = 'none'; document.getElementById('feedback-std').innerText = "";
+                let optionsContainer = document.getElementById('options-container'); optionsContainer.innerHTML = "";
+                
+                if (!questionDeck || questionDeck.length === 0) questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
+                currentTargetData = questionDeck.pop();
+                
+                let safe = getSafeData(currentTargetData);
+                let options = [];
 
-            if (currentStdMode === 'meaning-to-word') {
-                document.getElementById('question-text-std').innerText = meaning;
-                options = generateOptions(word, 'word');
-            } else if (currentStdMode === 'word-to-meaning') {
-                document.getElementById('question-text-std').innerText = word;
-                options = generateOptions(meaning, 'meaning');
-            } else if (currentStdMode === 'sentence') {
-                document.getElementById('question-text-std').innerText = sentence.replace("＿＿＿＿", "【 ＿＿ 】");
-                options = generateOptions(word, 'word');
-            } else if (currentStdMode === 'fill-blank') {
-                document.getElementById('question-text-std').innerText = mFormat;
-                options = [...fillOpts].sort(() => 0.5 - Math.random());
-            }
-            renderStdButtons(options, "std-option-btn");
-            resetTTSBtn();
+                if (currentStdMode === 'meaning-to-word') {
+                    document.getElementById('question-text-std').innerText = safe.meaning; options = generateOptions(safe.word, 'word');
+                } else if (currentStdMode === 'word-to-meaning') {
+                    document.getElementById('question-text-std').innerText = safe.word; options = generateOptions(safe.meaning, 'meaning');
+                } else if (currentStdMode === 'sentence') {
+                    document.getElementById('question-text-std').innerText = safe.sentence.replace(/＿＿＿＿/g, "【 ＿＿ 】"); options = generateOptions(safe.word, 'word');
+                } else if (currentStdMode === 'fill-blank') {
+                    document.getElementById('question-text-std').innerText = safe.mFormat;
+                    options = safe.fillOpts.length > 0 ? [...safe.fillOpts].sort(() => 0.5 - Math.random()) : generateOptions(safe.mTarget, 'missingTarget');
+                }
+                renderStdButtons(options, "std-option-btn");
+                resetTTSBtn();
+            } catch(e) { console.error("Load Standard Q Error", e); }
         }
 
         function renderStdButtons(optionsArray, className) {
@@ -820,26 +829,30 @@
         }
 
         function checkStandardAnswer(selectedText, clickedElement) {
-            let feedback = document.getElementById('feedback-std');
-            let correctAnswer = (currentStdMode === 'word-to-meaning') ? (currentTargetData.meaning || "無解釋") : (currentStdMode === 'fill-blank' ? (currentTargetData.missingTarget || currentTargetData.word.charAt(0)) : (currentTargetData.word || "未知"));
-            Array.from(document.getElementById('options-container').children).forEach(btn => { btn.style.pointerEvents = 'none'; if(btn.className !== "std-char-block") btn.style.filter = 'brightness(0.8)'; });
+            try {
+                let safe = getSafeData(currentTargetData);
+                let feedback = document.getElementById('feedback-std');
+                let correctAnswer = (currentStdMode === 'word-to-meaning') ? safe.meaning : (currentStdMode === 'fill-blank' ? safe.mTarget : safe.word);
+                Array.from(document.getElementById('options-container').children).forEach(btn => { btn.style.pointerEvents = 'none'; if(btn.className !== "std-char-block") btn.style.filter = 'brightness(0.8)'; });
 
-            if(selectedText === correctAnswer) {
-                sfx.correct(); 
-                feedback.innerText = "✅ 答對了！獲得 5 綠寶石！"; feedback.style.color = "#2e7d32";
-                if(clickedElement.className !== "std-char-block") clickedElement.style.backgroundColor = "#c5e1a5";
-                emeralds += 5; 
-                if (Math.random() < 0.3) { foodCount++; feedback.innerText += " (並幸運獲得 🍎x1)"; }
-                questionsAnswered++;
-                updateMaterialUI(); saveGameState(); 
-                let mFormat = currentTargetData.missingFormat || "缺字題";
-                if (currentStdMode === 'fill-blank') document.getElementById('question-text-std').innerText = mFormat.replace("＿", `【${correctAnswer}】`);
-                checkBossTrigger();
-            } else {
-                feedback.innerText = "❌ 答錯了！遭受小妖精襲擊，扣 15 血！答案是：" + correctAnswer; feedback.style.color = "#d32f2f";
-                if(clickedElement.className !== "std-char-block") clickedElement.style.backgroundColor = "#ffcdd2";
-                takeDamage(15, "被小妖精襲擊");
-            }
+                if(selectedText === correctAnswer) {
+                    sfx.correct(); 
+                    feedback.innerText = "✅ 答對了！獲得 5 綠寶石！"; feedback.style.color = "#2e7d32";
+                    if(clickedElement.className !== "std-char-block") clickedElement.style.backgroundColor = "#c5e1a5";
+                    emeralds += 5; 
+                    if (Math.random() < 0.3) { foodCount++; feedback.innerText += " (並幸運獲得 🍎x1)"; }
+                    questionsAnswered++;
+                    updateMaterialUI(); saveGameState(); 
+                    if (currentStdMode === 'fill-blank') document.getElementById('question-text-std').innerText = safe.mFormat.replace(/＿|_/g, `【${correctAnswer}】`);
+                    checkBossTrigger();
+                } else {
+                    feedback.innerText = "❌ 答錯了！遭受小妖精襲擊，扣 15 血！答案是：" + correctAnswer; feedback.style.color = "#d32f2f";
+                    if(clickedElement.className !== "std-char-block") clickedElement.style.backgroundColor = "#ffcdd2";
+                    takeDamage(15, "被小妖精襲擊");
+                }
+            } catch(e) { console.error("Check Ans Error", e); }
+            
+            // 強制顯示下一題按鈕，防止卡死
             document.getElementById('std-next-btn').style.display = 'block';
         }
 
@@ -855,34 +868,31 @@
         }
 
         function loadBossQuestion() {
-            bossTargetData = currentDatabase[Math.floor(Math.random() * currentDatabase.length)];
-            const types = ['meaning-to-word', 'word-to-meaning', 'fill-blank', 'sentence'];
-            bossQuestType = types[Math.floor(Math.random() * types.length)];
-            
-            let qText = "", rawOptions = [], actualAns = "";
-            let word = bossTargetData.word || "未知";
-            let meaning = bossTargetData.meaning || "無解釋";
-            let mFormat = bossTargetData.missingFormat || word;
-            let mTarget = bossTargetData.missingTarget || word.charAt(0);
-            let sentence = bossTargetData.sentence || "無例句";
-            
-            let fillOpts = bossTargetData.fillOptions;
-            if (!fillOpts || !Array.isArray(fillOpts) || fillOpts.length === 0) fillOpts = generateOptions(mTarget, 'missingTarget');
+            try {
+                bossTargetData = currentDatabase[Math.floor(Math.random() * currentDatabase.length)];
+                let safe = getSafeData(bossTargetData);
+                const types = ['meaning-to-word', 'word-to-meaning', 'fill-blank', 'sentence'];
+                bossQuestType = types[Math.floor(Math.random() * types.length)];
+                
+                let qText = "", rawOptions = [], actualAns = "";
+                
+                let fillOpts = safe.fillOpts.length > 0 ? safe.fillOpts : generateOptions(safe.mTarget, 'missingTarget');
 
-            if (bossQuestType === 'meaning-to-word') { qText = meaning; actualAns = word; rawOptions = generateOptions(actualAns, 'word'); }
-            else if (bossQuestType === 'word-to-meaning') { qText = word; actualAns = meaning; rawOptions = generateOptions(actualAns, 'meaning'); }
-            else if (bossQuestType === 'fill-blank') { qText = mFormat; actualAns = mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random()); }
-            else if (bossQuestType === 'sentence') { qText = sentence.replace("＿＿＿＿", "【 ＿＿ 】"); actualAns = word; rawOptions = generateOptions(actualAns, 'word'); }
+                if (bossQuestType === 'meaning-to-word') { qText = safe.meaning; actualAns = safe.word; rawOptions = generateOptions(actualAns, 'word'); }
+                else if (bossQuestType === 'word-to-meaning') { qText = safe.word; actualAns = safe.meaning; rawOptions = generateOptions(actualAns, 'meaning'); }
+                else if (bossQuestType === 'fill-blank') { qText = safe.mFormat; actualAns = safe.mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random()); }
+                else if (bossQuestType === 'sentence') { qText = safe.sentence.replace(/＿＿＿＿/g, "【 ＿＿ 】"); actualAns = safe.word; rawOptions = generateOptions(actualAns, 'word'); }
 
-            document.getElementById('boss-q-text').innerText = qText;
-            
-            let choicesHTML = "";
-            rawOptions.forEach((opt) => {
-                choicesHTML += `<div onclick="checkBossAnswer('${opt}', this)">${opt}</div>`;
-                if (opt === actualAns) bossCorrectAnswer = opt;
-            });
-            document.getElementById('boss-choices').innerHTML = choicesHTML;
-            resetTTSBtn();
+                document.getElementById('boss-q-text').innerText = qText;
+                
+                let choicesHTML = "";
+                rawOptions.forEach((opt) => {
+                    choicesHTML += `<div onclick="checkBossAnswer('${opt}', this)">${opt}</div>`;
+                    if (opt === actualAns) bossCorrectAnswer = opt;
+                });
+                document.getElementById('boss-choices').innerHTML = choicesHTML;
+                resetTTSBtn();
+            } catch(e) { console.error("Boss Load Error", e); }
         }
 
         function checkBossAnswer(selectedText, btn) {
@@ -917,60 +927,67 @@
         // ⛏️ RPG 模式邏輯
         // =====================================
         function updateGridSize() {
-            let island = document.getElementById('island'); let sizePx = (gridSize * TILE_SIZE) + 'px';
-            island.style.width = sizePx; island.style.height = sizePx; island.style.minWidth = sizePx; island.style.minHeight = sizePx;
+            try {
+                gridSize = parseInt(gridSize);
+                if (isNaN(gridSize) || gridSize < 6) gridSize = 8;
+                let island = document.getElementById('island'); 
+                if(!island) return;
+                let sizePx = (gridSize * TILE_SIZE) + 'px';
+                island.style.width = sizePx; 
+                island.style.height = sizePx; 
+                island.style.minWidth = sizePx; 
+                island.style.minHeight = sizePx;
+                island.style.display = "inline-block";
+            } catch(e) { console.error("Grid Size Error:", e); }
         }
 
         function startRPGGame() {
             initAudio(); 
-            if(currentDatabase.length === 0) return alert("目前範圍沒有題目！");
+            if(!currentDatabase || currentDatabase.length === 0) return alert("目前範圍沒有題目！");
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
             document.getElementById('rpg-game').style.display = 'block';
             updateGridSize(); renderDecorations(); renderHotbar(); loadRPGQuest();
         }
 
         function loadRPGQuest() {
-            isQuestionActive = true; resetTTSBtn();
-            document.getElementById('rpg-next-btn').style.display = 'none'; document.getElementById('rpg-controls').style.display = 'flex';
-            document.getElementById('feedback-rpg').innerText = "用方向鍵或點擊地圖移動！答對獲得素材！"; document.getElementById('feedback-rpg').style.color = "#d32f2f";
-            
-            if (questionDeck.length === 0) questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
-            currentTargetData = questionDeck.pop();
+            try {
+                isQuestionActive = true; resetTTSBtn();
+                document.getElementById('rpg-next-btn').style.display = 'none'; document.getElementById('rpg-controls').style.display = 'flex';
+                document.getElementById('feedback-rpg').innerText = "用方向鍵或點擊地圖移動！答對獲得素材！"; document.getElementById('feedback-rpg').style.color = "#d32f2f";
+                
+                if (!questionDeck || questionDeck.length === 0) questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
+                currentTargetData = questionDeck.pop();
 
-            const types = ['meaning-to-word', 'word-to-meaning', 'fill-blank', 'sentence'];
-            rpgQuestType = types[Math.floor(Math.random() * types.length)];
-            
-            let title = "", question = "", rawOptions = [], actualCorrectAnswer = "";
-            let word = currentTargetData.word || "未知";
-            let meaning = currentTargetData.meaning || "無解釋";
-            let mFormat = currentTargetData.missingFormat || word;
-            let mTarget = currentTargetData.missingTarget || word.charAt(0);
-            let sentence = currentTargetData.sentence || "無例句";
-            
-            let fillOpts = currentTargetData.fillOptions;
-            if (!fillOpts || !Array.isArray(fillOpts) || fillOpts.length === 0) fillOpts = generateOptions(mTarget, 'missingTarget');
+                let safe = getSafeData(currentTargetData);
 
-            if (rpgQuestType === 'meaning-to-word') { title = "📜 任務：尋找匹配字詞"; question = meaning; actualCorrectAnswer = word; rawOptions = generateOptions(word, 'word');
-            } else if (rpgQuestType === 'word-to-meaning') { title = "📜 任務：解讀告示牌"; question = word; actualCorrectAnswer = meaning; rawOptions = generateOptions(meaning, 'meaning');
-            } else if (rpgQuestType === 'fill-blank') { title = "📜 任務：修補殘缺字詞"; question = mFormat; actualCorrectAnswer = mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random());
-            } else if (rpgQuestType === 'sentence') { title = "📜 任務：填補情境對白"; question = sentence.replace("＿＿＿＿", "【 ＿＿ 】"); actualCorrectAnswer = word; rawOptions = generateOptions(word, 'word'); }
+                const types = ['meaning-to-word', 'word-to-meaning', 'fill-blank', 'sentence'];
+                rpgQuestType = types[Math.floor(Math.random() * types.length)];
+                
+                let title = "", question = "", rawOptions = [], actualCorrectAnswer = "";
+                let fillOpts = safe.fillOpts.length > 0 ? safe.fillOpts : generateOptions(safe.mTarget, 'missingTarget');
 
-            document.getElementById('rpg-mission-title').innerText = title; document.getElementById('rpg-question-text').innerText = question;
-            
-            const letters = ["A", "B", "C", "D"]; let choicesHTML = "";
-            rawOptions.forEach((opt, idx) => { choicesHTML += `<div>[${letters[idx]}] ${opt}</div>`; if (opt === actualCorrectAnswer) rpgCorrectAnswer = letters[idx]; });
-            document.getElementById('mc-choices').innerHTML = choicesHTML;
-            
-            pX = Math.floor(gridSize / 2); pY = Math.floor(gridSize / 2); updatePlayerDOM();
-            
-            document.querySelectorAll('.quest-block').forEach(el => el.remove()); questBlocks = [];
-            letters.forEach(label => {
-                let el = document.createElement('div'); el.className = 'quest-block'; el.innerText = label;
-                let randX, randY;
-                do { randX = Math.floor(Math.random() * gridSize); randY = Math.floor(Math.random() * gridSize); } while ((randX === pX && randY === pY) || questBlocks.some(b => b.x === randX && b.y === randY));
-                el.style.left = (randX * TILE_SIZE) + 'px'; el.style.top = (randY * TILE_SIZE) + 'px';
-                document.getElementById('island').appendChild(el); questBlocks.push({ element: el, label: label, x: randX, y: randY, broken: false });
-            });
+                if (rpgQuestType === 'meaning-to-word') { title = "📜 任務：尋找匹配字詞"; question = safe.meaning; actualCorrectAnswer = safe.word; rawOptions = generateOptions(safe.word, 'word');
+                } else if (rpgQuestType === 'word-to-meaning') { title = "📜 任務：解讀告示牌"; question = safe.word; actualCorrectAnswer = safe.meaning; rawOptions = generateOptions(safe.meaning, 'meaning');
+                } else if (rpgQuestType === 'fill-blank') { title = "📜 任務：修補殘缺字詞"; question = safe.mFormat; actualCorrectAnswer = safe.mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random());
+                } else if (rpgQuestType === 'sentence') { title = "📜 任務：填補情境對白"; question = safe.sentence.replace(/＿＿＿＿/g, "【 ＿＿ 】"); actualCorrectAnswer = safe.word; rawOptions = generateOptions(safe.word, 'word'); }
+
+                document.getElementById('rpg-mission-title').innerText = title; document.getElementById('rpg-question-text').innerText = question;
+                
+                const letters = ["A", "B", "C", "D"]; let choicesHTML = "";
+                rawOptions.forEach((opt, idx) => { choicesHTML += `<div>[${letters[idx]}] ${opt}</div>`; if (opt === actualCorrectAnswer) rpgCorrectAnswer = letters[idx]; });
+                document.getElementById('mc-choices').innerHTML = choicesHTML;
+                
+                pX = Math.floor(gridSize / 2); pY = Math.floor(gridSize / 2); updatePlayerDOM();
+                
+                document.querySelectorAll('.quest-block').forEach(el => el.remove()); questBlocks = [];
+                letters.forEach(label => {
+                    let el = document.createElement('div'); el.className = 'quest-block'; el.innerText = label;
+                    let randX, randY;
+                    do { randX = Math.floor(Math.random() * gridSize); randY = Math.floor(Math.random() * gridSize); } while ((randX === pX && randY === pY) || questBlocks.some(b => b.x === randX && b.y === randY));
+                    el.style.left = (randX * TILE_SIZE) + 'px'; el.style.top = (randY * TILE_SIZE) + 'px';
+                    document.getElementById('island').appendChild(el); questBlocks.push({ element: el, label: label, x: randX, y: randY, broken: false });
+                });
+            } catch(e) { console.error("RPG Load Error", e); document.getElementById('rpg-question-text').innerText = "載入出現錯誤，請返回大本營重試。"; }
         }
 
         function updatePlayerDOM() { let p = document.getElementById('player'); p.style.left = (pX * TILE_SIZE) + 'px'; p.style.top = (pY * TILE_SIZE) + 'px'; }
@@ -987,37 +1004,44 @@
         }
 
         function mineBlock(block) {
-            let feedback = document.getElementById('feedback-rpg');
+            try {
+                let feedback = document.getElementById('feedback-rpg');
+                if (block.label === rpgCorrectAnswer) {
+                    sfx.mine(); setTimeout(sfx.correct, 150); 
+                    block.broken = true; block.element.classList.add('broken'); isQuestionActive = false; 
+                    
+                    let dropCounts = {log:0, stone:0, fiber:0, sand:0, clay:0, iron:0, gold:0};
+                    let dropPool = ['log','log','stone','stone','fiber','fiber','sand','sand','clay','clay','iron','gold'];
+                    let numDrops = Math.floor(Math.random() * 2) + 1; 
+                    for(let i=0; i<numDrops; i++) { let t = dropPool[Math.floor(Math.random() * dropPool.length)]; dropCounts[t]++; materials[t]++; }
+                    emeralds += 2; 
+                    if (Math.random() < 0.4) { foodCount++; dropCounts['food'] = 1; }
+                    
+                    questionsAnswered++;
+                    updateMaterialUI(); saveGameState(); 
+                    
+                    let icons = {log:'🪵', stone:'🪨', fiber:'🌾', sand:'🏜️', clay:'🧱', iron:'🪙', gold:'🌟', food:'🍎'};
+                    let dropMsg = []; for(let key in dropCounts) { if(dropCounts[key] > 0) dropMsg.push(`${icons[key]}x${dropCounts[key]}`); }
+                    feedback.innerHTML = `<span style="color:#2e7d32">✨ 採集成功！獲得: ${dropMsg.join(' ')} 及 ❇️x2</span>`;
+                    
+                    let safe = getSafeData(currentTargetData);
+                    let foundEl = Array.from(document.getElementById('mc-choices').children).find(div => div.innerText.startsWith(`[${rpgCorrectAnswer}]`));
+                    let realAnsText = foundEl ? foundEl.innerText.substring(4) : safe.word;
+                    
+                    if(rpgQuestType === 'fill-blank') document.getElementById('rpg-question-text').innerText = safe.mFormat.replace(/＿|_/g, `【${realAnsText}】`);
+                    else if(rpgQuestType === 'sentence') document.getElementById('rpg-question-text').innerText = safe.sentence.replace(/＿＿＿＿/g, `【${realAnsText}】`);
+                    
+                    document.getElementById('rpg-controls').style.display = 'none'; 
+                    checkBossTrigger();
+                } else {
+                    block.element.classList.add('wrong'); feedback.innerText = "💥 答錯了！殭屍咬了你一口，扣 20 血！"; feedback.style.color = "#d32f2f";
+                    takeDamage(20, "在採集時被殭屍咬死");
+                }
+            } catch(e) { console.error("Mine Block Error", e); }
+            
+            // 強制顯示下一題按鈕，防止卡死
             if (block.label === rpgCorrectAnswer) {
-                sfx.mine(); setTimeout(sfx.correct, 150); 
-                block.broken = true; block.element.classList.add('broken'); isQuestionActive = false; 
-                
-                let dropCounts = {log:0, stone:0, fiber:0, sand:0, clay:0, iron:0, gold:0};
-                let dropPool = ['log','log','stone','stone','fiber','fiber','sand','sand','clay','clay','iron','gold'];
-                let numDrops = Math.floor(Math.random() * 2) + 1; 
-                for(let i=0; i<numDrops; i++) { let t = dropPool[Math.floor(Math.random() * dropPool.length)]; dropCounts[t]++; materials[t]++; }
-                emeralds += 2; 
-                if (Math.random() < 0.4) { foodCount++; dropCounts['food'] = 1; }
-                
-                questionsAnswered++;
-                updateMaterialUI(); saveGameState(); 
-                
-                let icons = {log:'🪵', stone:'🪨', fiber:'🌾', sand:'🏜️', clay:'🧱', iron:'🪙', gold:'🌟', food:'🍎'};
-                let dropMsg = []; for(let key in dropCounts) { if(dropCounts[key] > 0) dropMsg.push(`${icons[key]}x${dropCounts[key]}`); }
-                feedback.innerHTML = `<span style="color:#2e7d32">✨ 採集成功！獲得: ${dropMsg.join(' ')} 及 ❇️x2</span>`;
-                
-                let realAnsText = Array.from(document.getElementById('mc-choices').children).find(div => div.innerText.startsWith(`[${rpgCorrectAnswer}]`)).innerText.substring(4); 
-                let mFormat = currentTargetData.missingFormat || "缺字題";
-                let sentence = currentTargetData.sentence || "無例句";
-                
-                if(rpgQuestType === 'fill-blank') document.getElementById('rpg-question-text').innerText = mFormat.replace("＿", `【${realAnsText}】`);
-                else if(rpgQuestType === 'sentence') document.getElementById('rpg-question-text').innerText = sentence.replace("＿＿＿＿", `【${realAnsText}】`);
-                
-                document.getElementById('rpg-controls').style.display = 'none'; document.getElementById('rpg-next-btn').style.display = 'block';
-                checkBossTrigger();
-            } else {
-                block.element.classList.add('wrong'); feedback.innerText = "💥 答錯了！殭屍咬了你一口，扣 20 血！"; feedback.style.color = "#d32f2f";
-                takeDamage(20, "在採集時被殭屍咬死");
+                document.getElementById('rpg-next-btn').style.display = 'block';
             }
         }
 
@@ -1049,28 +1073,34 @@
         // 🔨 建築與合成面板
         // =====================================
         function renderHotbar() {
-            let hb = document.getElementById('hotbar'); hb.innerHTML = ""; let itemKeys = Object.keys(inventory);
-            for(let i=0; i<Math.max(5, itemKeys.length); i++) {
-                let slot = document.createElement('div'); slot.className = "hotbar-slot";
-                if(i < itemKeys.length) {
-                    let itemId = itemKeys[i]; let qty = inventory[itemId];
-                    if(qty > 0) {
-                        let catItem = craftRecipes.find(c => c.id === itemId);
-                        slot.innerText = catItem.icon; slot.innerHTML += `<div class="hotbar-qty">${qty}</div>`;
-                        if(selectedHotbarItem === itemId) slot.classList.add('active');
-                        slot.onclick = () => { selectedHotbarItem = (selectedHotbarItem === itemId) ? null : itemId; renderHotbar(); };
+            try {
+                let hb = document.getElementById('hotbar'); hb.innerHTML = ""; let itemKeys = Object.keys(inventory);
+                for(let i=0; i<Math.max(5, itemKeys.length); i++) {
+                    let slot = document.createElement('div'); slot.className = "hotbar-slot";
+                    if(i < itemKeys.length) {
+                        let itemId = itemKeys[i]; let qty = inventory[itemId];
+                        if(qty > 0) {
+                            let catItem = craftRecipes.find(c => c.id === itemId);
+                            slot.innerText = catItem.icon; slot.innerHTML += `<div class="hotbar-qty">${qty}</div>`;
+                            if(selectedHotbarItem === itemId) slot.classList.add('active');
+                            slot.onclick = () => { selectedHotbarItem = (selectedHotbarItem === itemId) ? null : itemId; renderHotbar(); };
+                        }
                     }
+                    hb.appendChild(slot);
                 }
-                hb.appendChild(slot);
-            }
+            } catch(e) { console.error("Render Hotbar Error", e); }
         }
 
         function renderDecorations() {
-            let layer = document.getElementById('decorations-layer'); layer.innerHTML = "";
-            placedDecorations.forEach(dec => {
-                let el = document.createElement('div'); el.className = "decoration-item"; el.innerText = dec.icon;
-                el.style.left = (dec.x * TILE_SIZE) + 'px'; el.style.top = (dec.y * TILE_SIZE) + 'px'; layer.appendChild(el);
-            });
+            try {
+                let layer = document.getElementById('decorations-layer'); layer.innerHTML = "";
+                if(Array.isArray(placedDecorations)) {
+                    placedDecorations.forEach(dec => {
+                        let el = document.createElement('div'); el.className = "decoration-item"; el.innerText = dec.icon;
+                        el.style.left = (dec.x * TILE_SIZE) + 'px'; el.style.top = (dec.y * TILE_SIZE) + 'px'; layer.appendChild(el);
+                    });
+                }
+            } catch(e) { console.error("Render Dec Error", e); }
         }
 
         function openCrafting() { document.getElementById('craft-modal').style.display = 'flex'; updateMaterialUI(); renderCraftItems(); }
@@ -1129,15 +1159,17 @@
         });
 
         // =====================================
-        // 🚀 註冊 Service Worker (PWA 安裝核心)
+        // 🚀 強制解除舊緩存並註冊新 Service Worker
         // =====================================
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then(reg => {
-                    console.log('Service Worker 註冊成功', reg);
-                }).catch(err => {
-                    console.log('Service Worker 註冊失敗', err);
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for(let registration of registrations) {
+                        registration.unregister(); // 強制殺死舊記憶
+                    }
                 });
+                // 重新載入最新版本
+                navigator.serviceWorker.register('./sw.js?v=' + new Date().getTime()).catch(e => console.error(e));
             });
         }
     </script>
