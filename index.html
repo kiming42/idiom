@@ -620,27 +620,29 @@
         let bossCorrectAnswer = "";
         let bossQuestType = "";
 
-        // 🧠 建立智能牌堆 (自動擴展例句2)
-        function buildQuestionDeck() {
+        // 🧠 建立智能牌堆 (純字詞)
+        function buildWordDeck() {
+            return [...currentDatabase].sort(() => 0.5 - Math.random());
+        }
+
+        // 🧠 建立智能牌堆 (自動擴展例句2) - 僅供「情境用法」使用
+        function buildSentenceDeck() {
             let deck = [];
             currentDatabase.forEach(item => {
                 let safe = getSafeData(item);
                 
-                // 加入第一條題目 (例句 1 或 預設例句)
                 let item1 = { ...item };
                 if (safe.sentence1) item1.activeSentence = safe.sentence1;
                 else if (safe.sentence && safe.sentence !== "無例句") item1.activeSentence = safe.sentence;
                 else item1.activeSentence = "無例句";
                 deck.push(item1);
 
-                // 如果有例句 2，作為獨立新題目加入牌堆
                 if (safe.sentence2) {
                     let item2 = { ...item };
                     item2.activeSentence = safe.sentence2;
                     deck.push(item2);
                 }
             });
-            // 完全打亂順序
             return deck.sort(() => 0.5 - Math.random());
         }
 
@@ -726,8 +728,7 @@
                     currentDatabase = database.length > 0 ? [...database] : [...defaultDatabaseRaw];
                 }
                 
-                questionDeck = buildQuestionDeck();
-                document.getElementById('scope-info').innerText = `這個範圍共有 ${currentDatabase.length} 個字詞，合共 ${questionDeck.length} 條挑戰題目。`;
+                document.getElementById('scope-info').innerText = `這個範圍共有 ${currentDatabase.length} 個字詞。`;
             } catch(e) { console.error(e); }
         }
 
@@ -825,7 +826,7 @@
                     inventory = {}; placedDecorations = []; selectedHotbarItem = null; gridSize = 8; 
                     updateGridSize(); renderDecorations(); renderHotbar(); updateMaterialUI(); 
                     saveGameState(); 
-                    questionDeck = buildQuestionDeck();
+                    questionDeck = buildWordDeck();
                     loadRPGQuest();
                     alert("🔄 遊戲紀錄已完全重置！開始新的冒險吧！");
                 }
@@ -940,7 +941,14 @@
             initAudio(); 
             if(!currentDatabase || currentDatabase.length === 0) return alert("目前範圍沒有題目！請在設定檢查題庫。");
             currentStdMode = mode;
-            questionDeck = buildQuestionDeck();
+            
+            // 智能牌堆切換：如果係「情境用法」，將以例句數量出題，否則以字詞數量出題
+            if (mode === 'sentence') {
+                questionDeck = buildSentenceDeck();
+            } else {
+                questionDeck = buildWordDeck();
+            }
+            
             totalStdQuestions = questionDeck.length;
             currentQuestionCount = 0;
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
@@ -1157,7 +1165,9 @@
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
             document.getElementById('rpg-game').style.display = 'block';
             updateGridSize(); renderDecorations(); renderHotbar(); 
-            questionDeck = buildQuestionDeck();
+            
+            // RPG 使用基本牌堆
+            questionDeck = buildWordDeck();
             loadRPGQuest();
         }
 
@@ -1167,7 +1177,7 @@
                 document.getElementById('rpg-next-btn').style.display = 'none'; document.getElementById('rpg-controls').style.display = 'flex';
                 document.getElementById('feedback-rpg').innerText = "用方向鍵或點擊地圖移動！答對獲得素材！"; document.getElementById('feedback-rpg').style.color = "#d32f2f";
                 
-                if (!questionDeck || questionDeck.length === 0) questionDeck = buildQuestionDeck();
+                if (!questionDeck || questionDeck.length === 0) questionDeck = buildWordDeck();
                 currentTargetData = questionDeck.pop();
 
                 let safe = getSafeData(currentTargetData);
@@ -1183,7 +1193,12 @@
                 } else if (rpgQuestType === 'fill-blank') { title = "📜 任務：修補殘缺字詞"; question = safe.mFormat; actualCorrectAnswer = safe.mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random());
                 } else if (rpgQuestType === 'sentence') { 
                     title = "📜 任務：填補情境對白"; 
-                    let sText = currentTargetData.activeSentence || "無例句";
+                    let possibleSentences = [];
+                    if (safe.sentence && safe.sentence !== "無例句") possibleSentences.push(safe.sentence);
+                    if (safe.sentence1) possibleSentences.push(safe.sentence1);
+                    if (safe.sentence2) possibleSentences.push(safe.sentence2);
+                    let sText = possibleSentences.length > 0 ? possibleSentences[Math.floor(Math.random() * possibleSentences.length)] : "無例句";
+                    
                     activeSentenceText = sText;
                     if (!sText.includes("＿")) question = sText.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】");
                     else question = sText.replace(/＿＿＿＿/g, "【 ＿＿ 】");
