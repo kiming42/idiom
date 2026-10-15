@@ -22,7 +22,7 @@
 
         /* 基礎設定 */
         body { font-family: "PingFang HK", "Microsoft YaHei", sans-serif; background-color: #5b8731; text-align: center; padding: 10px; margin: 0; color: #333; user-select: none; touch-action: manipulation; transition: background-color 0.1s; }
-        .page { display: none; background: #e0e0e0; max-width: 900px; margin: 0 auto; padding: 20px; border: 6px solid #3c3c3c; box-shadow: 10px 10px 0px rgba(0,0,0,0.5); box-sizing: border-box; }
+        .page { display: none; background: #e0e0e0; max-width: 950px; margin: 0 auto; padding: 20px; border: 6px solid #3c3c3c; box-shadow: 10px 10px 0px rgba(0,0,0,0.5); box-sizing: border-box; }
         #main-dashboard { display: block; } 
         
         /* 💥 受傷特效 */
@@ -62,8 +62,8 @@
         .mode-card h3 { margin: 0 0 5px 0; font-size: 16px; color: #333; }
         .mode-card p { margin: 0; font-size: 12px; color: #666; font-weight: bold; line-height: 1.4; }
 
-        /* 🎮 RPG 遊戲介面 */
-        .rpg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+        /* 🎮 RPG 遊戲介面 (零捲動新排版) */
+        .rpg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 8px; }
         .header-btn { background: #fff; border: 2px solid #ccc; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; color: #333; display: flex; align-items: center; gap: 5px; }
         
         /* ❤️ 玩家血條與食物 */
@@ -71,14 +71,19 @@
         .eat-btn { background: #4CAF50; border: 2px solid #2E7D32; color: white; border-radius: 6px; cursor: pointer; font-weight: bold; padding: 4px 8px; font-size: 13px;}
         .eat-btn:active { transform: scale(0.95); }
 
-        .mission-panel { background: #fff; border: 4px solid #8bc34a; padding: 12px; margin-bottom: 15px; border-radius: 10px; text-align: left; box-shadow: 0 4px 0 #689f38; }
-        .mission-panel h3 { margin: 0 0 5px 0; font-size: 16px; color: #555; }
-        .mission-panel p { margin: 0; font-size: 18px; font-weight: bold; color: #1a4231; line-height: 1.4;}
+        /* 左右分欄設計 */
+        .rpg-content { display: flex; flex-direction: row; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: flex-start; }
+        .rpg-map-side { display: flex; flex-direction: column; align-items: center; }
+        .rpg-quest-side { flex: 1; min-width: 300px; max-width: 500px; }
+
+        .mission-panel { background: #fff; border: 4px solid #8bc34a; padding: 15px; border-radius: 10px; text-align: left; box-shadow: 0 4px 0 #689f38; margin: 0; width: 100%; box-sizing: border-box; }
+        .mission-panel h3 { margin: 0 0 8px 0; font-size: 18px; color: #555; }
+        .mission-panel p { margin: 0; font-size: 20px; font-weight: bold; color: #1a4231; line-height: 1.5; min-height: 30px;}
         
-        .mc-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; font-size: 15px; font-weight: bold; color: #222; background: #f0f0f0; padding: 10px; border-radius: 8px; border: 2px solid #ccc; }
+        .mc-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; font-size: 16px; font-weight: bold; color: #222; background: #f0f0f0; padding: 12px; border-radius: 8px; border: 2px solid #ccc; }
         .mc-choices div { padding: 5px; }
         
-        .map-wrapper { overflow-x: auto; padding: 10px 0; text-align: center; white-space: nowrap; width: 100%; border-radius: 8px; background: #bdbdbd; box-shadow: inset 0 0 10px rgba(0,0,0,0.3);}
+        .map-wrapper { overflow: hidden; padding: 5px; text-align: center; border-radius: 8px; background: #bdbdbd; box-shadow: inset 0 0 10px rgba(0,0,0,0.3);}
         .island-container { display: inline-block; position: relative; background-color: #689f38; background-image: linear-gradient(#558b2f 2px, transparent 2px), linear-gradient(90deg, #558b2f 2px, transparent 2px); background-size: 40px 40px; border: 6px solid #3c3c3c; box-shadow: 5px 5px 0px rgba(0,0,0,0.3); cursor: crosshair; box-sizing: content-box; vertical-align: top; }
 
         /* 👦🏻 像素主角 SVG */
@@ -90,19 +95,10 @@
         .quest-block.wrong { border-color: #424242; background-color: #212121; color: #757575; }
         .decoration-item { position: absolute; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 30px; z-index: 2; filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.4)); }
 
-        .hotbar { display: flex; justify-content: flex-start; gap: 6px; margin-top: 15px; background: rgba(0,0,0,0.6); padding: 8px; border: 4px solid #333; border-radius: 5px; overflow-x: auto; min-height: 56px; }
+        .hotbar { display: flex; justify-content: flex-start; gap: 6px; margin-top: 10px; background: rgba(0,0,0,0.6); padding: 8px; border: 4px solid #333; border-radius: 5px; overflow-x: auto; min-height: 56px; width: 100%; box-sizing: border-box; }
         .hotbar-slot { width: 44px; height: 44px; background: #8b8b8b; border: 3px inset #ffffff; display: flex; justify-content: center; align-items: center; font-size: 26px; cursor: pointer; position: relative; flex-shrink: 0;}
         .hotbar-slot.active { border: 3px solid #ffeb3b; background: #a6a6a6; }
         .hotbar-qty { position: absolute; bottom: -2px; right: 2px; font-size: 13px; color: white; font-weight: bold; text-shadow: 1px 1px 0 #000; }
-
-        .d-pad-container { display: flex; justify-content: center; margin-top: 15px; }
-        .d-pad { display: grid; grid-template-columns: 55px 55px 55px; grid-template-rows: 55px 55px; gap: 8px; }
-        .d-btn { background: #fff; border: 3px solid #ccc; border-bottom: 5px solid #aaa; border-radius: 8px; font-size: 22px; font-weight: bold; color: #333; cursor: pointer; display: flex; justify-content: center; align-items: center; }
-        .d-btn:active { transform: translateY(3px); border-bottom-width: 2px; background: #e0e0e0; }
-        #btn-up { grid-column: 2; grid-row: 1; }
-        #btn-left { grid-column: 1; grid-row: 2; }
-        #btn-down { grid-column: 2; grid-row: 2; }
-        #btn-right { grid-column: 3; grid-row: 2; }
 
         .next-btn { display: none; margin: 15px auto 0; padding: 12px 30px; background-color: #ff9800; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; box-shadow: 0 4px 0 #e65100; font-family: 'DotGothic16', sans-serif;}
 
@@ -182,7 +178,6 @@
             <div class="filter-controls">
                 <div class="filter-group">
                     <label>👤 玩家選擇</label>
-                    <!-- 預設加入選項，防卡死 -->
                     <select id="student-select" onchange="updateUnitDropdown()">
                         <option value="Justin">Justin</option>
                         <option value="峰">峰</option>
@@ -200,7 +195,7 @@
             <p id="scope-info" class="scope-info-text">準備中...</p>
         </div>
 
-        <!-- 📚 新增：學習與準備區 -->
+        <!-- 📚 學習與準備區 -->
         <div class="section-title">▶ 準備區</div>
         <div class="modes-grid" style="grid-template-columns: 1fr;">
             <div class="mode-card" onclick="openLearningArea()" style="background: #e3f2fd; border-color: #64b5f6;">
@@ -234,7 +229,7 @@
             <div class="mode-card" onclick="startRPGGame()" style="background: #e8f5e9; border-color: #8bc34a;">
                 <div class="mode-icon" style="background: #2e7d32; color: white;">🌍</div>
                 <h3 style="color: #2e7d32; font-size: 18px;">進入方塊採集世界</h3>
-                <p>在地圖上尋寶答題，避開殭屍與骷髏，收集各種建築素材！</p>
+                <p>在地圖上尋寶答題，避開主動追蹤的殭屍與骷髏，收集各種建築素材！</p>
             </div>
         </div>
     </div>
@@ -242,7 +237,7 @@
     <!-- 📚 學習區 Page -->
     <div id="learning-area" class="page">
         <div class="rpg-header">
-            <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
+            <button class="header-btn" onclick="goToMenu()">⬅️ 返回大本營</button>
             <h2 style="margin:0; color:#1565c0; font-size: 24px;">📚 詞語學習區</h2>
         </div>
         <div id="learning-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; text-align: left;">
@@ -275,7 +270,7 @@
             <h2 id="boss-title-text" style="color:#ff5252; margin-top:0;">🔥 Boss 突襲！🔥</h2>
             <div class="boss-img" id="boss-icon"></div>
             <div class="boss-hp-bar"><div class="boss-hp-fill" id="boss-hp-fill"></div></div>
-            <p style="color:#ffcc80; font-weight:bold; font-size:16px;">怪物攔住了去路！連續答對 3 題擊退牠！</p>
+            <p style="color:#ffcc80; font-weight:bold; font-size:16px;">高等怪物攔住了去路！連續答對 3 題擊退牠！</p>
             <h3 id="boss-q-title" style="color:#fff; border-bottom: 1px solid #777; padding-bottom: 5px;">載入中...</h3>
             <p id="boss-q-text" style="font-size:22px; font-weight:bold; color: #fff;">...</p>
             <div id="boss-choices" class="boss-choices" style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
@@ -289,7 +284,7 @@
             <div class="player-status">
                 <span style="color:#d32f2f;">❤️ <span id="hp-std">100 / 100</span></span>
                 <span style="color:#d84315;">🍎 <span id="food-std">0</span></span>
-                <button class="eat-btn" onclick="eatFood()">吃</button>
+                <button class="eat-btn" onclick="eatFood()">吃 (+30)</button>
             </div>
             <span class="emerald-display">❇️ <span id="em-std2">0</span></span>
         </div>
@@ -306,7 +301,7 @@
         <button class="next-btn" id="std-next-btn" onclick="loadStandardQuestion()">繼續挑戰 ➡️</button>
     </div>
 
-    <!-- ⛏️ Minecraft RPG 世界 -->
+    <!-- ⛏️ Minecraft RPG 世界 (零捲動新排版) -->
     <div id="rpg-game" class="page">
         <div class="rpg-header">
             <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
@@ -316,55 +311,51 @@
                 <button class="eat-btn" onclick="eatFood()">吃</button>
             </div>
             <div style="display: flex; gap: 5px;">
-                <button class="header-btn" onclick="openCrafting()" style="background: #5d4037; color: white; border-color: #3e2723; padding: 6px;">🔨 裝備/建造</button>
+                <button class="header-btn" onclick="openCrafting()" style="background: #5d4037; color: white; border-color: #3e2723; padding: 6px;">🔨 裝備</button>
                 <button class="header-btn" onclick="restartGame()" style="background: #d32f2f; color: white; border-color: #b71c1c; padding: 6px;">🔄 重置</button>
             </div>
         </div>
         
-        <div class="mission-panel">
-            <button class="tts-btn" id="tts-btn-rpg" onclick="readQuestionTTS()" style="float: right;">🔊 朗讀</button>
-            <h3 id="rpg-mission-title">📜 任務：載入中...</h3>
-            <p id="rpg-question-text" style="clear: both; margin-top: 5px;">載入中...</p>
-            <div id="mc-choices" class="mc-choices"></div>
-            <div id="feedback-rpg" style="font-size: 15px; color: #d32f2f; margin-top: 10px; font-weight: bold;">用方向鍵或點擊地圖移動！小心避開怪物！</div>
-        </div>
-
-        <div class="map-wrapper">
-            <div class="island-container" id="island" style="width: 320px; height: 320px;" onclick="handleGridClick(event)">
-                <div id="decorations-layer"></div>
-                <div id="player"></div>
-            </div>
-        </div>
-
-        <div class="hotbar" id="hotbar"></div>
-        <button class="next-btn" id="rpg-next-btn" onclick="loadRPGQuest()">接取下一個任務 ➡️</button>
-
-        <div class="d-pad-container" id="rpg-controls">
-            <div class="d-pad">
-                <button class="d-btn" id="btn-up" onclick="movePlayer(0, -1)">▲</button>
-                <button class="d-btn" id="btn-left" onclick="movePlayer(-1, 0)">◀</button>
-                <button class="d-btn" id="btn-down" onclick="movePlayer(0, 1)">▼</button>
-                <button class="d-btn" id="btn-right" onclick="movePlayer(1, 0)">▶</button>
-            </div>
-        </div>
-
-        <!-- 🔨 合成台 Modal -->
-        <div class="craft-modal" id="craft-modal">
-            <div class="craft-wrapper">
-                <div class="craft-close" onclick="closeCrafting()">✖</div>
-                <div class="craft-title">🔨 創世裝備與工作台 Crafting Table</div>
-                <div class="material-stats">
-                    <span>🪵 <span id="mat-log">0</span></span>
-                    <span>🪨 <span id="mat-stone">0</span></span>
-                    <span>🌾 <span id="mat-fiber">0</span></span>
-                    <span>🏜️ <span id="mat-sand">0</span></span>
-                    <span>🧱 <span id="mat-clay">0</span></span>
-                    <span>🪙 <span id="mat-iron">0</span></span>
-                    <span>🌟 <span id="mat-gold">0</span></span>
-                    <span>❇️ <span id="mat-em">0</span></span>
+        <div class="rpg-content">
+            <!-- 左側地圖區 -->
+            <div class="rpg-map-side">
+                <div class="map-wrapper">
+                    <div class="island-container" id="island" style="width: 320px; height: 320px;" onclick="handleGridClick(event)">
+                        <div id="decorations-layer"></div>
+                        <div id="player"></div>
+                    </div>
                 </div>
-                <div class="craft-grid" id="craft-items-container"></div>
+                <div class="hotbar" id="hotbar"></div>
             </div>
+            
+            <!-- 右側任務區 -->
+            <div class="rpg-quest-side mission-panel">
+                <button class="tts-btn" id="tts-btn-rpg" onclick="readQuestionTTS()" style="float: right;">🔊 朗讀</button>
+                <h3 id="rpg-mission-title">📜 任務：載入中...</h3>
+                <p id="rpg-question-text">載入中...</p>
+                <div id="mc-choices" class="mc-choices"></div>
+                <div id="feedback-rpg" style="font-size: 15px; color: #d32f2f; margin-top: 15px; font-weight: bold; min-height: 22px;">點擊地圖方格移動！小心避開主動追蹤的怪物！</div>
+                <button class="next-btn" id="rpg-next-btn" onclick="loadRPGQuest()" style="width:100%; margin-top:15px; font-size:20px;">接取下一個任務 ➡️</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔨 合成台 Modal -->
+    <div class="craft-modal" id="craft-modal">
+        <div class="craft-wrapper">
+            <div class="craft-close" onclick="closeCrafting()">✖</div>
+            <div class="craft-title">🔨 創世裝備與工作台</div>
+            <div class="material-stats">
+                <span>🪵 <span id="mat-log">0</span></span>
+                <span>🪨 <span id="mat-stone">0</span></span>
+                <span>🌾 <span id="mat-fiber">0</span></span>
+                <span>🏜️ <span id="mat-sand">0</span></span>
+                <span>🧱 <span id="mat-clay">0</span></span>
+                <span>🪙 <span id="mat-iron">0</span></span>
+                <span>🌟 <span id="mat-gold">0</span></span>
+                <span>❇️ <span id="mat-em">0</span></span>
+            </div>
+            <div class="craft-grid" id="craft-items-container"></div>
         </div>
     </div>
 
@@ -706,7 +697,7 @@
             }
             
             if(monsterInterval) clearInterval(monsterInterval);
-            monsterInterval = setInterval(moveMapMonsters, 1200);
+            monsterInterval = setInterval(moveMapMonsters, 1000);
         }
 
         function moveMapMonsters() {
@@ -714,13 +705,17 @@
             activeMapMonsters.forEach((m, index) => {
                 let dirs = [[0,1], [0,-1], [1,0], [-1,0]];
                 
-                if (Math.random() < 0.3) {
+                // 70% 機率主動追蹤玩家
+                if (Math.random() < 0.7) {
                     let dx = pX - m.x; let dy = pY - m.y;
-                    if (Math.abs(dx) > Math.abs(dy)) dirs = dx > 0 ? [[1,0], [0,1], [0,-1]] : [[-1,0], [0,1], [0,-1]];
-                    else dirs = dy > 0 ? [[0,1], [1,0], [-1,0]] : [[0,-1], [1,0], [-1,0]];
+                    if (Math.abs(dx) > Math.abs(dy)) {
+                        dirs = dx > 0 ? [[1,0], [0,1], [0,-1], [-1,0]] : [[-1,0], [0,1], [0,-1], [1,0]];
+                    } else {
+                        dirs = dy > 0 ? [[0,1], [1,0], [-1,0], [0,-1]] : [[0,-1], [1,0], [-1,0], [0,1]];
+                    }
+                } else {
+                    dirs = dirs.sort(() => 0.5 - Math.random());
                 }
-                
-                dirs = dirs.sort(() => 0.5 - Math.random());
                 
                 for(let i=0; i<dirs.length; i++) {
                     let nx = m.x + dirs[i][0]; let ny = m.y + dirs[i][1];
@@ -757,6 +752,7 @@
         // 🧠 載入題庫
         function initDatabase() {
             try {
+                // 優先使用預設題庫作為保底，防止崩潰
                 database = [...defaultDatabaseRaw];
                 
                 let currentDefaultStr = JSON.stringify(defaultDatabaseRaw);
@@ -1292,8 +1288,8 @@
         function loadRPGQuest() {
             try {
                 isQuestionActive = true; resetTTSBtn();
-                document.getElementById('rpg-next-btn').style.display = 'none'; document.getElementById('rpg-controls').style.display = 'flex';
-                document.getElementById('feedback-rpg').innerText = "用方向鍵或點擊地圖移動！小心避開怪物！"; document.getElementById('feedback-rpg').style.color = "#d32f2f";
+                document.getElementById('rpg-next-btn').style.display = 'none';
+                document.getElementById('feedback-rpg').innerText = "點擊地圖方格移動！小心避開主動追蹤的怪物！"; document.getElementById('feedback-rpg').style.color = "#d32f2f";
                 
                 if (!questionDeck || questionDeck.length === 0) questionDeck = buildSentenceDeck();
                 currentTargetData = questionDeck.pop();
@@ -1311,7 +1307,12 @@
                 } else if (rpgQuestType === 'fill-blank') { title = "📜 任務：修補殘缺字詞"; question = safe.mFormat; actualCorrectAnswer = safe.mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random());
                 } else if (rpgQuestType === 'sentence') { 
                     title = "📜 任務：填補情境對白"; 
-                    let sText = currentTargetData.activeSentence || "無例句";
+                    let possibleSentences = [];
+                    if (safe.sentence && safe.sentence !== "無例句") possibleSentences.push(safe.sentence);
+                    if (safe.sentence1) possibleSentences.push(safe.sentence1);
+                    if (safe.sentence2) possibleSentences.push(safe.sentence2);
+                    let sText = possibleSentences.length > 0 ? possibleSentences[Math.floor(Math.random() * possibleSentences.length)] : "無例句";
+                    
                     activeSentenceText = sText;
                     if (!sText.includes("＿")) question = sText.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】");
                     else question = sText.replace(/＿＿＿＿/g, "【 ＿＿ 】");
@@ -1361,9 +1362,9 @@
 
         function mineBlock(block) {
             try {
-                if(monsterInterval) clearInterval(monsterInterval);
                 let feedback = document.getElementById('feedback-rpg');
                 if (block.label === rpgCorrectAnswer) {
+                    if(monsterInterval) clearInterval(monsterInterval); // 只有答對先會停止怪物
                     sfx.mine(); setTimeout(sfx.correct, 150); 
                     block.broken = true; block.element.classList.add('broken'); isQuestionActive = false; 
                     
@@ -1390,11 +1391,12 @@
                         document.getElementById('rpg-question-text').innerText = activeSentenceText.replace(/＿＿＿＿/g, `【${realAnsText}】`).replace(new RegExp(safe.word, "g"), `【${realAnsText}】`);
                     }
                     
-                    document.getElementById('rpg-controls').style.display = 'none'; 
                     checkBossTrigger();
                 } else {
                     let dmg = calculateDamage(20);
-                    block.element.classList.add('wrong'); feedback.innerText = `💥 答錯了！觸動了陷阱扣 ${dmg} 血！`; feedback.style.color = "#d32f2f";
+                    block.element.classList.add('wrong'); 
+                    feedback.innerText = `💥 答錯了！觸動了陷阱扣 ${dmg} 血！怪物加速接近中！`; 
+                    feedback.style.color = "#d32f2f";
                     takeDamage(dmg, "在採集時被陷阱擊殺");
                 }
             } catch(e) { console.error("Mine Block Error", e); }
@@ -1424,6 +1426,8 @@
 
             if (!isQuestionActive) return;
             const diffX = targetX - pX; const diffY = targetY - pY;
+            
+            // 滑鼠點擊智能走位
             if (Math.abs(diffX) > Math.abs(diffY)) movePlayer(diffX > 0 ? 1 : -1, 0);
             else if (Math.abs(diffY) > 0) movePlayer(0, diffY > 0 ? 1 : -1);
         }
@@ -1486,12 +1490,8 @@
 
                 if (item.id === 'armor') {
                     if (armorLevel >= 5) {
-                        canAfford = false;
-                        btnText = "已滿級";
-                        extraDesc = " <span style='color:#d32f2f;'>(MAX)</span>";
-                    } else {
-                        extraDesc = ` <span style='color:#1565c0;'>(當前 Lv.${armorLevel})</span>`;
-                    }
+                        canAfford = false; btnText = "已滿級"; extraDesc = " <span style='color:#d32f2f;'>(MAX)</span>";
+                    } else { extraDesc = ` <span style='color:#1565c0;'>(當前 Lv.${armorLevel})</span>`; }
                 }
 
                 let costMsg = [];
@@ -1516,15 +1516,9 @@
                 if(item.cost.gold) materials.gold -= item.cost.gold; if(item.cost.emerald) emeralds -= item.cost.emerald;
                 
                 if (item.type === 'upgrade') {
-                    if (itemId === 'expand') {
-                        gridSize += 2; updateGridSize(); alert("綠地已成功擴大！");
-                    } else if (itemId === 'hp_boost') {
-                        MAX_HP += 20; hp += 20; 
-                        alert(`💖 生命上限已提升！目前最大血量：${MAX_HP}`);
-                    } else if (itemId === 'armor') {
-                        armorLevel++;
-                        alert(`🛡️ 防護裝甲已升級！目前等級：Lv.${armorLevel} (減少 ${armorLevel * 15}% 傷害)`);
-                    }
+                    if (itemId === 'expand') { gridSize += 2; updateGridSize(); alert("綠地已成功擴大！"); } 
+                    else if (itemId === 'hp_boost') { MAX_HP += 20; hp += 20; alert(`💖 生命上限已提升！目前最大血量：${MAX_HP}`); } 
+                    else if (itemId === 'armor') { armorLevel++; alert(`🛡️ 防護裝甲已升級！目前等級：Lv.${armorLevel} (減少 ${armorLevel * 15}% 傷害)`); }
                 } else { 
                     if(!inventory[itemId]) inventory[itemId] = 0; 
                     inventory[itemId]++; renderHotbar(); 
@@ -1534,15 +1528,6 @@
                 saveGameState();
             }
         }
-
-        document.addEventListener('keydown', function(event) {
-            if (document.getElementById('rpg-game').style.display === 'block') {
-                if (event.key === "ArrowUp" || event.key === "w") movePlayer(0, -1);
-                if (event.key === "ArrowDown" || event.key === "s") movePlayer(0, 1);
-                if (event.key === "ArrowLeft" || event.key === "a") movePlayer(-1, 0);
-                if (event.key === "ArrowRight" || event.key === "d") movePlayer(1, 0);
-            }
-        });
 
         // =====================================
         // 🚀 初始化執行 (直接呼叫 + 事件雙重保障)
