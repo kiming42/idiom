@@ -49,7 +49,6 @@
         .filter-group { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
         .filter-group label { font-size: 14px; font-weight: bold; color: #555; }
         .filter-group select { padding: 10px 15px; font-size: 16px; border: 2px solid #ccc; border-radius: 8px; font-family: "PingFang HK", sans-serif; cursor: pointer; outline: none; font-weight: bold; color: #333; background: #fff; width: 100%; box-sizing: border-box; }
-        .filter-group select:focus { border-color: #8bc34a; box-shadow: 0 0 5px rgba(139, 195, 74, 0.5); }
         .scope-info-text { margin: 15px 0 0 0; font-size: 14px; color: #777; font-weight: bold; border-top: 1px dashed #ddd; padding-top: 15px; }
 
         .section-title { text-align: left; color: #2e7d32; font-size: 18px; margin-bottom: 10px; border-bottom: 3px dashed #999; padding-bottom: 5px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
@@ -409,11 +408,16 @@
             if(document.getElementById('boss-modal').style.display === 'flex') mode = bossQuestType;
 
             let targetData = document.getElementById('boss-modal').style.display === 'flex' ? bossTargetData : currentTargetData;
+            
+            let word = targetData.word || "未知";
+            let meaning = targetData.meaning || "無解釋";
+            let mFormat = targetData.missingFormat || word;
+            let sentence = targetData.sentence || "無例句";
 
-            if (mode === 'meaning-to-word') textToRead = targetData.meaning;
-            else if (mode === 'word-to-meaning') textToRead = targetData.word;
-            else if (mode === 'sentence') textToRead = (targetData.sentence || "").replace(/[＿【】_]+/g, "什麼");
-            else if (mode === 'fill-blank') textToRead = targetData.missingFormat.replace(/[＿_]+/g, "什麼");
+            if (mode === 'meaning-to-word') textToRead = meaning;
+            else if (mode === 'word-to-meaning') textToRead = word;
+            else if (mode === 'sentence') textToRead = sentence.replace(/[＿【】_]+/g, "什麼");
+            else if (mode === 'fill-blank') textToRead = mFormat.replace(/[＿_]+/g, "什麼");
             
             if(textToRead) {
                 isPlayingAudio = true;
@@ -442,6 +446,7 @@
         // 💾 題庫與遊戲進度系統 (Auto-Save & HP)
         // =====================================
         const defaultDatabaseRaw = [
+            // Justin 單元一
             { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。", missingFormat: "人＿鼎沸", missingTarget: "聲", fillOptions: ["聲", "星", "生", "升"], sentence: "節日期間的年宵市場＿＿＿＿，熱鬧的景象令人難忘。" },
             { student: "Justin", unit: "單元一", word: "水泄不通", meaning: "連一滴水也流不出去，形容包圍緊密，也形容環境極度擁擠。", missingFormat: "水＿不通", missingTarget: "泄", fillOptions: ["泄", "洩", "瀉", "世"], sentence: "發生嚴重的交通事故後，這條主要幹道被車輛擠得＿＿＿＿。" },
             { student: "Justin", unit: "單元一", word: "日積月累", meaning: "指每天、每月地不斷積累。", missingFormat: "日＿月累", missingTarget: "積", fillOptions: ["積", "績", "擊", "激"], sentence: "學習語文必須依靠＿＿＿＿的閱讀和寫作，不能一蹴而就。" },
@@ -457,6 +462,7 @@
             { student: "Justin", unit: "單元一", word: "萬籟俱寂", meaning: "形容萬物無聲，一片寂靜。", missingFormat: "萬＿俱寂", missingTarget: "籟", fillOptions: ["籟", "賴", "懶", "瀨"], sentence: "在＿＿＿＿的深夜裏，整座城市都陷入了沉睡，唯獨他還在挑燈夜戰。" },
             { student: "Justin", unit: "單元一", word: "歷歷在目", meaning: "清楚明白地呈現在眼前。歷歷，清楚分明。", missingFormat: "歷歷在＿", missingTarget: "目", fillOptions: ["目", "木", "沐", "牧"], sentence: "雖然畢業已經十年，但當年與同學們在操場上共同奮鬥的情景，至今依然＿＿＿＿。" },
             { student: "Justin", unit: "單元一", word: "鑼鼓喧天", meaning: "本指鑼鼓聲音大得震天。現形容氣氛非常熱鬧。", missingFormat: "鑼鼓＿天", missingTarget: "喧", fillOptions: ["喧", "宣", "圈", "旋"], sentence: "為了慶祝國慶，主辦單位安排了盛大的舞龍表演，現場＿＿＿＿，氣氛高漲。" },
+            // Justin 單元二
             { student: "Justin", unit: "單元二", word: "大快朵頤", meaning: "飽食、愉快的樣子。朵，動。頤，下巴。", missingFormat: "大快朵＿", missingTarget: "頤", fillOptions: ["頤", "題", "頁", "順"], sentence: "母親在廚房準備了豐富的晚餐，一家人圍坐在餐桌前＿＿＿＿。" },
             { student: "Justin", unit: "單元二", word: "口若懸河", meaning: "說起話來像河水傾瀉一樣，說個不停。形容能言善辯。", missingFormat: "口若懸＿", missingTarget: "河", fillOptions: ["河", "何", "荷", "可"], sentence: "他在辯論比賽中表現出色，面對評判的提問＿＿＿＿，贏得了熱烈掌聲。" },
             { student: "Justin", unit: "單元二", word: "口蜜腹劍", meaning: "形容人把話說得動聽，事實上內心險惡，處處想陷害別人。", missingFormat: "口蜜腹＿", missingTarget: "劍", fillOptions: ["劍", "見", "健", "箭"], sentence: "我們平時結交朋友要擦亮雙眼，切忌親近那些＿＿＿＿的小人。" },
@@ -472,6 +478,7 @@
             { student: "Justin", unit: "單元二", word: "戰戰兢兢", meaning: "因害怕而發抖。形容十分害怕或小心謹慎的樣子。", missingFormat: "戰戰＿兢", missingTarget: "兢", fillOptions: ["兢", "竟", "境", "經"], sentence: "第一次踏上舞台作公開演講時，他心裏＿＿＿＿的，深怕自己會突然忘詞。" },
             { student: "Justin", unit: "單元二", word: "信口雌黃", meaning: "比喻不顧事實，隨口亂說或隨意批評。", missingFormat: "信口雌＿", missingTarget: "黃", fillOptions: ["黃", "王", "皇", "謊"], sentence: "在未搞清楚真相之前，請不要在社交平台上＿＿＿＿，以免傷害無辜者。" },
             { student: "Justin", unit: "單元二", word: "顧影自憐", meaning: "形容人孤獨失意，亦可形容自我欣賞的樣子。", missingFormat: "顧影自＿", missingTarget: "憐", fillOptions: ["憐", "鄰", "玲", "靈"], sentence: "夜深人靜時，他獨自坐在窗前看著自己的影子，心中湧起一股＿＿＿＿的落寞感。" },
+            // Justin 單元三
             { student: "Justin", unit: "單元三", word: "火冒三丈", meaning: "頭上冒出三丈高的火。形容極度生氣。", missingFormat: "火冒三＿", missingTarget: "丈", fillOptions: ["丈", "杖", "仗", "帳"], sentence: "看到弟弟又把房間弄得一團糟而且不肯承認錯誤，媽媽頓時氣得＿＿＿＿。" },
             { student: "Justin", unit: "單元三", word: "扣人心弦", meaning: "形容事物深深地牽動人心，令人心情激動或覺得感動。", missingFormat: "扣人心＿", missingTarget: "弦", fillOptions: ["弦", "懸", "旋", "咸"], sentence: "這部偵探電影的劇情發展峰迴路轉、＿＿＿＿，直到最後一刻才揭曉真兇。" },
             { student: "Justin", unit: "單元三", word: "心悅誠服", meaning: "誠心誠意地歸服或佩服。", missingFormat: "心悅誠＿", missingTarget: "服", fillOptions: ["服", "福", "幅", "富"], sentence: "老師憑藉着淵博的學識和耐心細緻的教導，讓班上所有調皮的學生都＿＿＿＿。" },
@@ -665,6 +672,34 @@
             localStorage.setItem('rpgGameState', JSON.stringify(state));
         }
 
+        function updateMaterialUI() {
+            const safeSet = (id, val) => { let el = document.getElementById(id); if(el) el.innerText = val; };
+            safeSet('em-menu', emeralds);
+            safeSet('em-std', emeralds); 
+            safeSet('em-std2', emeralds);
+            safeSet('mat-em', emeralds);
+            safeSet('mat-log', materials.log);
+            safeSet('mat-stone', materials.stone);
+            safeSet('mat-fiber', materials.fiber);
+            safeSet('mat-sand', materials.sand);
+            safeSet('mat-clay', materials.clay);
+            safeSet('mat-iron', materials.iron);
+            safeSet('mat-gold', materials.gold);
+            safeSet('hp-std', hp);
+            safeSet('hp-rpg', hp);
+            safeSet('food-std', foodCount);
+            safeSet('food-rpg', foodCount);
+        }
+
+        function goToMenu() { 
+            try {
+                document.querySelectorAll('.page').forEach(p => p.style.display = 'none'); 
+                document.getElementById('main-dashboard').style.display = 'block'; 
+                resetTTSBtn();
+                isQuestionActive = false;
+            } catch(e) { console.error("返回大本營出錯:", e); }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             initDatabase(); loadGameState();
         });
@@ -725,26 +760,51 @@
             loadStandardQuestion();
         }
 
+        function generateOptions(correctAnswer, keyType) {
+            if (!correctAnswer) correctAnswer = "正確答案";
+            let options = [correctAnswer];
+            let shuffledDb = [...currentDatabase].sort(() => 0.5 - Math.random());
+            for(let i = 0; i < shuffledDb.length; i++) { 
+                let val = shuffledDb[i][keyType];
+                if(val && val !== correctAnswer && options.length < 4 && !options.includes(val)) options.push(val); 
+            }
+            let dummies = ["的", "了", "是", "在", "不", "有", "個", "人", "這", "上", "中", "大", "他", "我", "你", "好"];
+            while (options.length < 4) {
+                let d = dummies[Math.floor(Math.random() * dummies.length)];
+                if (!options.includes(d)) options.push(d);
+            }
+            return options.sort(() => 0.5 - Math.random()); 
+        }
+
         function loadStandardQuestion() {
             document.getElementById('std-next-btn').style.display = 'none'; document.getElementById('feedback-std').innerText = "";
             let optionsContainer = document.getElementById('options-container'); optionsContainer.innerHTML = "";
             
             if (questionDeck.length === 0) questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
             currentTargetData = questionDeck.pop();
+            
             let options = [];
+            let word = currentTargetData.word || "未知";
+            let meaning = currentTargetData.meaning || "無解釋";
+            let mFormat = currentTargetData.missingFormat || word;
+            let mTarget = currentTargetData.missingTarget || word.charAt(0);
+            let sentence = currentTargetData.sentence || "無例句";
+            
+            let fillOpts = currentTargetData.fillOptions;
+            if (!fillOpts || !Array.isArray(fillOpts) || fillOpts.length === 0) fillOpts = generateOptions(mTarget, 'missingTarget');
 
             if (currentStdMode === 'meaning-to-word') {
-                document.getElementById('question-text-std').innerText = currentTargetData.meaning;
-                options = generateOptions(currentTargetData.word, 'word');
+                document.getElementById('question-text-std').innerText = meaning;
+                options = generateOptions(word, 'word');
             } else if (currentStdMode === 'word-to-meaning') {
-                document.getElementById('question-text-std').innerText = currentTargetData.word;
-                options = generateOptions(currentTargetData.meaning, 'meaning');
+                document.getElementById('question-text-std').innerText = word;
+                options = generateOptions(meaning, 'meaning');
             } else if (currentStdMode === 'sentence') {
-                document.getElementById('question-text-std').innerText = (currentTargetData.sentence || "沒有例句").replace("＿＿＿＿", "【 ＿＿ 】");
-                options = generateOptions(currentTargetData.word, 'word');
+                document.getElementById('question-text-std').innerText = sentence.replace("＿＿＿＿", "【 ＿＿ 】");
+                options = generateOptions(word, 'word');
             } else if (currentStdMode === 'fill-blank') {
-                document.getElementById('question-text-std').innerText = currentTargetData.missingFormat;
-                options = [...currentTargetData.fillOptions].sort(() => 0.5 - Math.random());
+                document.getElementById('question-text-std').innerText = mFormat;
+                options = [...fillOpts].sort(() => 0.5 - Math.random());
             }
             renderStdButtons(options, "std-option-btn");
             resetTTSBtn();
@@ -761,7 +821,7 @@
 
         function checkStandardAnswer(selectedText, clickedElement) {
             let feedback = document.getElementById('feedback-std');
-            let correctAnswer = (currentStdMode === 'word-to-meaning') ? currentTargetData.meaning : (currentStdMode === 'fill-blank' ? currentTargetData.missingTarget : currentTargetData.word);
+            let correctAnswer = (currentStdMode === 'word-to-meaning') ? (currentTargetData.meaning || "無解釋") : (currentStdMode === 'fill-blank' ? (currentTargetData.missingTarget || currentTargetData.word.charAt(0)) : (currentTargetData.word || "未知"));
             Array.from(document.getElementById('options-container').children).forEach(btn => { btn.style.pointerEvents = 'none'; if(btn.className !== "std-char-block") btn.style.filter = 'brightness(0.8)'; });
 
             if(selectedText === correctAnswer) {
@@ -772,7 +832,8 @@
                 if (Math.random() < 0.3) { foodCount++; feedback.innerText += " (並幸運獲得 🍎x1)"; }
                 questionsAnswered++;
                 updateMaterialUI(); saveGameState(); 
-                if (currentStdMode === 'fill-blank') document.getElementById('question-text-std').innerText = currentTargetData.missingFormat.replace("＿", `【${correctAnswer}】`);
+                let mFormat = currentTargetData.missingFormat || "缺字題";
+                if (currentStdMode === 'fill-blank') document.getElementById('question-text-std').innerText = mFormat.replace("＿", `【${correctAnswer}】`);
                 checkBossTrigger();
             } else {
                 feedback.innerText = "❌ 答錯了！遭受小妖精襲擊，扣 15 血！答案是：" + correctAnswer; feedback.style.color = "#d32f2f";
@@ -799,10 +860,19 @@
             bossQuestType = types[Math.floor(Math.random() * types.length)];
             
             let qText = "", rawOptions = [], actualAns = "";
-            if (bossQuestType === 'meaning-to-word') { qText = bossTargetData.meaning; actualAns = bossTargetData.word; rawOptions = generateOptions(actualAns, 'word'); }
-            else if (bossQuestType === 'word-to-meaning') { qText = bossTargetData.word; actualAns = bossTargetData.meaning; rawOptions = generateOptions(actualAns, 'meaning'); }
-            else if (bossQuestType === 'fill-blank') { qText = bossTargetData.missingFormat; actualAns = bossTargetData.missingTarget; rawOptions = [...bossTargetData.fillOptions].sort(() => 0.5 - Math.random()); }
-            else if (bossQuestType === 'sentence') { qText = (bossTargetData.sentence || "無例句").replace("＿＿＿＿", "【 ＿＿ 】"); actualAns = bossTargetData.word; rawOptions = generateOptions(actualAns, 'word'); }
+            let word = bossTargetData.word || "未知";
+            let meaning = bossTargetData.meaning || "無解釋";
+            let mFormat = bossTargetData.missingFormat || word;
+            let mTarget = bossTargetData.missingTarget || word.charAt(0);
+            let sentence = bossTargetData.sentence || "無例句";
+            
+            let fillOpts = bossTargetData.fillOptions;
+            if (!fillOpts || !Array.isArray(fillOpts) || fillOpts.length === 0) fillOpts = generateOptions(mTarget, 'missingTarget');
+
+            if (bossQuestType === 'meaning-to-word') { qText = meaning; actualAns = word; rawOptions = generateOptions(actualAns, 'word'); }
+            else if (bossQuestType === 'word-to-meaning') { qText = word; actualAns = meaning; rawOptions = generateOptions(actualAns, 'meaning'); }
+            else if (bossQuestType === 'fill-blank') { qText = mFormat; actualAns = mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random()); }
+            else if (bossQuestType === 'sentence') { qText = sentence.replace("＿＿＿＿", "【 ＿＿ 】"); actualAns = word; rawOptions = generateOptions(actualAns, 'word'); }
 
             document.getElementById('boss-q-text').innerText = qText;
             
@@ -846,6 +916,11 @@
         // =====================================
         // ⛏️ RPG 模式邏輯
         // =====================================
+        function updateGridSize() {
+            let island = document.getElementById('island'); let sizePx = (gridSize * TILE_SIZE) + 'px';
+            island.style.width = sizePx; island.style.height = sizePx; island.style.minWidth = sizePx; island.style.minHeight = sizePx;
+        }
+
         function startRPGGame() {
             initAudio(); 
             if(currentDatabase.length === 0) return alert("目前範圍沒有題目！");
@@ -866,10 +941,19 @@
             rpgQuestType = types[Math.floor(Math.random() * types.length)];
             
             let title = "", question = "", rawOptions = [], actualCorrectAnswer = "";
-            if (rpgQuestType === 'meaning-to-word') { title = "📜 任務：尋找匹配字詞"; question = currentTargetData.meaning; actualCorrectAnswer = currentTargetData.word; rawOptions = generateOptions(currentTargetData.word, 'word');
-            } else if (rpgQuestType === 'word-to-meaning') { title = "📜 任務：解讀告示牌"; question = currentTargetData.word; actualCorrectAnswer = currentTargetData.meaning; rawOptions = generateOptions(currentTargetData.meaning, 'meaning');
-            } else if (rpgQuestType === 'fill-blank') { title = "📜 任務：修補殘缺字詞"; question = currentTargetData.missingFormat; actualCorrectAnswer = currentTargetData.missingTarget; rawOptions = [...currentTargetData.fillOptions].sort(() => 0.5 - Math.random());
-            } else if (rpgQuestType === 'sentence') { title = "📜 任務：填補情境對白"; question = (currentTargetData.sentence || "無例句").replace("＿＿＿＿", "【 ＿＿ 】"); actualCorrectAnswer = currentTargetData.word; rawOptions = generateOptions(currentTargetData.word, 'word'); }
+            let word = currentTargetData.word || "未知";
+            let meaning = currentTargetData.meaning || "無解釋";
+            let mFormat = currentTargetData.missingFormat || word;
+            let mTarget = currentTargetData.missingTarget || word.charAt(0);
+            let sentence = currentTargetData.sentence || "無例句";
+            
+            let fillOpts = currentTargetData.fillOptions;
+            if (!fillOpts || !Array.isArray(fillOpts) || fillOpts.length === 0) fillOpts = generateOptions(mTarget, 'missingTarget');
+
+            if (rpgQuestType === 'meaning-to-word') { title = "📜 任務：尋找匹配字詞"; question = meaning; actualCorrectAnswer = word; rawOptions = generateOptions(word, 'word');
+            } else if (rpgQuestType === 'word-to-meaning') { title = "📜 任務：解讀告示牌"; question = word; actualCorrectAnswer = meaning; rawOptions = generateOptions(meaning, 'meaning');
+            } else if (rpgQuestType === 'fill-blank') { title = "📜 任務：修補殘缺字詞"; question = mFormat; actualCorrectAnswer = mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random());
+            } else if (rpgQuestType === 'sentence') { title = "📜 任務：填補情境對白"; question = sentence.replace("＿＿＿＿", "【 ＿＿ 】"); actualCorrectAnswer = word; rawOptions = generateOptions(word, 'word'); }
 
             document.getElementById('rpg-mission-title').innerText = title; document.getElementById('rpg-question-text').innerText = question;
             
@@ -887,13 +971,6 @@
                 el.style.left = (randX * TILE_SIZE) + 'px'; el.style.top = (randY * TILE_SIZE) + 'px';
                 document.getElementById('island').appendChild(el); questBlocks.push({ element: el, label: label, x: randX, y: randY, broken: false });
             });
-        }
-
-        function generateOptions(correctAnswer, keyType) {
-            let options = [correctAnswer];
-            let shuffledDb = [...currentDatabase].sort(() => 0.5 - Math.random());
-            for(let i = 0; i < shuffledDb.length; i++) { if(shuffledDb[i][keyType] !== correctAnswer && options.length < 4) options.push(shuffledDb[i][keyType]); }
-            return options.sort(() => 0.5 - Math.random()); 
         }
 
         function updatePlayerDOM() { let p = document.getElementById('player'); p.style.left = (pX * TILE_SIZE) + 'px'; p.style.top = (pY * TILE_SIZE) + 'px'; }
@@ -930,8 +1007,12 @@
                 feedback.innerHTML = `<span style="color:#2e7d32">✨ 採集成功！獲得: ${dropMsg.join(' ')} 及 ❇️x2</span>`;
                 
                 let realAnsText = Array.from(document.getElementById('mc-choices').children).find(div => div.innerText.startsWith(`[${rpgCorrectAnswer}]`)).innerText.substring(4); 
-                if(rpgQuestType === 'fill-blank') document.getElementById('rpg-question-text').innerText = currentTargetData.missingFormat.replace("＿", `【${realAnsText}】`);
-                else if(rpgQuestType === 'sentence') document.getElementById('rpg-question-text').innerText = currentTargetData.sentence.replace("＿＿＿＿", `【${realAnsText}】`);
+                let mFormat = currentTargetData.missingFormat || "缺字題";
+                let sentence = currentTargetData.sentence || "無例句";
+                
+                if(rpgQuestType === 'fill-blank') document.getElementById('rpg-question-text').innerText = mFormat.replace("＿", `【${realAnsText}】`);
+                else if(rpgQuestType === 'sentence') document.getElementById('rpg-question-text').innerText = sentence.replace("＿＿＿＿", `【${realAnsText}】`);
+                
                 document.getElementById('rpg-controls').style.display = 'none'; document.getElementById('rpg-next-btn').style.display = 'block';
                 checkBossTrigger();
             } else {
@@ -967,11 +1048,6 @@
         // =====================================
         // 🔨 建築與合成面板
         // =====================================
-        function updateGridSize() {
-            let island = document.getElementById('island'); let sizePx = (gridSize * TILE_SIZE) + 'px';
-            island.style.width = sizePx; island.style.height = sizePx; island.style.minWidth = sizePx; island.style.minHeight = sizePx;
-        }
-
         function renderHotbar() {
             let hb = document.getElementById('hotbar'); hb.innerHTML = ""; let itemKeys = Object.keys(inventory);
             for(let i=0; i<Math.max(5, itemKeys.length); i++) {
