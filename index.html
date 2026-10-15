@@ -150,7 +150,7 @@
         /* 🐉 Boss 戰 Modal */
         .boss-modal { z-index: 100; background: rgba(30,0,0,0.95); }
         .boss-wrapper { background: #3e2723; color: white; border: 6px solid #b71c1c; text-align: center; max-width: 600px; }
-        .boss-img { font-size: 80px; margin: 10px; text-shadow: 0 0 20px #ff5252; animation: float 2s infinite ease-in-out; }
+        .boss-img { font-size: 80px; margin: 10px; animation: float 2s infinite ease-in-out; }
         @keyframes float { 0% {transform: translateY(0px);} 50% {transform: translateY(-10px);} 100% {transform: translateY(0px);} }
         .boss-hp-bar { width: 100%; height: 25px; background: #222; border-radius: 12px; margin-bottom: 15px; overflow: hidden; border: 2px solid #fff;}
         .boss-hp-fill { width: 100%; height: 100%; background: #ff1744; transition: width 0.3s; }
@@ -190,6 +190,16 @@
             <p id="scope-info" class="scope-info-text">載入中...</p>
         </div>
 
+        <!-- 📚 新增：學習與準備區 -->
+        <div class="section-title">▶ 準備區</div>
+        <div class="modes-grid" style="grid-template-columns: 1fr;">
+            <div class="mode-card" onclick="openLearningArea()" style="background: #e3f2fd; border-color: #64b5f6;">
+                <div class="mode-icon" style="background: #1565c0; color: white;">📚</div>
+                <h3 style="color: #1565c0; font-size: 18px;">進入學習區</h3>
+                <p>正式挑戰前，先溫習一下目前範圍的所有字詞與解釋吧！</p>
+            </div>
+        </div>
+
         <div class="section-title">
             <span>▶ 傳統溫習區 (賺取寶石)</span>
             <span class="emerald-display">❇️ <span id="em-menu">0</span></span>
@@ -219,6 +229,17 @@
         </div>
     </div>
 
+    <!-- 📚 學習區 Page -->
+    <div id="learning-area" class="page">
+        <div class="rpg-header">
+            <button class="header-btn" onclick="goToMenu()">⬅️ 返回大本營</button>
+            <h2 style="margin:0; color:#1565c0; font-size: 22px;">📚 詞語學習區</h2>
+        </div>
+        <div id="learning-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; text-align: left;">
+            <!-- 學習卡片會動態生成在這裡 -->
+        </div>
+    </div>
+
     <!-- 📚 題庫管理 Modal (密碼保護) -->
     <div class="db-modal" id="db-modal">
         <div class="db-wrapper">
@@ -238,13 +259,13 @@
         </div>
     </div>
 
-    <!-- 🐉 巨龍 Boss Modal -->
+    <!-- 🐉 巨龍/怪物 Boss Modal -->
     <div class="db-modal boss-modal" id="boss-modal">
         <div class="db-wrapper boss-wrapper">
-            <h2 style="color:#ff5252; margin-top:0;">🔥 巨龍突襲！🔥</h2>
-            <div class="boss-img">🐉</div>
+            <h2 id="boss-title-text" style="color:#ff5252; margin-top:0;">🔥 Boss 突襲！🔥</h2>
+            <div class="boss-img" id="boss-icon">🐉</div>
             <div class="boss-hp-bar"><div class="boss-hp-fill" id="boss-hp-fill"></div></div>
-            <p style="color:#ffcc80; font-weight:bold; font-size:16px;">巨龍攔住了去路！連續答對 3 題擊退牠！</p>
+            <p style="color:#ffcc80; font-weight:bold; font-size:16px;">怪物攔住了去路！連續答對 3 題擊退牠！</p>
             <h3 id="boss-q-title" style="color:#fff; border-bottom: 1px solid #777; padding-bottom: 5px;">載入中...</h3>
             <p id="boss-q-text" style="font-size:22px; font-weight:bold; color: #fff;">...</p>
             <div id="boss-choices" class="boss-choices" style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
@@ -334,7 +355,7 @@
 
     <script>
         // =====================================
-        // 🔐 全域變數宣告區 (補回上次遺失的核心變數)
+        // 🔐 全域變數宣告區
         // =====================================
         let emeralds = 0; 
         let materials = { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 }; 
@@ -752,6 +773,28 @@
             initDatabase(); loadGameState();
         });
 
+        // 📚 學習區邏輯
+        function openLearningArea() {
+            try {
+                if(!currentDatabase || currentDatabase.length === 0) return alert("目前範圍沒有題目！請先選擇玩家與單元。");
+                document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+                document.getElementById('learning-area').style.display = 'block';
+                
+                let listContent = "";
+                currentDatabase.forEach(item => {
+                    let safe = getSafeData(item);
+                    listContent += `
+                        <div style="background: #fff; border: 3px solid #ccc; border-radius: 8px; padding: 12px; box-shadow: 0 2px 0 #999;">
+                            <h3 style="margin: 0 0 5px 0; color: #1565c0; font-size: 20px;">${safe.word}</h3>
+                            <p style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold; color: #333;">📖 ${safe.meaning}</p>
+                            <p style="margin: 0; font-size: 14px; color: #666; font-style: italic;">💡 例句：${safe.sentence}</p>
+                        </div>
+                    `;
+                });
+                document.getElementById('learning-list').innerHTML = listContent;
+            } catch(e) { console.error("打開學習區出錯:", e); }
+        }
+
         // ⚔️ 戰鬥與生存系統
         function takeDamage(amount, reason) {
             hp = parseInt(hp); if(isNaN(hp)) hp = MAX_HP;
@@ -887,11 +930,24 @@
         }
 
         // =====================================
-        // 🐉 巨龍 Boss 戰邏輯
+        // 🐉 巨龍/Minecraft Boss 戰邏輯
         // =====================================
+        const BOSS_LIST = [
+            { name: "終界龍 (Ender Dragon)", icon: "🐉", dmg: 30 },
+            { name: "苦力怕 (Creeper)", icon: "🟩", dmg: 40 },
+            { name: "骷髏弓箭手 (Skeleton)", icon: "💀", dmg: 20 },
+            { name: "終界使者 (Enderman)", icon: "👿", dmg: 25 },
+            { name: "凋零怪 (Wither)", icon: "🦇", dmg: 35 }
+        ];
+        let currentBoss = null;
+
         function startBossFight() {
             initAudio(); sfx.boss();
             bossHp = BOSS_MAX_HP;
+            currentBoss = BOSS_LIST[Math.floor(Math.random() * BOSS_LIST.length)];
+            
+            document.getElementById('boss-title-text').innerText = `🔥 ${currentBoss.name} 突襲！🔥`;
+            document.getElementById('boss-icon').innerText = currentBoss.icon;
             document.getElementById('boss-hp-fill').style.width = '100%';
             document.getElementById('boss-modal').style.display = 'flex';
             loadBossQuestion();
@@ -936,7 +992,7 @@
                 
                 if (bossHp <= 0) {
                     setTimeout(() => {
-                        alert("🎉 恭喜！你成功擊敗了巨龍！\n獲得戰利品：50 綠寶石、🌟黃金x2、🍎蘋果x3！");
+                        alert(`🎉 恭喜！你成功擊敗了 ${currentBoss.name}！\n獲得戰利品：50 綠寶石、🌟黃金x2、🍎蘋果x3！`);
                         emeralds += 50; materials.gold += 2; foodCount += 3;
                         updateMaterialUI(); saveGameState();
                         document.getElementById('boss-modal').style.display = 'none';
@@ -947,9 +1003,9 @@
                 }
             } else {
                 btn.style.backgroundColor = "#ffcdd2";
-                alert("❌ 答錯了！巨龍對你噴射烈焰，扣 30 血！");
-                takeDamage(30, "被巨龍的烈焰燒死");
-                if (hp > 0) setTimeout(() => { loadBossQuestion(); }, 1000);
+                alert(`❌ 答錯了！正確答案是：「${bossCorrectAnswer}」\n${currentBoss.name} 對你發動攻擊，扣 ${currentBoss.dmg} 血！`);
+                takeDamage(currentBoss.dmg, `被 ${currentBoss.name} 擊殺`);
+                if (hp > 0) setTimeout(() => { loadBossQuestion(); }, 1200);
             }
         }
 
@@ -963,7 +1019,7 @@
                 let island = document.getElementById('island'); 
                 if(!island) return;
                 let sizePx = (gridSize * TILE_SIZE) + 'px';
-                // 絕對保證 CSS 寫入
+                // 絕對保證 CSS 寫入，解決地圖坍塌問題
                 island.style.cssText = `width: ${sizePx}; height: ${sizePx}; min-width: ${sizePx}; min-height: ${sizePx}; display: inline-block; position: relative;`;
             } catch(e) { console.error("Grid Size Error:", e); }
         }
