@@ -21,10 +21,14 @@
         @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
 
         /* 基礎設定 */
-        body { font-family: "PingFang HK", "Microsoft YaHei", sans-serif; background-color: #5b8731; text-align: center; padding: 10px; margin: 0; color: #333; user-select: none; touch-action: manipulation; }
+        body { font-family: "PingFang HK", "Microsoft YaHei", sans-serif; background-color: #5b8731; text-align: center; padding: 10px; margin: 0; color: #333; user-select: none; touch-action: manipulation; transition: background-color 0.1s; }
         .page { display: none; background: #e0e0e0; max-width: 900px; margin: 0 auto; padding: 20px; border: 6px solid #3c3c3c; box-shadow: 10px 10px 0px rgba(0,0,0,0.5); box-sizing: border-box; }
         #main-dashboard { display: block; } 
         
+        /* 💥 受傷特效 */
+        @keyframes flashRed { 0% { background-color: #ff5252; } 100% { background-color: #5b8731; } }
+        .damage-flash { animation: flashRed 0.3s forwards; }
+
         .header-container { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; gap: 10px;}
         .title-area { text-align: left; }
         h1 { color: #2e7d32; font-size: 30px; margin: 0 0 5px 0; font-family: 'DotGothic16', sans-serif; text-shadow: 1px 1px 0px #fff; }
@@ -49,7 +53,7 @@
         .scope-info-text { margin: 15px 0 0 0; font-size: 14px; color: #777; font-weight: bold; border-top: 1px dashed #ddd; padding-top: 15px; }
 
         .section-title { text-align: left; color: #2e7d32; font-size: 18px; margin-bottom: 10px; border-bottom: 3px dashed #999; padding-bottom: 5px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-        .emerald-display { background: #fff; color: #333; padding: 4px 12px; border: 3px inset #ccc; font-size: 16px; font-weight: bold; border-radius: 8px; display: flex; gap: 8px;}
+        .emerald-display { background: #fff; color: #333; padding: 4px 12px; border: 3px inset #ccc; font-size: 16px; font-weight: bold; border-radius: 8px; display: flex; gap: 8px; white-space: nowrap;}
         
         .modes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 25px; }
         .mode-card { background: #f5f5f5; border: 3px solid #ccc; padding: 15px; cursor: pointer; text-align: left; border-radius: 10px; transition: 0.1s; }
@@ -61,6 +65,12 @@
         /* 🎮 RPG 遊戲介面 */
         .rpg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
         .header-btn { background: #fff; border: 2px solid #ccc; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; color: #333; display: flex; align-items: center; gap: 5px; }
+        
+        /* ❤️ 玩家血條與食物 */
+        .player-status { display: flex; gap: 10px; align-items: center; background: #fff; padding: 6px 12px; border-radius: 8px; border: 3px inset #ccc; font-weight: bold; font-size: 15px; flex-wrap: wrap; justify-content: center; flex-grow: 1;}
+        .eat-btn { background: #4CAF50; border: 2px solid #2E7D32; color: white; border-radius: 6px; cursor: pointer; font-weight: bold; padding: 4px 8px; font-size: 13px;}
+        .eat-btn:active { transform: scale(0.95); }
+
         .mission-panel { background: #fff; border: 4px solid #8bc34a; padding: 12px; margin-bottom: 15px; border-radius: 10px; text-align: left; box-shadow: 0 4px 0 #689f38; }
         .mission-panel h3 { margin: 0 0 5px 0; font-size: 16px; color: #555; }
         .mission-panel p { margin: 0; font-size: 18px; font-weight: bold; color: #1a4231; line-height: 1.4;}
@@ -136,6 +146,15 @@
         .tts-btn { display: inline-flex; align-items: center; gap: 6px; background: #2196F3; color: white; border: 2px solid #0d47a1; border-radius: 8px; padding: 6px 12px; font-size: 15px; font-weight: bold; cursor: pointer; margin-bottom: 5px; box-shadow: 0 3px 0 #0d47a1; transition: 0.1s;}
         .tts-btn:active { transform: translateY(3px); box-shadow: none; }
         .tts-btn.playing { background: #4CAF50; border-color: #1b5e20; box-shadow: 0 3px 0 #1b5e20; }
+
+        /* 🐉 Boss 戰 Modal */
+        .boss-modal { z-index: 100; background: rgba(30,0,0,0.95); }
+        .boss-wrapper { background: #3e2723; color: white; border: 6px solid #b71c1c; text-align: center; max-width: 600px; }
+        .boss-img { font-size: 80px; margin: 10px; text-shadow: 0 0 20px #ff5252; animation: float 2s infinite ease-in-out; }
+        @keyframes float { 0% {transform: translateY(0px);} 50% {transform: translateY(-10px);} 100% {transform: translateY(0px);} }
+        .boss-hp-bar { width: 100%; height: 25px; background: #222; border-radius: 12px; margin-bottom: 15px; overflow: hidden; border: 2px solid #fff;}
+        .boss-hp-fill { width: 100%; height: 100%; background: #ff1744; transition: width 0.3s; }
+        .boss-choices div { background: #fff; border: 3px solid #ccc; color: #111; padding: 12px; cursor: pointer; font-weight: bold; font-size: 18px; border-radius: 8px; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -219,11 +238,29 @@
         </div>
     </div>
 
+    <!-- 🐉 巨龍 Boss Modal -->
+    <div class="db-modal boss-modal" id="boss-modal">
+        <div class="db-wrapper boss-wrapper">
+            <h2 style="color:#ff5252; margin-top:0;">🔥 巨龍突襲！🔥</h2>
+            <div class="boss-img">🐉</div>
+            <div class="boss-hp-bar"><div class="boss-hp-fill" id="boss-hp-fill"></div></div>
+            <p style="color:#ffcc80; font-weight:bold; font-size:16px;">巨龍攔住了去路！連續答對 3 題擊退牠！</p>
+            <h3 id="boss-q-title" style="color:#fff; border-bottom: 1px solid #777; padding-bottom: 5px;">載入中...</h3>
+            <p id="boss-q-text" style="font-size:22px; font-weight:bold; color: #fff;">...</p>
+            <div id="boss-choices" class="boss-choices" style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
+        </div>
+    </div>
+
     <!-- 📚 標準答題區 -->
     <div id="standard-game" class="page">
         <div class="rpg-header">
-            <button class="header-btn" onclick="goToMenu()">⬅️ 返回大本營</button>
-            <span class="emerald-display">❇️ <span id="em-std">0</span></span>
+            <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
+            <div class="player-status">
+                <span style="color:#d32f2f;">❤️ <span id="hp-std">100</span></span>
+                <span style="color:#d84315;">🍎 <span id="food-std">0</span></span>
+                <button class="eat-btn" onclick="eatFood()">吃 (+30)</button>
+            </div>
+            <span class="emerald-display">❇️ <span id="em-std2">0</span></span>
         </div>
         <div id="question-area-std">
             <button class="tts-btn" id="tts-btn-std" onclick="readQuestionTTS()">🔊 朗讀題目</button>
@@ -239,8 +276,12 @@
     <div id="rpg-game" class="page">
         <div class="rpg-header">
             <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
+            <div class="player-status">
+                <span style="color:#d32f2f;">❤️ <span id="hp-rpg">100</span></span>
+                <span style="color:#d84315;">🍎 <span id="food-rpg">0</span></span>
+                <button class="eat-btn" onclick="eatFood()">吃 (+30)</button>
+            </div>
             <button class="header-btn" onclick="openCrafting()" style="background: #5d4037; color: white; border-color: #3e2723;">🔨 工作台</button>
-            <button class="header-btn" onclick="restartGame()" style="background: #ffeb3b; border-color: #fbc02d;">🔄 重置</button>
         </div>
         
         <div class="mission-panel">
@@ -248,7 +289,7 @@
             <h3 id="rpg-mission-title">📜 任務：載入中...</h3>
             <p id="rpg-question-text" style="clear: both; margin-top: 5px;">載入中...</p>
             <div id="mc-choices" class="mc-choices"></div>
-            <div id="feedback-rpg" style="font-size: 15px; color: #d32f2f; margin-top: 10px; font-weight: bold;">用方向鍵或點擊地圖移動！答對獲得素材！</div>
+            <div id="feedback-rpg" style="font-size: 15px; color: #d32f2f; margin-top: 10px; font-weight: bold;">用方向鍵或點擊地圖移動！</div>
         </div>
 
         <div class="map-wrapper">
@@ -349,7 +390,10 @@
             wrong: () => { playTone(150, 'sawtooth', 0.3, 0.15); },
             move: () => { playTone(300, 'sine', 0.05, 0.03); },
             mine: () => { playTone(200, 'square', 0.1, 0.05); },
-            craft: () => { playTone(400, 'triangle', 0.1); setTimeout(() => playTone(800, 'triangle', 0.2), 100); }
+            craft: () => { playTone(400, 'triangle', 0.1); setTimeout(() => playTone(800, 'triangle', 0.2), 100); },
+            eat: () => { playTone(600, 'sine', 0.1); setTimeout(() => playTone(800, 'sine', 0.1), 150); },
+            boss: () => { playTone(100, 'square', 0.5); setTimeout(() => playTone(80, 'square', 0.8), 500); },
+            hit: () => { playTone(150, 'sawtooth', 0.2); setTimeout(() => playTone(100, 'sawtooth', 0.2), 150); }
         };
 
         // =====================================
@@ -362,18 +406,21 @@
             initAudio(); 
             let textToRead = "";
             let mode = document.getElementById('standard-game').style.display === 'block' ? currentStdMode : rpgQuestType;
+            if(document.getElementById('boss-modal').style.display === 'flex') mode = bossQuestType;
 
-            if (mode === 'meaning-to-word') textToRead = currentTargetData.meaning;
-            else if (mode === 'word-to-meaning') textToRead = currentTargetData.word;
-            else if (mode === 'sentence') textToRead = (currentTargetData.sentence || "").replace(/[＿【】_]+/g, "什麼");
-            else if (mode === 'fill-blank') textToRead = currentTargetData.missingFormat.replace(/[＿_]+/g, "什麼");
+            let targetData = document.getElementById('boss-modal').style.display === 'flex' ? bossTargetData : currentTargetData;
+
+            if (mode === 'meaning-to-word') textToRead = targetData.meaning;
+            else if (mode === 'word-to-meaning') textToRead = targetData.word;
+            else if (mode === 'sentence') textToRead = (targetData.sentence || "").replace(/[＿【】_]+/g, "什麼");
+            else if (mode === 'fill-blank') textToRead = targetData.missingFormat.replace(/[＿_]+/g, "什麼");
             
             if(textToRead) {
                 isPlayingAudio = true;
                 let btnStd = document.getElementById('tts-btn-std');
                 let btnRpg = document.getElementById('tts-btn-rpg');
-                if(btnStd) { btnStd.classList.add('playing'); btnStd.innerText = "🔊 播放中..."; }
-                if(btnRpg) { btnRpg.classList.add('playing'); btnRpg.innerText = "🔊 播放中..."; }
+                if(btnStd && document.getElementById('standard-game').style.display === 'block') { btnStd.classList.add('playing'); btnStd.innerText = "🔊 播放中..."; }
+                if(btnRpg && document.getElementById('rpg-game').style.display === 'block') { btnRpg.classList.add('playing'); btnRpg.innerText = "🔊 播放中..."; }
 
                 let u = new SpeechSynthesisUtterance(textToRead);
                 u.lang = 'zh-HK';
@@ -392,10 +439,9 @@
         }
 
         // =====================================
-        // 💾 題庫系統與 Local Storage
+        // 💾 題庫與遊戲進度系統 (Auto-Save & HP)
         // =====================================
         const defaultDatabaseRaw = [
-            // Justin 單元一
             { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。", missingFormat: "人＿鼎沸", missingTarget: "聲", fillOptions: ["聲", "星", "生", "升"], sentence: "節日期間的年宵市場＿＿＿＿，熱鬧的景象令人難忘。" },
             { student: "Justin", unit: "單元一", word: "水泄不通", meaning: "連一滴水也流不出去，形容包圍緊密，也形容環境極度擁擠。", missingFormat: "水＿不通", missingTarget: "泄", fillOptions: ["泄", "洩", "瀉", "世"], sentence: "發生嚴重的交通事故後，這條主要幹道被車輛擠得＿＿＿＿。" },
             { student: "Justin", unit: "單元一", word: "日積月累", meaning: "指每天、每月地不斷積累。", missingFormat: "日＿月累", missingTarget: "積", fillOptions: ["積", "績", "擊", "激"], sentence: "學習語文必須依靠＿＿＿＿的閱讀和寫作，不能一蹴而就。" },
@@ -411,7 +457,6 @@
             { student: "Justin", unit: "單元一", word: "萬籟俱寂", meaning: "形容萬物無聲，一片寂靜。", missingFormat: "萬＿俱寂", missingTarget: "籟", fillOptions: ["籟", "賴", "懶", "瀨"], sentence: "在＿＿＿＿的深夜裏，整座城市都陷入了沉睡，唯獨他還在挑燈夜戰。" },
             { student: "Justin", unit: "單元一", word: "歷歷在目", meaning: "清楚明白地呈現在眼前。歷歷，清楚分明。", missingFormat: "歷歷在＿", missingTarget: "目", fillOptions: ["目", "木", "沐", "牧"], sentence: "雖然畢業已經十年，但當年與同學們在操場上共同奮鬥的情景，至今依然＿＿＿＿。" },
             { student: "Justin", unit: "單元一", word: "鑼鼓喧天", meaning: "本指鑼鼓聲音大得震天。現形容氣氛非常熱鬧。", missingFormat: "鑼鼓＿天", missingTarget: "喧", fillOptions: ["喧", "宣", "圈", "旋"], sentence: "為了慶祝國慶，主辦單位安排了盛大的舞龍表演，現場＿＿＿＿，氣氛高漲。" },
-            // Justin 單元二
             { student: "Justin", unit: "單元二", word: "大快朵頤", meaning: "飽食、愉快的樣子。朵，動。頤，下巴。", missingFormat: "大快朵＿", missingTarget: "頤", fillOptions: ["頤", "題", "頁", "順"], sentence: "母親在廚房準備了豐富的晚餐，一家人圍坐在餐桌前＿＿＿＿。" },
             { student: "Justin", unit: "單元二", word: "口若懸河", meaning: "說起話來像河水傾瀉一樣，說個不停。形容能言善辯。", missingFormat: "口若懸＿", missingTarget: "河", fillOptions: ["河", "何", "荷", "可"], sentence: "他在辯論比賽中表現出色，面對評判的提問＿＿＿＿，贏得了熱烈掌聲。" },
             { student: "Justin", unit: "單元二", word: "口蜜腹劍", meaning: "形容人把話說得動聽，事實上內心險惡，處處想陷害別人。", missingFormat: "口蜜腹＿", missingTarget: "劍", fillOptions: ["劍", "見", "健", "箭"], sentence: "我們平時結交朋友要擦亮雙眼，切忌親近那些＿＿＿＿的小人。" },
@@ -427,7 +472,6 @@
             { student: "Justin", unit: "單元二", word: "戰戰兢兢", meaning: "因害怕而發抖。形容十分害怕或小心謹慎的樣子。", missingFormat: "戰戰＿兢", missingTarget: "兢", fillOptions: ["兢", "竟", "境", "經"], sentence: "第一次踏上舞台作公開演講時，他心裏＿＿＿＿的，深怕自己會突然忘詞。" },
             { student: "Justin", unit: "單元二", word: "信口雌黃", meaning: "比喻不顧事實，隨口亂說或隨意批評。", missingFormat: "信口雌＿", missingTarget: "黃", fillOptions: ["黃", "王", "皇", "謊"], sentence: "在未搞清楚真相之前，請不要在社交平台上＿＿＿＿，以免傷害無辜者。" },
             { student: "Justin", unit: "單元二", word: "顧影自憐", meaning: "形容人孤獨失意，亦可形容自我欣賞的樣子。", missingFormat: "顧影自＿", missingTarget: "憐", fillOptions: ["憐", "鄰", "玲", "靈"], sentence: "夜深人靜時，他獨自坐在窗前看著自己的影子，心中湧起一股＿＿＿＿的落寞感。" },
-            // Justin 單元三
             { student: "Justin", unit: "單元三", word: "火冒三丈", meaning: "頭上冒出三丈高的火。形容極度生氣。", missingFormat: "火冒三＿", missingTarget: "丈", fillOptions: ["丈", "杖", "仗", "帳"], sentence: "看到弟弟又把房間弄得一團糟而且不肯承認錯誤，媽媽頓時氣得＿＿＿＿。" },
             { student: "Justin", unit: "單元三", word: "扣人心弦", meaning: "形容事物深深地牽動人心，令人心情激動或覺得感動。", missingFormat: "扣人心＿", missingTarget: "弦", fillOptions: ["弦", "懸", "旋", "咸"], sentence: "這部偵探電影的劇情發展峰迴路轉、＿＿＿＿，直到最後一刻才揭曉真兇。" },
             { student: "Justin", unit: "單元三", word: "心悅誠服", meaning: "誠心誠意地歸服或佩服。", missingFormat: "心悅誠＿", missingTarget: "服", fillOptions: ["服", "福", "幅", "富"], sentence: "老師憑藉着淵博的學識和耐心細緻的教導，讓班上所有調皮的學生都＿＿＿＿。" },
@@ -469,21 +513,29 @@
 
         let database = [];
         let currentDatabase = [];
-        let questionDeck = []; // 抽牌系統用的牌堆
+        let questionDeck = []; 
 
-        // 🧠 全自動偵測更新系統
+        let hp = 100;
+        const MAX_HP = 100;
+        let foodCount = 0;
+        let questionsAnswered = 0;
+        const BOSS_TRIGGER_COUNT = 8;
+        let bossHp = 3;
+        const BOSS_MAX_HP = 3;
+        let bossTargetData = null;
+        let bossCorrectAnswer = "";
+        let bossQuestType = "";
+
+        // 🧠 載入題庫
         function initDatabase() {
             let currentDefaultStr = JSON.stringify(defaultDatabaseRaw);
             let lastDefaultStr = localStorage.getItem('lastDefaultDB');
 
-            // 核心邏輯：如果 GitHub 的源代碼更新了，就強制洗掉手機舊存檔！
             if (lastDefaultStr !== currentDefaultStr) {
-                console.log("偵測到 GitHub 題庫有更新，自動覆蓋手機記憶體！");
                 database = JSON.parse(currentDefaultStr);
                 localStorage.setItem('customVocabDB', JSON.stringify(database));
                 localStorage.setItem('lastDefaultDB', currentDefaultStr);
             } else {
-                // 如果代碼沒變，就讀取手機裡的進度（可能是在 UI 裡新增的）
                 let savedDB = localStorage.getItem('customVocabDB');
                 let parsedDB = null;
                 if (savedDB) {
@@ -500,30 +552,22 @@
                 }
             }
 
-            // 確保所有資料相容最新的 word 格式
             database = database.map(item => { 
-                if(item && item.idiom) { 
-                    item.word = item.idiom; 
-                    delete item.idiom; 
-                } 
+                if(item && item.idiom) { item.word = item.idiom; delete item.idiom; } 
                 return item; 
             }).filter(item => item != null);
             
-            // 動態生成玩家選單
             let studentSelect = document.getElementById('student-select');
             if (studentSelect) {
                 studentSelect.innerHTML = ''; 
                 let students = [...new Set(database.map(item => item.student || "未分類"))];
                 students.forEach(s => {
                     let opt = document.createElement('option');
-                    opt.value = s;
-                    opt.innerText = s;
-                    studentSelect.appendChild(opt);
+                    opt.value = s; opt.innerText = s; studentSelect.appendChild(opt);
                 });
                 
                 let allOpt = document.createElement('option');
-                allOpt.value = 'all';
-                allOpt.innerText = '所有玩家大挑戰';
+                allOpt.value = 'all'; allOpt.innerText = '所有玩家大挑戰';
                 studentSelect.appendChild(allOpt);
 
                 updateUnitDropdown();
@@ -556,7 +600,6 @@
             currentDatabase = (unit === 'all') ? filteredDB : filteredDB.filter(item => item.unit === unit);
             document.getElementById('scope-info').innerText = `這個範圍共有 ${currentDatabase.length} 個字詞。`;
             
-            // 每當範圍改變，就將牌堆洗牌重新補滿
             questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
         }
 
@@ -567,11 +610,9 @@
         
         function closeDBManager() { document.getElementById('db-modal').style.display = 'none'; }
         
-        // 🧹 清除全部功能
         function clearDBTextarea() {
             let textarea = document.getElementById('db-textarea');
-            textarea.value = "";
-            textarea.focus();
+            textarea.value = ""; textarea.focus();
         }
 
         function saveCustomDB() {
@@ -583,10 +624,7 @@
                 database = newDB.map(item => { if(item.idiom) { item.word = item.idiom; delete item.idiom; } return item; });
                 localStorage.setItem('customVocabDB', JSON.stringify(database));
                 
-                // 重新載入下拉選單
-                initDatabase();
-                closeDBManager(); 
-                alert("題庫已成功更新並儲存於瀏覽器！");
+                initDatabase(); closeDBManager(); alert("題庫已成功更新並儲存於瀏覽器！");
             } catch(e) { alert("儲存失敗！JSON 格式有誤。\n錯誤訊息: " + e.message); }
         }
 
@@ -599,56 +637,76 @@
                 localStorage.setItem('lastDefaultDB', currentDefaultStr);
                 document.getElementById('db-textarea').value = JSON.stringify(database, null, 4);
                 
-                // 重新載入下拉選單
-                initDatabase();
-                alert("已成功還原並修復題庫！");
+                initDatabase(); alert("已成功還原並修復題庫！");
             }
         }
 
-        window.addEventListener('DOMContentLoaded', initDatabase);
-
-        // =====================================
-        // ⛏️ 全新 7 大採集與 13 種合成系統
-        // =====================================
-        let emeralds = 0; 
-        let materials = { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 }; 
-        let inventory = {}; let placedDecorations = []; let selectedHotbarItem = null; 
-
-        const craftRecipes = [
-            { id: 'wood_plank', name: '木板', icon: '🧱', cost: {log: 1}, desc: '建造地基 (🪵x1)' },
-            { id: 'stone_brick', name: '石磚', icon: '🪨', cost: {stone: 1}, desc: '堅固外牆 (🪨x1)' },
-            { id: 'brick', name: '紅磚', icon: '🧱', cost: {clay: 2}, desc: '經典建材 (🧱x2)' },
-            { id: 'glass', name: '玻璃窗', icon: '🪟', cost: {sand: 2}, desc: '透光明亮 (🏜️x2)' },
-            { id: 'door', name: '木門', icon: '🚪', cost: {log: 2}, desc: '房屋入口 (🪵x2)' },
-            { id: 'bed', name: '床舖', icon: '🛏️', cost: {log: 2, fiber: 2}, desc: '溫馨家具 (🪵x2 🌾x2)' },
-            { id: 'torch', name: '火把', icon: '🏮', cost: {log: 1, stone: 1}, desc: '照明工具 (🪵x1 🪨x1)' },
-            { id: 'plant', name: '小盆栽', icon: '🌷', cost: {clay: 1, fiber: 1}, desc: '綠化環境 (🧱x1 🌾x1)' },
-            { id: 'iron_block', name: '鐵塊', icon: '🛡️', cost: {iron: 2}, desc: '堅不可摧 (🪙x2)' },
-            { id: 'gold_block', name: '黃金磚', icon: '👑', cost: {gold: 2}, desc: '閃閃發光 (🌟x2)' },
-            { id: 'chest', name: '寶箱', icon: '🧰', cost: {log: 2, iron: 1}, desc: '收藏寶物 (🪵x2 🪙x1)' },
-            { id: 'water', name: '水源', icon: '💧', cost: {emerald: 5}, desc: '建造池塘 (❇️x5)' },
-            { id: 'expand', name: '擴大領土', icon: '🗺️', cost: {emerald: 30}, desc: '增加邊界 (❇️x30)', type: 'upgrade' }
-        ];
-
-        const TILE_SIZE = 40; let gridSize = 8; let pX = 3, pY = 3; 
-        let questBlocks = []; let rpgQuestType = ""; let rpgCorrectAnswer = ""; 
-        let isQuestionActive = false; let currentTargetData = null;
-
-        function updateMaterialUI() {
-            document.getElementById('em-menu').innerText = emeralds; document.getElementById('em-std').innerText = emeralds; document.getElementById('mat-em').innerText = emeralds;
-            document.getElementById('mat-log').innerText = materials.log; document.getElementById('mat-stone').innerText = materials.stone; document.getElementById('mat-fiber').innerText = materials.fiber;
-            document.getElementById('mat-sand').innerText = materials.sand; document.getElementById('mat-clay').innerText = materials.clay; document.getElementById('mat-iron').innerText = materials.iron; document.getElementById('mat-gold').innerText = materials.gold;
+        // 📥 載入與儲存遊戲進度
+        function loadGameState() {
+            let savedState = localStorage.getItem('rpgGameState');
+            if (savedState) {
+                try {
+                    let state = JSON.parse(savedState);
+                    emeralds = state.emeralds || 0;
+                    materials = state.materials || { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 };
+                    inventory = state.inventory || {};
+                    placedDecorations = state.placedDecorations || [];
+                    gridSize = state.gridSize || 8;
+                    hp = state.hp !== undefined ? state.hp : MAX_HP;
+                    foodCount = state.foodCount || 0;
+                    questionsAnswered = state.questionsAnswered || 0;
+                } catch(e) { console.error("載入遊戲紀錄失敗", e); }
+            }
+            updateMaterialUI(); updateGridSize();
         }
 
-        function goToMenu() { document.querySelectorAll('.page').forEach(p => p.style.display = 'none'); document.getElementById('main-dashboard').style.display = 'block'; resetTTSBtn();}
-        
-        function restartGame() {
-            if(confirm("確定要重新開始嗎？所有的素材、進度與島嶼方塊都會被清空！")) {
-                emeralds = 0; materials = { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 };
-                inventory = {}; placedDecorations = []; selectedHotbarItem = null;
-                gridSize = 8; updateGridSize(); renderDecorations(); renderHotbar(); updateMaterialUI(); 
-                questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random()); // 重新洗牌
-                loadRPGQuest();
+        function saveGameState() {
+            let state = { emeralds, materials, inventory, placedDecorations, gridSize, hp, foodCount, questionsAnswered };
+            localStorage.setItem('rpgGameState', JSON.stringify(state));
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initDatabase(); loadGameState();
+        });
+
+        // ⚔️ 戰鬥與生存系統
+        function takeDamage(amount, reason) {
+            hp -= amount;
+            sfx.hit();
+            document.body.classList.add('damage-flash');
+            setTimeout(() => document.body.classList.remove('damage-flash'), 300);
+            
+            if (hp <= 0) {
+                hp = 0; updateMaterialUI();
+                setTimeout(() => {
+                    alert(`💀 遊戲結束：${reason}\n你被擊倒了，失去 30% 綠寶石。你已被送回大本營休息。`);
+                    emeralds = Math.floor(emeralds * 0.7);
+                    hp = MAX_HP;
+                    saveGameState();
+                    document.getElementById('boss-modal').style.display = 'none';
+                    goToMenu();
+                }, 100);
+            } else {
+                updateMaterialUI(); saveGameState();
+            }
+        }
+
+        function eatFood() {
+            if (foodCount > 0 && hp < MAX_HP) {
+                sfx.eat();
+                foodCount--;
+                hp = Math.min(MAX_HP, hp + 30);
+                updateMaterialUI(); saveGameState();
+            } else if (hp >= MAX_HP) {
+                alert("血量已經滿了，不需要吃東西！");
+            } else {
+                alert("沒有蘋果了！答對題目有機會掉落蘋果！");
+            }
+        }
+
+        function checkBossTrigger() {
+            if (questionsAnswered > 0 && questionsAnswered % BOSS_TRIGGER_COUNT === 0) {
+                setTimeout(() => { startBossFight(); }, 1200);
             }
         }
 
@@ -671,12 +729,8 @@
             document.getElementById('std-next-btn').style.display = 'none'; document.getElementById('feedback-std').innerText = "";
             let optionsContainer = document.getElementById('options-container'); optionsContainer.innerHTML = "";
             
-            // 從牌堆抽出一題，如果牌堆空了就重新洗牌
-            if (questionDeck.length === 0) {
-                questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
-            }
+            if (questionDeck.length === 0) questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
             currentTargetData = questionDeck.pop();
-            
             let options = [];
 
             if (currentStdMode === 'meaning-to-word') {
@@ -714,24 +768,84 @@
                 sfx.correct(); 
                 feedback.innerText = "✅ 答對了！獲得 5 綠寶石！"; feedback.style.color = "#2e7d32";
                 if(clickedElement.className !== "std-char-block") clickedElement.style.backgroundColor = "#c5e1a5";
-                emeralds += 5; updateMaterialUI();
+                emeralds += 5; 
+                if (Math.random() < 0.3) { foodCount++; feedback.innerText += " (並幸運獲得 🍎x1)"; }
+                questionsAnswered++;
+                updateMaterialUI(); saveGameState(); 
                 if (currentStdMode === 'fill-blank') document.getElementById('question-text-std').innerText = currentTargetData.missingFormat.replace("＿", `【${correctAnswer}】`);
+                checkBossTrigger();
             } else {
-                sfx.wrong(); 
-                feedback.innerText = "❌ 答錯了，答案是：\n" + correctAnswer; feedback.style.color = "#d32f2f";
+                feedback.innerText = "❌ 答錯了！遭受小妖精襲擊，扣 15 血！答案是：" + correctAnswer; feedback.style.color = "#d32f2f";
                 if(clickedElement.className !== "std-char-block") clickedElement.style.backgroundColor = "#ffcdd2";
+                takeDamage(15, "被小妖精襲擊");
             }
             document.getElementById('std-next-btn').style.display = 'block';
         }
 
         // =====================================
-        // ⛏️ RPG 模式邏輯
+        // 🐉 巨龍 Boss 戰邏輯
         // =====================================
-        function updateGridSize() {
-            let island = document.getElementById('island'); let sizePx = (gridSize * TILE_SIZE) + 'px';
-            island.style.width = sizePx; island.style.height = sizePx; island.style.minWidth = sizePx; island.style.minHeight = sizePx;
+        function startBossFight() {
+            initAudio(); sfx.boss();
+            bossHp = BOSS_MAX_HP;
+            document.getElementById('boss-hp-fill').style.width = '100%';
+            document.getElementById('boss-modal').style.display = 'flex';
+            loadBossQuestion();
         }
 
+        function loadBossQuestion() {
+            bossTargetData = currentDatabase[Math.floor(Math.random() * currentDatabase.length)];
+            const types = ['meaning-to-word', 'word-to-meaning', 'fill-blank', 'sentence'];
+            bossQuestType = types[Math.floor(Math.random() * types.length)];
+            
+            let qText = "", rawOptions = [], actualAns = "";
+            if (bossQuestType === 'meaning-to-word') { qText = bossTargetData.meaning; actualAns = bossTargetData.word; rawOptions = generateOptions(actualAns, 'word'); }
+            else if (bossQuestType === 'word-to-meaning') { qText = bossTargetData.word; actualAns = bossTargetData.meaning; rawOptions = generateOptions(actualAns, 'meaning'); }
+            else if (bossQuestType === 'fill-blank') { qText = bossTargetData.missingFormat; actualAns = bossTargetData.missingTarget; rawOptions = [...bossTargetData.fillOptions].sort(() => 0.5 - Math.random()); }
+            else if (bossQuestType === 'sentence') { qText = (bossTargetData.sentence || "無例句").replace("＿＿＿＿", "【 ＿＿ 】"); actualAns = bossTargetData.word; rawOptions = generateOptions(actualAns, 'word'); }
+
+            document.getElementById('boss-q-text').innerText = qText;
+            
+            let choicesHTML = "";
+            rawOptions.forEach((opt) => {
+                choicesHTML += `<div onclick="checkBossAnswer('${opt}', this)">${opt}</div>`;
+                if (opt === actualAns) bossCorrectAnswer = opt;
+            });
+            document.getElementById('boss-choices').innerHTML = choicesHTML;
+            resetTTSBtn();
+        }
+
+        function checkBossAnswer(selectedText, btn) {
+            Array.from(document.getElementById('boss-choices').children).forEach(b => b.style.pointerEvents = 'none');
+            
+            if (selectedText === bossCorrectAnswer) {
+                sfx.mine(); setTimeout(sfx.correct, 100);
+                btn.style.backgroundColor = "#c5e1a5";
+                bossHp--;
+                document.getElementById('boss-hp-fill').style.width = (bossHp / BOSS_MAX_HP * 100) + '%';
+                
+                if (bossHp <= 0) {
+                    setTimeout(() => {
+                        alert("🎉 恭喜！你成功擊敗了巨龍！\n獲得戰利品：50 綠寶石、🌟黃金x2、🍎蘋果x3！");
+                        emeralds += 50; materials.gold += 2; foodCount += 3;
+                        updateMaterialUI(); saveGameState();
+                        document.getElementById('boss-modal').style.display = 'none';
+                        if(document.getElementById('rpg-game').style.display === 'block') loadRPGQuest(); else loadStandardQuestion();
+                    }, 500);
+                } else {
+                    setTimeout(() => { loadBossQuestion(); }, 1000);
+                }
+            } else {
+                btn.style.backgroundColor = "#ffcdd2";
+                alert("❌ 答錯了！巨龍對你噴射烈焰，扣 30 血！");
+                takeDamage(30, "被巨龍的烈焰燒死");
+                if (hp > 0) setTimeout(() => { loadBossQuestion(); }, 1000);
+            }
+        }
+
+        // =====================================
+        // ⛏️ RPG 模式邏輯
+        // =====================================
         function startRPGGame() {
             initAudio(); 
             if(currentDatabase.length === 0) return alert("目前範圍沒有題目！");
@@ -745,10 +859,7 @@
             document.getElementById('rpg-next-btn').style.display = 'none'; document.getElementById('rpg-controls').style.display = 'flex';
             document.getElementById('feedback-rpg').innerText = "用方向鍵或點擊地圖移動！答對獲得素材！"; document.getElementById('feedback-rpg').style.color = "#d32f2f";
             
-            // 從牌堆抽出一題，如果牌堆空了就重新洗牌
-            if (questionDeck.length === 0) {
-                questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
-            }
+            if (questionDeck.length === 0) questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random());
             currentTargetData = questionDeck.pop();
 
             const types = ['meaning-to-word', 'word-to-meaning', 'fill-blank', 'sentence'];
@@ -808,9 +919,13 @@
                 let dropPool = ['log','log','stone','stone','fiber','fiber','sand','sand','clay','clay','iron','gold'];
                 let numDrops = Math.floor(Math.random() * 2) + 1; 
                 for(let i=0; i<numDrops; i++) { let t = dropPool[Math.floor(Math.random() * dropPool.length)]; dropCounts[t]++; materials[t]++; }
-                emeralds += 2; updateMaterialUI();
+                emeralds += 2; 
+                if (Math.random() < 0.4) { foodCount++; dropCounts['food'] = 1; }
                 
-                let icons = {log:'🪵', stone:'🪨', fiber:'🌾', sand:'🏜️', clay:'🧱', iron:'🪙', gold:'🌟'};
+                questionsAnswered++;
+                updateMaterialUI(); saveGameState(); 
+                
+                let icons = {log:'🪵', stone:'🪨', fiber:'🌾', sand:'🏜️', clay:'🧱', iron:'🪙', gold:'🌟', food:'🍎'};
                 let dropMsg = []; for(let key in dropCounts) { if(dropCounts[key] > 0) dropMsg.push(`${icons[key]}x${dropCounts[key]}`); }
                 feedback.innerHTML = `<span style="color:#2e7d32">✨ 採集成功！獲得: ${dropMsg.join(' ')} 及 ❇️x2</span>`;
                 
@@ -818,9 +933,10 @@
                 if(rpgQuestType === 'fill-blank') document.getElementById('rpg-question-text').innerText = currentTargetData.missingFormat.replace("＿", `【${realAnsText}】`);
                 else if(rpgQuestType === 'sentence') document.getElementById('rpg-question-text').innerText = currentTargetData.sentence.replace("＿＿＿＿", `【${realAnsText}】`);
                 document.getElementById('rpg-controls').style.display = 'none'; document.getElementById('rpg-next-btn').style.display = 'block';
+                checkBossTrigger();
             } else {
-                sfx.wrong(); 
-                block.element.classList.add('wrong'); feedback.innerText = "💥 鏗！這是錯誤的方塊..."; feedback.style.color = "#d32f2f";
+                block.element.classList.add('wrong'); feedback.innerText = "💥 答錯了！殭屍咬了你一口，扣 20 血！"; feedback.style.color = "#d32f2f";
+                takeDamage(20, "在採集時被殭屍咬死");
             }
         }
 
@@ -837,7 +953,9 @@
                 let catItem = craftRecipes.find(c => c.id === selectedHotbarItem);
                 placedDecorations.push({ icon: catItem.icon, x: targetX, y: targetY });
                 if(inventory[selectedHotbarItem] === 0) selectedHotbarItem = null;
-                renderDecorations(); renderHotbar(); return;
+                renderDecorations(); renderHotbar(); 
+                saveGameState(); 
+                return;
             }
 
             if (!isQuestionActive) return;
@@ -849,6 +967,11 @@
         // =====================================
         // 🔨 建築與合成面板
         // =====================================
+        function updateGridSize() {
+            let island = document.getElementById('island'); let sizePx = (gridSize * TILE_SIZE) + 'px';
+            island.style.width = sizePx; island.style.height = sizePx; island.style.minWidth = sizePx; island.style.minHeight = sizePx;
+        }
+
         function renderHotbar() {
             let hb = document.getElementById('hotbar'); hb.innerHTML = ""; let itemKeys = Object.keys(inventory);
             for(let i=0; i<Math.max(5, itemKeys.length); i++) {
@@ -916,6 +1039,7 @@
                 if (item.type === 'upgrade' && itemId === 'expand') { gridSize += 2; updateGridSize(); alert("綠地已成功擴大！"); } 
                 else { if(!inventory[itemId]) inventory[itemId] = 0; inventory[itemId]++; renderHotbar(); }
                 updateMaterialUI(); renderCraftItems();
+                saveGameState();
             }
         }
 
