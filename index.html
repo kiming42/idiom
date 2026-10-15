@@ -63,11 +63,11 @@
         .mode-card p { margin: 0; font-size: 12px; color: #666; font-weight: bold; line-height: 1.4; }
 
         /* 🎮 RPG 遊戲介面 */
-        .rpg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
-        .header-btn { background: #fff; border: 2px solid #ccc; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; color: #333; display: flex; align-items: center; gap: 5px; }
+        .rpg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 5px; }
+        .header-btn { background: #fff; border: 2px solid #ccc; padding: 6px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; color: #333; display: flex; align-items: center; gap: 5px; }
         
         /* ❤️ 玩家血條與食物 */
-        .player-status { display: flex; gap: 10px; align-items: center; background: #fff; padding: 6px 12px; border-radius: 8px; border: 3px inset #ccc; font-weight: bold; font-size: 15px; flex-wrap: wrap; justify-content: center; flex-grow: 1;}
+        .player-status { display: flex; gap: 8px; align-items: center; background: #fff; padding: 4px 10px; border-radius: 8px; border: 3px inset #ccc; font-weight: bold; font-size: 14px; flex-wrap: wrap; justify-content: center; flex-grow: 1;}
         .eat-btn { background: #4CAF50; border: 2px solid #2E7D32; color: white; border-radius: 6px; cursor: pointer; font-weight: bold; padding: 4px 8px; font-size: 13px;}
         .eat-btn:active { transform: scale(0.95); }
 
@@ -150,7 +150,7 @@
         /* 🐉 Boss 戰 Modal */
         .boss-modal { z-index: 100; background: rgba(30,0,0,0.95); }
         .boss-wrapper { background: #3e2723; color: white; border: 6px solid #b71c1c; text-align: center; max-width: 600px; }
-        .boss-img { font-size: 80px; margin: 10px; animation: float 2s infinite ease-in-out; }
+        .boss-img { display: inline-block; margin: 10px; animation: float 2s infinite ease-in-out; }
         @keyframes float { 0% {transform: translateY(0px);} 50% {transform: translateY(-10px);} 100% {transform: translateY(0px);} }
         .boss-hp-bar { width: 100%; height: 25px; background: #222; border-radius: 12px; margin-bottom: 15px; overflow: hidden; border: 2px solid #fff;}
         .boss-hp-fill { width: 100%; height: 100%; background: #ff1744; transition: width 0.3s; }
@@ -232,7 +232,7 @@
     <!-- 📚 學習區 Page -->
     <div id="learning-area" class="page">
         <div class="rpg-header">
-            <button class="header-btn" onclick="goToMenu()">⬅️ 返回大本營</button>
+            <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
             <h2 style="margin:0; color:#1565c0; font-size: 22px;">📚 詞語學習區</h2>
         </div>
         <div id="learning-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; text-align: left;">
@@ -279,7 +279,7 @@
             <div class="player-status">
                 <span style="color:#d32f2f;">❤️ <span id="hp-std">100</span></span>
                 <span style="color:#d84315;">🍎 <span id="food-std">0</span></span>
-                <button class="eat-btn" onclick="eatFood()">吃 (+30)</button>
+                <button class="eat-btn" onclick="eatFood()">吃</button>
             </div>
             <span class="emerald-display">❇️ <span id="em-std2">0</span></span>
         </div>
@@ -297,12 +297,15 @@
     <div id="rpg-game" class="page">
         <div class="rpg-header">
             <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
-            <div class="player-status">
+            <div class="player-status" style="padding: 4px 8px;">
                 <span style="color:#d32f2f;">❤️ <span id="hp-rpg">100</span></span>
                 <span style="color:#d84315;">🍎 <span id="food-rpg">0</span></span>
-                <button class="eat-btn" onclick="eatFood()">吃 (+30)</button>
+                <button class="eat-btn" onclick="eatFood()">吃</button>
             </div>
-            <button class="header-btn" onclick="openCrafting()" style="background: #5d4037; color: white; border-color: #3e2723;">🔨 工作台</button>
+            <div style="display: flex; gap: 5px;">
+                <button class="header-btn" onclick="openCrafting()" style="background: #5d4037; color: white; border-color: #3e2723; padding: 6px;">🔨 製作</button>
+                <button class="header-btn" onclick="restartGame()" style="background: #d32f2f; color: white; border-color: #b71c1c; padding: 6px;">🔄 重置</button>
+            </div>
         </div>
         
         <div class="mission-panel">
@@ -674,7 +677,6 @@
                 let filteredDB = (student === 'all') ? database : database.filter(item => item.student === student);
                 currentDatabase = (unit === 'all') ? filteredDB : filteredDB.filter(item => item.unit === unit);
                 
-                // 極限防錯保護：確保 currentDatabase 絕對不可能為空
                 if (!currentDatabase || currentDatabase.length === 0) {
                     currentDatabase = database.length > 0 ? [...database] : [...defaultDatabaseRaw];
                 }
@@ -751,7 +753,7 @@
         function updateMaterialUI() {
             try {
                 const safeSet = (id, val) => { let el = document.getElementById(id); if(el) el.innerText = val; };
-                safeSet('em-menu', emeralds); safeSet('em-std', emeralds); safeSet('em-std2', emeralds); // 修復舊ID
+                safeSet('em-menu', emeralds); safeSet('em-std', emeralds); safeSet('em-std2', emeralds);
                 safeSet('mat-em', emeralds);
                 safeSet('mat-log', materials.log); safeSet('mat-stone', materials.stone); safeSet('mat-fiber', materials.fiber);
                 safeSet('mat-sand', materials.sand); safeSet('mat-clay', materials.clay); safeSet('mat-iron', materials.iron); safeSet('mat-gold', materials.gold);
@@ -769,6 +771,22 @@
             } catch(e) { console.error("返回大本營出錯:", e); }
         }
 
+        // 重置功能
+        function restartGame() {
+            if(confirm("⚠️ 警告：確定要重新開始嗎？\n所有的綠寶石、收集的素材與島嶼方塊都會被完全清空！")) {
+                if(confirm("🚨 最後確認：進度清除後將【無法還原】，真的要重置嗎？")) {
+                    emeralds = 0; hp = MAX_HP; foodCount = 0; questionsAnswered = 0;
+                    materials = { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 };
+                    inventory = {}; placedDecorations = []; selectedHotbarItem = null; gridSize = 8; 
+                    updateGridSize(); renderDecorations(); renderHotbar(); updateMaterialUI(); 
+                    saveGameState(); 
+                    questionDeck = [...currentDatabase].sort(() => 0.5 - Math.random()); 
+                    loadRPGQuest();
+                    alert("🔄 遊戲紀錄已完全重置！開始新的冒險吧！");
+                }
+            }
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             initDatabase(); loadGameState();
         });
@@ -783,7 +801,7 @@
                 let listContent = "";
                 currentDatabase.forEach(item => {
                     let safe = getSafeData(item);
-                    let unitBadge = safe.unit ? `<span style="background:#1565c0; color:#fff; font-size:14px; padding:2px 6px; border-radius:4px; margin-right:8px; vertical-align:middle;">${safe.unit}</span>` : "";
+                    let unitBadge = safe.unit ? `<span style="background:#1565c0; color:#fff; font-size:14px; padding:2px 6px; border-radius:4px; margin-right:8px; vertical-align:middle;">[${safe.unit}]</span>` : "";
                     listContent += `
                         <div style="background: #fff; border: 3px solid #ccc; border-radius: 8px; padding: 12px; box-shadow: 0 2px 0 #999;">
                             <h3 style="margin: 0 0 5px 0; color: #1565c0; font-size: 20px; display: flex; align-items: center;">${unitBadge}${safe.word}</h3>
