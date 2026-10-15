@@ -81,8 +81,10 @@
         .map-wrapper { overflow-x: auto; padding: 10px 0; text-align: center; white-space: nowrap; width: 100%; border-radius: 8px; background: #bdbdbd; box-shadow: inset 0 0 10px rgba(0,0,0,0.3);}
         .island-container { display: inline-block; position: relative; background-color: #689f38; background-image: linear-gradient(#558b2f 2px, transparent 2px), linear-gradient(90deg, #558b2f 2px, transparent 2px); background-size: 40px 40px; border: 6px solid #3c3c3c; box-shadow: 5px 5px 0px rgba(0,0,0,0.3); cursor: crosshair; box-sizing: content-box; vertical-align: top; }
 
+        /* 👦🏻 像素主角 SVG */
         #player { position: absolute; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; transition: top 0.15s linear, left 0.15s linear; z-index: 10; }
-        #player::after { content: ""; display: block; width: 24px; height: 24px; background-color: #ffcc80; border: 3px solid #8d6e63; border-radius: 2px; box-shadow: 2px 2px 0 rgba(0,0,0,0.3); }
+        #player::after { content: ""; display: block; width: 32px; height: 32px; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%238d6e63'/%3E%3Crect x='1' y='2' width='6' height='6' fill='%23ffcc80'/%3E%3Crect x='0' y='0' width='8' height='2' fill='%235d4037'/%3E%3Crect x='0' y='2' width='1' height='2' fill='%235d4037'/%3E%3Crect x='7' y='2' width='1' height='2' fill='%235d4037'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%23fff'/%3E%3Crect x='2.5' y='4' width='0.5' height='1' fill='%233f51b5'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%23fff'/%3E%3Crect x='5' y='4' width='0.5' height='1' fill='%233f51b5'/%3E%3Crect x='3' y='6' width='2' height='1' fill='%23795548'/%3E%3C/svg%3E"); background-size: cover; image-rendering: pixelated; border: 2px solid #222; border-radius: 3px; box-shadow: 2px 2px 0 rgba(0,0,0,0.4); }
+        
         .quest-block { position: absolute; width: 36px; height: 36px; margin: 2px; background-color: #e0e0e0; border: 4px outset #fff; box-sizing: border-box; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 22px; font-weight: bold; color: #333; z-index: 5; transition: 0.2s; }
         .quest-block.broken { transform: scale(0); opacity: 0; }
         .quest-block.wrong { border-color: #424242; background-color: #212121; color: #757575; }
@@ -180,17 +182,24 @@
             <div class="filter-controls">
                 <div class="filter-group">
                     <label>👤 玩家選擇</label>
-                    <select id="student-select" onchange="updateUnitDropdown()"></select>
+                    <select id="student-select" onchange="updateUnitDropdown()">
+                        <option value="Justin">Justin</option>
+                        <option value="峰">峰</option>
+                        <option value="Marcus">Marcus</option>
+                        <option value="all">所有玩家大挑戰</option>
+                    </select>
                 </div>
                 <div class="filter-group">
                     <label>📚 單元選擇</label>
-                    <select id="unit-select" onchange="updateScopeInfo()"></select>
+                    <select id="unit-select" onchange="updateScopeInfo()">
+                        <option value="all">所有範圍 (綜合挑戰)</option>
+                    </select>
                 </div>
             </div>
             <p id="scope-info" class="scope-info-text">載入中...</p>
         </div>
 
-        <!-- 📚 新增：學習與準備區 -->
+        <!-- 📚 學習與準備區 -->
         <div class="section-title">▶ 準備區</div>
         <div class="modes-grid" style="grid-template-columns: 1fr;">
             <div class="mode-card" onclick="openLearningArea()" style="background: #e3f2fd; border-color: #64b5f6;">
@@ -224,7 +233,7 @@
             <div class="mode-card" onclick="startRPGGame()" style="background: #e8f5e9; border-color: #8bc34a;">
                 <div class="mode-icon" style="background: #2e7d32; color: white;">🌍</div>
                 <h3 style="color: #2e7d32; font-size: 18px;">進入方塊採集世界</h3>
-                <p>在地圖上尋寶答題，收集各種建築素材，打造你的專屬天地！</p>
+                <p>在地圖上尋寶答題，避開殭屍與骷髏，收集各種建築素材！</p>
             </div>
         </div>
     </div>
@@ -265,7 +274,7 @@
             <h2 id="boss-title-text" style="color:#ff5252; margin-top:0;">🔥 Boss 突襲！🔥</h2>
             <div class="boss-img" id="boss-icon"></div>
             <div class="boss-hp-bar"><div class="boss-hp-fill" id="boss-hp-fill"></div></div>
-            <p style="color:#ffcc80; font-weight:bold; font-size:16px;">怪物攔住了去路！連續答對 3 題擊退牠！</p>
+            <p style="color:#ffcc80; font-weight:bold; font-size:16px;">高等怪物攔住了去路！連續答對 3 題擊退牠！</p>
             <h3 id="boss-q-title" style="color:#fff; border-bottom: 1px solid #777; padding-bottom: 5px;">載入中...</h3>
             <p id="boss-q-text" style="font-size:22px; font-weight:bold; color: #fff;">...</p>
             <div id="boss-choices" class="boss-choices" style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
@@ -316,7 +325,7 @@
             <h3 id="rpg-mission-title">📜 任務：載入中...</h3>
             <p id="rpg-question-text" style="clear: both; margin-top: 5px;">載入中...</p>
             <div id="mc-choices" class="mc-choices"></div>
-            <div id="feedback-rpg" style="font-size: 15px; color: #d32f2f; margin-top: 10px; font-weight: bold;">用方向鍵或點擊地圖移動！</div>
+            <div id="feedback-rpg" style="font-size: 15px; color: #d32f2f; margin-top: 10px; font-weight: bold;">用方向鍵或點擊地圖移動！小心避開怪物！</div>
         </div>
 
         <div class="map-wrapper">
@@ -360,7 +369,7 @@
 
     <script>
         // =====================================
-        // 🔐 全域變數宣告區
+        // 🔐 全域變數宣告區 (絕無重複宣告)
         // =====================================
         let emeralds = 0; 
         let materials = { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 }; 
@@ -369,10 +378,30 @@
         let questBlocks = []; let rpgQuestType = ""; let rpgCorrectAnswer = ""; 
         let isQuestionActive = false; let currentTargetData = null;
 
-        // 新增：語音與題號追蹤
         let activeSentenceText = ""; 
         let currentQuestionCount = 0; 
         let totalStdQuestions = 0;
+        
+        // 怪物遊蕩系統變數
+        let activeMapMonsters = [];
+        let monsterInterval = null;
+
+        let database = [];
+        let currentDatabase = [];
+        let questionDeck = []; 
+
+        let hp = 100;
+        const MAX_HP = 100;
+        let foodCount = 0;
+        let questionsAnswered = 0;
+        const BOSS_TRIGGER_COUNT = 8;
+        let bossHp = 3;
+        const BOSS_MAX_HP = 3;
+        let bossTargetData = null;
+        let bossCorrectAnswer = "";
+        let bossQuestType = "";
+        let currentStdMode = "";
+        let currentBoss = null;
 
         const craftRecipes = [
             { id: 'wood_plank', name: '木板', icon: '🧱', cost: {log: 1}, desc: '建造地基 (🪵x1)' },
@@ -535,7 +564,7 @@
         }
 
         // =====================================
-        // 💾 題庫系統
+        // 💾 題庫系統 (無錯別字版)
         // =====================================
         const defaultDatabaseRaw = [
             { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。鼎，古代的煮食器具。", missingFormat: "人聲鼎＿", missingTarget: "沸", fillOptions: ["是", "你", "沸", "地"], synonyms: "喧鬧", antonyms: "鴉雀無聲、萬籟俱寂", sentence1: "酒樓內人聲鼎沸，坐滿了來吃午飯的人。", sentence2: "大家都在為球隊吶喊助威，觀眾席上人聲鼎沸。" },
@@ -605,27 +634,12 @@
             { student: "Marcus", unit: "比賽字詞", word: "半途而廢", meaning: "指事情做到一半就停止，沒有堅持到底完成。", missingFormat: "半＿而廢", missingTarget: "途", fillOptions: ["途", "圖", "步", "道"], sentence: "我們做事要有始有終，絕對不能半途而廢。" }
         ];
 
-        let database = [];
-        let currentDatabase = [];
-        let questionDeck = []; 
-
-        let hp = 100;
-        const MAX_HP = 100;
-        let foodCount = 0;
-        let questionsAnswered = 0;
-        const BOSS_TRIGGER_COUNT = 8;
-        let bossHp = 3;
-        const BOSS_MAX_HP = 3;
-        let bossTargetData = null;
-        let bossCorrectAnswer = "";
-        let bossQuestType = "";
-
         // 🧠 建立智能牌堆 (純字詞)
         function buildWordDeck() {
             return [...currentDatabase].sort(() => 0.5 - Math.random());
         }
 
-        // 🧠 建立智能牌堆 (自動擴展例句2) - 僅供「情境用法」使用
+        // 🧠 建立智能牌堆 (自動擴展例句) - 僅供「情境用法」使用
         function buildSentenceDeck() {
             let deck = [];
             currentDatabase.forEach(item => {
@@ -646,30 +660,110 @@
             return deck.sort(() => 0.5 - Math.random());
         }
 
+        // 🧟 地圖遊蕩怪物設定
+        const MAP_MONSTER_TYPES = [
+            { name: "殭屍", icon: "🧟", dmg: 10 },
+            { name: "骷髏", icon: "💀", dmg: 15 },
+            { name: "蜘蛛", icon: "🕷️", dmg: 10 }
+        ];
+
+        function spawnMapMonsters() {
+            activeMapMonsters.forEach(m => m.element.remove());
+            activeMapMonsters = [];
+            let numMonsters = Math.min(3, Math.floor(gridSize / 3)); 
+            
+            for(let i=0; i<numMonsters; i++) {
+                let type = MAP_MONSTER_TYPES[Math.floor(Math.random() * MAP_MONSTER_TYPES.length)];
+                let randX, randY;
+                let attempts = 0;
+                do { 
+                    randX = Math.floor(Math.random() * gridSize); 
+                    randY = Math.floor(Math.random() * gridSize); 
+                    attempts++;
+                } while (
+                    attempts < 50 && (
+                        (Math.abs(randX - pX) <= 1 && Math.abs(randY - pY) <= 1) || 
+                        questBlocks.some(b => b.x === randX && b.y === randY) ||
+                        activeMapMonsters.some(m => m.x === randX && m.y === randY)
+                    )
+                );
+
+                let el = document.createElement('div');
+                el.className = 'decoration-item'; 
+                el.innerText = type.icon;
+                el.style.left = (randX * TILE_SIZE) + 'px';
+                el.style.top = (randY * TILE_SIZE) + 'px';
+                el.style.zIndex = 6;
+                el.style.transition = "top 0.3s, left 0.3s";
+                
+                document.getElementById('island').appendChild(el);
+                
+                activeMapMonsters.push({ x: randX, y: randY, type: type, element: el });
+            }
+            
+            if(monsterInterval) clearInterval(monsterInterval);
+            monsterInterval = setInterval(moveMapMonsters, 1200);
+        }
+
+        function moveMapMonsters() {
+            if(!isQuestionActive) return;
+            activeMapMonsters.forEach((m, index) => {
+                let dirs = [[0,1], [0,-1], [1,0], [-1,0]];
+                
+                if (Math.random() < 0.3) {
+                    let dx = pX - m.x; let dy = pY - m.y;
+                    if (Math.abs(dx) > Math.abs(dy)) dirs = dx > 0 ? [[1,0], [0,1], [0,-1]] : [[-1,0], [0,1], [0,-1]];
+                    else dirs = dy > 0 ? [[0,1], [1,0], [-1,0]] : [[0,-1], [1,0], [-1,0]];
+                }
+                
+                dirs = dirs.sort(() => 0.5 - Math.random());
+                
+                for(let i=0; i<dirs.length; i++) {
+                    let nx = m.x + dirs[i][0]; let ny = m.y + dirs[i][1];
+                    
+                    if(nx >= 0 && nx < gridSize && ny >= 0 && ny < gridSize && 
+                       !questBlocks.some(b => b.x === nx && b.y === ny && !b.broken) &&
+                       !activeMapMonsters.some(other => other !== m && other.x === nx && other.y === ny)) {
+                        m.x = nx; m.y = ny;
+                        m.element.style.left = (nx * TILE_SIZE) + 'px';
+                        m.element.style.top = (ny * TILE_SIZE) + 'px';
+                        break;
+                    }
+                }
+                checkMonsterCollision(m, index);
+            });
+        }
+        
+        function checkMonsterCollision(m, index) {
+            if(m.x === pX && m.y === pY) {
+                takeDamage(m.type.dmg, `被 ${m.type.name} 襲擊`);
+                m.element.remove();
+                activeMapMonsters.splice(index, 1);
+            }
+        }
+
         // 🧠 載入題庫
         function initDatabase() {
             try {
+                database = [...defaultDatabaseRaw];
+                
                 let currentDefaultStr = JSON.stringify(defaultDatabaseRaw);
-                let lastDefaultStr = localStorage.getItem('lastDefaultDB');
+                let lastDefaultStr = null;
+                try { lastDefaultStr = localStorage.getItem('lastDefaultDB'); } catch(e){}
 
                 if (lastDefaultStr !== currentDefaultStr) {
-                    database = JSON.parse(currentDefaultStr);
-                    localStorage.setItem('customVocabDB', JSON.stringify(database));
-                    localStorage.setItem('lastDefaultDB', currentDefaultStr);
+                    try {
+                        localStorage.setItem('customVocabDB', currentDefaultStr);
+                        localStorage.setItem('lastDefaultDB', currentDefaultStr);
+                    } catch(e) {}
                 } else {
-                    let savedDB = localStorage.getItem('customVocabDB');
-                    let parsedDB = null;
+                    let savedDB = null;
+                    try { savedDB = localStorage.getItem('customVocabDB'); } catch(e){}
                     if (savedDB) {
                         try { 
-                            parsedDB = JSON.parse(savedDB); 
-                            if (!Array.isArray(parsedDB)) parsedDB = null;
-                        } catch(e) { parsedDB = null; }
-                    }
-                    if (parsedDB && parsedDB.length > 0) {
-                        database = parsedDB;
-                    } else {
-                        database = JSON.parse(currentDefaultStr);
-                        localStorage.setItem('lastDefaultDB', currentDefaultStr);
+                            let parsedDB = JSON.parse(savedDB); 
+                            if (Array.isArray(parsedDB) && parsedDB.length > 0) database = parsedDB;
+                        } catch(e) {}
                     }
                 }
 
@@ -693,23 +787,27 @@
 
                     updateUnitDropdown();
                 }
-            } catch(e) { console.error("Init DB Error", e); }
+            } catch(e) { 
+                console.error("Init DB Error", e); 
+                updateUnitDropdown();
+            }
         }
 
         function updateUnitDropdown() {
             try {
                 let studentSelect = document.getElementById('student-select');
-                if(!studentSelect || !studentSelect.value) return;
+                if(!studentSelect) return;
+                let student = studentSelect.value || "Justin";
                 
-                let student = studentSelect.value;
                 let select = document.getElementById('unit-select');
-                select.innerHTML = '<option value="all">所有範圍 (綜合挑戰)</option>';
-                
-                let studentDB = (student === 'all') ? database : database.filter(item => item.student === student);
-                let units = [...new Set(studentDB.map(item => item.unit || "未分類"))];
-                units.forEach(u => {
-                    let opt = document.createElement('option'); opt.value = u; opt.innerText = u; select.appendChild(opt);
-                });
+                if(select) {
+                    select.innerHTML = '<option value="all">所有範圍 (綜合挑戰)</option>';
+                    let studentDB = (student === 'all') ? database : database.filter(item => item.student === student);
+                    let units = [...new Set(studentDB.map(item => item.unit || "未分類"))];
+                    units.forEach(u => {
+                        let opt = document.createElement('option'); opt.value = u; opt.innerText = u; select.appendChild(opt);
+                    });
+                }
                 updateScopeInfo();
             } catch(e) { console.error(e); }
         }
@@ -717,10 +815,12 @@
         function updateScopeInfo() {
             try {
                 let studentSelect = document.getElementById('student-select');
-                if(!studentSelect || !studentSelect.value) return;
-
-                let student = studentSelect.value;
-                let unit = document.getElementById('unit-select').value;
+                if(!studentSelect) return;
+                
+                let student = studentSelect.value || "Justin";
+                let unitSelect = document.getElementById('unit-select');
+                let unit = unitSelect ? unitSelect.value : "all";
+                
                 let filteredDB = (student === 'all') ? database : database.filter(item => item.student === student);
                 currentDatabase = (unit === 'all') ? filteredDB : filteredDB.filter(item => item.unit === unit);
                 
@@ -728,7 +828,8 @@
                     currentDatabase = database.length > 0 ? [...database] : [...defaultDatabaseRaw];
                 }
                 
-                document.getElementById('scope-info').innerText = `這個範圍共有 ${currentDatabase.length} 個字詞。`;
+                let infoEl = document.getElementById('scope-info');
+                if(infoEl) infoEl.innerText = `這個範圍共有 ${currentDatabase.length} 個字詞。`;
             } catch(e) { console.error(e); }
         }
 
@@ -751,7 +852,8 @@
                 let newDB = JSON.parse(textValue);
                 if (!Array.isArray(newDB) || newDB.length === 0) throw new Error("必須是包含資料的陣列格式");
                 database = newDB.map(item => { if(item.idiom) { item.word = item.idiom; delete item.idiom; } return item; });
-                localStorage.setItem('customVocabDB', JSON.stringify(database));
+                
+                try { localStorage.setItem('customVocabDB', JSON.stringify(database)); } catch(e){}
                 
                 initDatabase(); closeDBManager(); alert("題庫已成功更新並儲存於瀏覽器！");
             } catch(e) { alert("儲存失敗！JSON 格式有誤。\n錯誤訊息: " + e.message); }
@@ -762,17 +864,22 @@
                 let currentDefaultStr = JSON.stringify(defaultDatabaseRaw);
                 database = JSON.parse(currentDefaultStr);
                 database = database.map(item => { if(item.idiom) { item.word = item.idiom; delete item.idiom; } return item; });
-                localStorage.setItem('customVocabDB', JSON.stringify(database));
-                localStorage.setItem('lastDefaultDB', currentDefaultStr);
-                document.getElementById('db-textarea').value = JSON.stringify(database, null, 4);
                 
+                try { 
+                    localStorage.setItem('customVocabDB', JSON.stringify(database));
+                    localStorage.setItem('lastDefaultDB', currentDefaultStr);
+                } catch(e){}
+                
+                document.getElementById('db-textarea').value = JSON.stringify(database, null, 4);
                 initDatabase(); alert("已成功還原並修復題庫！");
             }
         }
 
-        // 📥 載入與儲存遊戲進度 (強制過濾壞存檔)
+        // 📥 載入與儲存遊戲進度
         function loadGameState() {
-            let savedState = localStorage.getItem('rpgGameState');
+            let savedState = null;
+            try { savedState = localStorage.getItem('rpgGameState'); } catch(e){}
+            
             if (savedState) {
                 try {
                     let state = JSON.parse(savedState);
@@ -810,6 +917,7 @@
 
         function goToMenu() { 
             try {
+                if(monsterInterval) clearInterval(monsterInterval);
                 document.querySelectorAll('.page').forEach(p => p.style.display = 'none'); 
                 document.getElementById('main-dashboard').style.display = 'block'; 
                 resetTTSBtn();
@@ -817,7 +925,6 @@
             } catch(e) { console.error("返回大本營出錯:", e); }
         }
 
-        // 重置功能
         function restartGame() {
             if(confirm("⚠️ 警告：確定要重新開始嗎？\n所有的綠寶石、收集的素材與島嶼方塊都會被完全清空！")) {
                 if(confirm("🚨 最後確認：進度清除後將【無法還原】，真的要重置嗎？")) {
@@ -837,7 +944,6 @@
             initDatabase(); loadGameState();
         });
 
-        // 🌟 輔助函數：智能替換並高亮標示句子中的字詞
         function highlightSentence(sentence, word) {
             if (!sentence || sentence === "無例句") return sentence;
             let highlighted = `<span style="color:#d32f2f; font-weight:bold; border-bottom: 2px solid #d32f2f;">${word}</span>`;
@@ -848,7 +954,7 @@
             }
         }
 
-        // 📚 學習區邏輯 (全域大字體、高亮標示、完美例句)
+        // 📚 學習區邏輯
         function openLearningArea() {
             try {
                 if(!currentDatabase || currentDatabase.length === 0) return alert("目前範圍沒有題目！請先選擇玩家與單元。");
@@ -903,6 +1009,7 @@
             
             if (hp <= 0) {
                 hp = 0; updateMaterialUI();
+                if(monsterInterval) clearInterval(monsterInterval);
                 setTimeout(() => {
                     alert(`💀 遊戲結束：${reason}\n你被擊倒了，失去 30% 綠寶石。你已被送回大本營休息。`);
                     emeralds = Math.floor(emeralds * 0.7);
@@ -936,18 +1043,13 @@
         // =====================================
         // 📚 標準模式邏輯
         // =====================================
-        let currentStdMode = "";
         function startStandardGame(mode) {
             initAudio(); 
             if(!currentDatabase || currentDatabase.length === 0) return alert("目前範圍沒有題目！請在設定檢查題庫。");
             currentStdMode = mode;
             
-            // 智能牌堆切換：如果係「情境用法」，將以例句數量出題，否則以字詞數量出題
-            if (mode === 'sentence') {
-                questionDeck = buildSentenceDeck();
-            } else {
-                questionDeck = buildWordDeck();
-            }
+            if (mode === 'sentence') questionDeck = buildSentenceDeck();
+            else questionDeck = buildWordDeck();
             
             totalStdQuestions = questionDeck.length;
             currentQuestionCount = 0;
@@ -1037,7 +1139,6 @@
                     if (Math.random() < 0.3) { foodCount++; feedback.innerText += " (並幸運獲得 🍎x1)"; }
                     updateMaterialUI(); saveGameState(); 
                     if (currentStdMode === 'fill-blank') document.getElementById('question-text-std').innerText = safe.mFormat.replace(/＿|_/g, `【${correctAnswer}】`);
-                    // 傳統溫習區不再觸發 Boss
                 } else {
                     feedback.innerText = "❌ 答錯了！遭受小妖精襲擊，扣 15 血！答案是：" + correctAnswer; feedback.style.color = "#d32f2f";
                     if(clickedElement.className !== "std-char-block") clickedElement.style.backgroundColor = "#ffcdd2";
@@ -1058,13 +1159,13 @@
         // 🐉 巨龍/Minecraft Boss 戰邏輯 (僅限 RPG 模式)
         // =====================================
         const BOSS_LIST = [
-            { name: "終界龍 (Ender Dragon)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%231a1a1a'/%3E%3Crect x='1' y='3' width='2' height='1' fill='%23d800d8'/%3E%3Crect x='5' y='3' width='2' height='1' fill='%23d800d8'/%3E%3Crect x='2' y='5' width='4' height='3' fill='%230a0a0a'/%3E%3C/svg%3E", dmg: 30 },
+            { name: "終界龍 (Ender Dragon)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%231a1a1a'/%3E%3Crect x='1' y='3' width='2' height='1' fill='%23d800d8'/%3E%3Crect x='5' y='3' width='2' height='1' fill='%23d800d8'/%3E%3Crect x='2' y='5' width='4' height='3' fill='%230a0a0a'/%3E%3C/svg%3E", dmg: 60 },
             { name: "苦力怕 (Creeper)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%2355FF55'/%3E%3Crect x='1' y='2' width='2' height='2' fill='%23000'/%3E%3Crect x='5' y='2' width='2' height='2' fill='%23000'/%3E%3Crect x='3' y='4' width='2' height='3' fill='%23000'/%3E%3Crect x='2' y='5' width='1' height='2' fill='%23000'/%3E%3Crect x='5' y='5' width='1' height='2' fill='%23000'/%3E%3C/svg%3E", dmg: 40 },
-            { name: "骷髏弓箭手 (Skeleton)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%23DDD'/%3E%3Crect x='1' y='3' width='2' height='2' fill='%23333'/%3E%3Crect x='5' y='3' width='2' height='2' fill='%23333'/%3E%3Crect x='3' y='5' width='2' height='1' fill='%23333'/%3E%3C/svg%3E", dmg: 20 },
-            { name: "終界使者 (Enderman)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%23111'/%3E%3Crect x='0' y='4' width='3' height='1' fill='%23FF55FF'/%3E%3Crect x='5' y='4' width='3' height='1' fill='%23FF55FF'/%3E%3C/svg%3E", dmg: 25 },
-            { name: "凋零怪 (Wither)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='4' y='0' width='4' height='4' fill='%23333'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%23000'/%3E%3Crect x='7' y='1' width='1' height='1' fill='%23000'/%3E%3Crect x='1' y='1' width='3' height='3' fill='%23333'/%3E%3Crect x='1.5' y='1.5' width='0.5' height='0.5' fill='%23000'/%3E%3Crect x='3' y='1.5' width='0.5' height='0.5' fill='%23000'/%3E%3Crect x='8' y='1' width='3' height='3' fill='%23333'/%3E%3Crect x='8.5' y='1.5' width='0.5' height='0.5' fill='%23000'/%3E%3Crect x='10' y='1.5' width='0.5' height='0.5' fill='%23000'/%3E%3Crect x='3' y='4' width='6' height='1' fill='%23222'/%3E%3Crect x='5' y='5' width='2' height='3' fill='%23222'/%3E%3C/svg%3E", dmg: 35 }
+            { name: "末影人 (Enderman)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%23111'/%3E%3Crect x='0' y='4' width='3' height='1' fill='%23FF55FF'/%3E%3Crect x='5' y='4' width='3' height='1' fill='%23FF55FF'/%3E%3C/svg%3E", dmg: 35 },
+            { name: "地獄幽靈 (Ghast)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%23eee'/%3E%3Crect x='1' y='3' width='2' height='1' fill='%23000'/%3E%3Crect x='5' y='3' width='2' height='1' fill='%23000'/%3E%3Crect x='3' y='5' width='2' height='1' fill='%23000'/%3E%3Crect x='1' y='7' width='1' height='1' fill='%23aaa'/%3E%3Crect x='3' y='7' width='1' height='1' fill='%23aaa'/%3E%3Crect x='5' y='7' width='1' height='1' fill='%23aaa'/%3E%3C/svg%3E", dmg: 45 },
+            { name: "監守者 (Warden)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%23004c4c'/%3E%3Crect x='2' y='2' width='4' height='4' fill='%23002222'/%3E%3Crect x='3' y='4' width='2' height='2' fill='%23118888'/%3E%3Crect x='0' y='1' width='1' height='3' fill='%23008888'/%3E%3Crect x='7' y='1' width='1' height='3' fill='%23008888'/%3E%3C/svg%3E", dmg: 80 },
+            { name: "凋靈 (Wither)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='4' y='0' width='4' height='4' fill='%23333'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%23000'/%3E%3Crect x='7' y='1' width='1' height='1' fill='%23000'/%3E%3Crect x='1' y='1' width='3' height='3' fill='%23333'/%3E%3Crect x='1.5' y='1.5' width='0.5' height='0.5' fill='%23000'/%3E%3Crect x='3' y='1.5' width='0.5' height='0.5' fill='%23000'/%3E%3Crect x='8' y='1' width='3' height='3' fill='%23333'/%3E%3Crect x='8.5' y='1.5' width='0.5' height='0.5' fill='%23000'/%3E%3Crect x='10' y='1.5' width='0.5' height='0.5' fill='%23000'/%3E%3Crect x='3' y='4' width='6' height='1' fill='%23222'/%3E%3Crect x='5' y='5' width='2' height='3' fill='%23222'/%3E%3C/svg%3E", dmg: 50 }
         ];
-        let currentBoss = null;
 
         function startBossFight() {
             initAudio(); sfx.boss();
@@ -1166,7 +1267,6 @@
             document.getElementById('rpg-game').style.display = 'block';
             updateGridSize(); renderDecorations(); renderHotbar(); 
             
-            // RPG 使用基本牌堆
             questionDeck = buildWordDeck();
             loadRPGQuest();
         }
@@ -1175,7 +1275,7 @@
             try {
                 isQuestionActive = true; resetTTSBtn();
                 document.getElementById('rpg-next-btn').style.display = 'none'; document.getElementById('rpg-controls').style.display = 'flex';
-                document.getElementById('feedback-rpg').innerText = "用方向鍵或點擊地圖移動！答對獲得素材！"; document.getElementById('feedback-rpg').style.color = "#d32f2f";
+                document.getElementById('feedback-rpg').innerText = "用方向鍵或點擊地圖移動！小心避開怪物！"; document.getElementById('feedback-rpg').style.color = "#d32f2f";
                 
                 if (!questionDeck || questionDeck.length === 0) questionDeck = buildWordDeck();
                 currentTargetData = questionDeck.pop();
@@ -1221,6 +1321,8 @@
                     el.style.left = (randX * TILE_SIZE) + 'px'; el.style.top = (randY * TILE_SIZE) + 'px';
                     document.getElementById('island').appendChild(el); questBlocks.push({ element: el, label: label, x: randX, y: randY, broken: false });
                 });
+                
+                spawnMapMonsters();
             } catch(e) { console.error("RPG Load Error", e); document.getElementById('rpg-question-text').innerText = "載入出現錯誤，請返回大本營重試。"; }
         }
 
@@ -1234,11 +1336,19 @@
             
             sfx.move(); 
             
-            if (block) mineBlock(block); else { pX = nextX; pY = nextY; updatePlayerDOM(); }
+            if (block) {
+                mineBlock(block);
+            } else { 
+                pX = nextX; pY = nextY; updatePlayerDOM(); 
+                for (let i = activeMapMonsters.length - 1; i >= 0; i--) {
+                    checkMonsterCollision(activeMapMonsters[i], i);
+                }
+            }
         }
 
         function mineBlock(block) {
             try {
+                if(monsterInterval) clearInterval(monsterInterval);
                 let feedback = document.getElementById('feedback-rpg');
                 if (block.label === rpgCorrectAnswer) {
                     sfx.mine(); setTimeout(sfx.correct, 150); 
@@ -1270,8 +1380,8 @@
                     document.getElementById('rpg-controls').style.display = 'none'; 
                     checkBossTrigger();
                 } else {
-                    block.element.classList.add('wrong'); feedback.innerText = "💥 答錯了！殭屍咬了你一口，扣 20 血！"; feedback.style.color = "#d32f2f";
-                    takeDamage(20, "在採集時被殭屍咬死");
+                    block.element.classList.add('wrong'); feedback.innerText = "💥 答錯了！觸動了陷阱扣 20 血！"; feedback.style.color = "#d32f2f";
+                    takeDamage(20, "在採集時被陷阱擊殺");
                 }
             } catch(e) { console.error("Mine Block Error", e); }
             
@@ -1394,13 +1504,17 @@
         });
 
         // =====================================
-        // 🚀 強制解除舊緩存並註冊新 Service Worker
+        // 🚀 初始化執行 (直接呼叫 + 事件雙重保障)
         // =====================================
+        initDatabase();
+        loadGameState();
+
+        // 強制解除舊緩存並註冊新 Service Worker
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.getRegistrations().then(function(registrations) {
                     for(let registration of registrations) {
-                        registration.unregister(); // 強制殺死舊記憶
+                        registration.unregister();
                     }
                 });
                 navigator.serviceWorker.register('./sw.js?v=' + new Date().getTime()).catch(e => console.error(e));
