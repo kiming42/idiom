@@ -90,6 +90,25 @@
         #player { position: absolute; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; transition: top 0.15s linear, left 0.15s linear; z-index: 10; }
         #player::after { content: ""; display: block; width: 32px; height: 32px; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%238d6e63'/%3E%3Crect x='1' y='2' width='6' height='6' fill='%23ffcc80'/%3E%3Crect x='0' y='0' width='8' height='2' fill='%235d4037'/%3E%3Crect x='0' y='2' width='1' height='2' fill='%235d4037'/%3E%3Crect x='7' y='2' width='1' height='2' fill='%235d4037'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%23fff'/%3E%3Crect x='2.5' y='4' width='0.5' height='1' fill='%233f51b5'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%23fff'/%3E%3Crect x='5' y='4' width='0.5' height='1' fill='%233f51b5'/%3E%3Crect x='3' y='6' width='2' height='1' fill='%23795548'/%3E%3C/svg%3E"); background-size: cover; image-rendering: pixelated; border: 2px solid #222; border-radius: 3px; box-shadow: 2px 2px 0 rgba(0,0,0,0.4); }
         
+        /* 🛡️ 新增：防護罩特效 */
+        .shield-active::before {
+            content: "";
+            position: absolute;
+            width: 46px;
+            height: 46px;
+            border: 3px solid #00e5ff;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #00e5ff, inset 0 0 12px #00e5ff;
+            animation: pulseShield 0.8s infinite alternate;
+            z-index: 20;
+            background: rgba(0, 229, 255, 0.25);
+            pointer-events: none;
+        }
+        @keyframes pulseShield {
+            0% { transform: scale(0.85); opacity: 0.6; }
+            100% { transform: scale(1.05); opacity: 1; }
+        }
+
         .quest-block { position: absolute; width: 36px; height: 36px; margin: 2px; background-color: #e0e0e0; border: 4px outset #fff; box-sizing: border-box; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 22px; font-weight: bold; color: #333; z-index: 5; transition: 0.2s; }
         .quest-block.broken { transform: scale(0); opacity: 0; }
         .quest-block.wrong { border-color: #424242; background-color: #212121; color: #757575; }
@@ -236,7 +255,7 @@
     <!-- 📚 學習區 Page -->
     <div id="learning-area" class="page">
         <div class="rpg-header">
-            <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
+            <button class="header-btn" onclick="goToMenu()">⬅️ 返回大本營</button>
             <h2 style="margin:0; color:#1565c0; font-size: 24px;">📚 詞語學習區</h2>
         </div>
         <div id="learning-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; text-align: left;"></div>
@@ -297,7 +316,7 @@
                 <h3 id="rpg-mission-title">📜 任務：載入中...</h3>
                 <p id="rpg-question-text">載入中...</p>
                 <div id="mc-choices" class="mc-choices"></div>
-                <div id="feedback-rpg" style="font-size: 15px; color: #d32f2f; margin-top: 15px; font-weight: bold; min-height: 22px;">點擊地圖方格移動！小心避開主動追蹤的怪物！</div>
+                <div id="feedback-rpg" style="font-size: 15px; color: #d32f2f; margin-top: 15px; font-weight: bold; min-height: 22px;">點擊地圖方格移動！</div>
                 <button class="next-btn" id="rpg-next-btn" onclick="loadRPGQuest()" style="width:100%; margin-top:15px; font-size:20px;">接取下一個任務 ➡️</button>
             </div>
         </div>
@@ -316,7 +335,7 @@
                 <span>🌾 <span id="mat-fiber">0</span></span>
                 <span>🏜️ <span id="mat-sand">0</span></span>
                 <span>🧱 <span id="mat-clay">0</span></span>
-                <span>🪙 <span id="mat-iron">0</span></span>
+                <span>🧊 <span id="mat-iron">0</span></span>
                 <span>🌟 <span id="mat-gold">0</span></span>
                 <span>❇️ <span id="mat-em">0</span></span>
             </div>
@@ -368,7 +387,6 @@
         let activeSentenceText = ""; 
         let currentQuestionCount = 0; 
         let totalStdQuestions = 0;
-        let hasPlayerMoved = false; 
         
         let MAX_HP = 100;
         let hp = 100;
@@ -381,6 +399,9 @@
         let bossTargetData = null;
         let bossCorrectAnswer = "";
         let bossQuestType = "";
+        
+        // 保護罩系統
+        let isShieldActive = false;
 
         // 怪物遊蕩系統變數
         let activeMapMonsters = [];
@@ -555,7 +576,7 @@
         }
 
         // =====================================
-        // 💾 題庫系統
+        // 💾 題庫系統 
         // =====================================
         const defaultDatabaseRaw = [
             { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。鼎，古代的煮食器具。", missingFormat: "人聲鼎＿", missingTarget: "沸", fillOptions: ["是", "你", "沸", "地"], synonyms: "喧鬧", antonyms: "鴉雀無聲、萬籟俱寂", sentence1: "酒樓內人聲鼎沸，坐滿了來吃午飯的人。", sentence2: "大家都在為球隊吶喊助威，觀眾席上人聲鼎沸。" },
@@ -697,8 +718,7 @@
         }
 
         function moveMapMonsters() {
-            // 如果未行第一步，怪獸保持靜止 (Standby Mode)
-            if(!isQuestionActive || !hasPlayerMoved) return;
+            if(!isQuestionActive) return;
             
             activeMapMonsters.forEach((m, index) => {
                 let dirs = [[0,1], [0,-1], [1,0], [-1,0]];
@@ -718,9 +738,13 @@
                 for(let i=0; i<dirs.length; i++) {
                     let nx = m.x + dirs[i][0]; let ny = m.y + dirs[i][1];
                     
+                    // 防撞檢查：如果保護罩開啟，怪物唔可以行入主角嗰格
+                    let isProtectedTile = isShieldActive && nx === pX && ny === pY;
+
                     if(nx >= 0 && nx < gridSize && ny >= 0 && ny < gridSize && 
                        !questBlocks.some(b => b.x === nx && b.y === ny && !b.broken) &&
-                       !activeMapMonsters.some(other => other !== m && other.x === nx && other.y === ny)) {
+                       !activeMapMonsters.some(other => other !== m && other.x === nx && other.y === ny) &&
+                       !isProtectedTile) {
                         m.x = nx; m.y = ny;
                         m.element.style.left = (nx * TILE_SIZE) + 'px';
                         m.element.style.top = (ny * TILE_SIZE) + 'px';
@@ -732,7 +756,7 @@
         }
         
         function checkMonsterCollision(m, index) {
-            if(m.x === pX && m.y === pY) {
+            if(m.x === pX && m.y === pY && !isShieldActive) {
                 let dmg = calculateDamage(m.type.dmg);
                 takeDamage(dmg, `被 ${m.type.name} 襲擊`);
                 m.element.remove();
@@ -1285,10 +1309,13 @@
         function loadRPGQuest() {
             try {
                 isQuestionActive = true; 
-                hasPlayerMoved = false; 
+                isShieldActive = true; 
+                document.getElementById('player').classList.add('shield-active');
+                
                 resetTTSBtn();
                 document.getElementById('rpg-next-btn').style.display = 'none';
-                document.getElementById('feedback-rpg').innerText = "請行出第一步，怪獸就會開始行動！"; document.getElementById('feedback-rpg').style.color = "#d32f2f";
+                document.getElementById('feedback-rpg').innerText = "🛡️ 你已受保護罩庇護！行出第一步保護罩即會消失！"; 
+                document.getElementById('feedback-rpg').style.color = "#1565c0";
                 
                 if (!questionDeck || questionDeck.length === 0) questionDeck = buildSentenceDeck();
                 currentTargetData = questionDeck.pop();
@@ -1344,9 +1371,11 @@
         function movePlayer(dx, dy) {
             if(!isQuestionActive) return; 
             
-            if (!hasPlayerMoved) {
-                hasPlayerMoved = true;
-                document.getElementById('feedback-rpg').innerText = "小心避開主動追蹤的怪物！"; 
+            if (isShieldActive) {
+                isShieldActive = false;
+                document.getElementById('player').classList.remove('shield-active');
+                document.getElementById('feedback-rpg').innerText = "⚠️ 保護罩已消失！小心避開主動追蹤的怪物！"; 
+                document.getElementById('feedback-rpg').style.color = "#d32f2f";
             }
             
             let nextX = pX + dx; let nextY = pY + dy;
@@ -1432,6 +1461,7 @@
             if (!isQuestionActive) return;
             const diffX = targetX - pX; const diffY = targetY - pY;
             
+            // 滑鼠點擊智能走位
             if (Math.abs(diffX) > Math.abs(diffY)) movePlayer(diffX > 0 ? 1 : -1, 0);
             else if (Math.abs(diffY) > 0) movePlayer(0, diffY > 0 ? 1 : -1);
         }
