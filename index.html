@@ -182,6 +182,7 @@
             <div class="filter-controls">
                 <div class="filter-group">
                     <label>👤 玩家選擇</label>
+                    <!-- 預設加入選項，防卡死 -->
                     <select id="student-select" onchange="updateUnitDropdown()">
                         <option value="Justin">Justin</option>
                         <option value="峰">峰</option>
@@ -196,10 +197,10 @@
                     </select>
                 </div>
             </div>
-            <p id="scope-info" class="scope-info-text">載入中...</p>
+            <p id="scope-info" class="scope-info-text">準備中...</p>
         </div>
 
-        <!-- 📚 學習與準備區 -->
+        <!-- 📚 新增：學習與準備區 -->
         <div class="section-title">▶ 準備區</div>
         <div class="modes-grid" style="grid-template-columns: 1fr;">
             <div class="mode-card" onclick="openLearningArea()" style="background: #e3f2fd; border-color: #64b5f6;">
@@ -274,7 +275,7 @@
             <h2 id="boss-title-text" style="color:#ff5252; margin-top:0;">🔥 Boss 突襲！🔥</h2>
             <div class="boss-img" id="boss-icon"></div>
             <div class="boss-hp-bar"><div class="boss-hp-fill" id="boss-hp-fill"></div></div>
-            <p style="color:#ffcc80; font-weight:bold; font-size:16px;">高等怪物攔住了去路！連續答對 3 題擊退牠！</p>
+            <p style="color:#ffcc80; font-weight:bold; font-size:16px;">怪物攔住了去路！連續答對 3 題擊退牠！</p>
             <h3 id="boss-q-title" style="color:#fff; border-bottom: 1px solid #777; padding-bottom: 5px;">載入中...</h3>
             <p id="boss-q-text" style="font-size:22px; font-weight:bold; color: #fff;">...</p>
             <div id="boss-choices" class="boss-choices" style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
@@ -286,9 +287,9 @@
         <div class="rpg-header">
             <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
             <div class="player-status">
-                <span style="color:#d32f2f;">❤️ <span id="hp-std">100</span></span>
+                <span style="color:#d32f2f;">❤️ <span id="hp-std">100 / 100</span></span>
                 <span style="color:#d84315;">🍎 <span id="food-std">0</span></span>
-                <button class="eat-btn" onclick="eatFood()">吃 (+30)</button>
+                <button class="eat-btn" onclick="eatFood()">吃</button>
             </div>
             <span class="emerald-display">❇️ <span id="em-std2">0</span></span>
         </div>
@@ -310,12 +311,12 @@
         <div class="rpg-header">
             <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
             <div class="player-status" style="padding: 4px 8px;">
-                <span style="color:#d32f2f;">❤️ <span id="hp-rpg">100</span></span>
+                <span style="color:#d32f2f;">❤️ <span id="hp-rpg">100 / 100</span></span>
                 <span style="color:#d84315;">🍎 <span id="food-rpg">0</span></span>
                 <button class="eat-btn" onclick="eatFood()">吃</button>
             </div>
             <div style="display: flex; gap: 5px;">
-                <button class="header-btn" onclick="openCrafting()" style="background: #5d4037; color: white; border-color: #3e2723; padding: 6px;">🔨 製作</button>
+                <button class="header-btn" onclick="openCrafting()" style="background: #5d4037; color: white; border-color: #3e2723; padding: 6px;">🔨 裝備/建造</button>
                 <button class="header-btn" onclick="restartGame()" style="background: #d32f2f; color: white; border-color: #b71c1c; padding: 6px;">🔄 重置</button>
             </div>
         </div>
@@ -351,7 +352,7 @@
         <div class="craft-modal" id="craft-modal">
             <div class="craft-wrapper">
                 <div class="craft-close" onclick="closeCrafting()">✖</div>
-                <div class="craft-title">🔨 創世工作台 Crafting Table</div>
+                <div class="craft-title">🔨 創世裝備與工作台 Crafting Table</div>
                 <div class="material-stats">
                     <span>🪵 <span id="mat-log">0</span></span>
                     <span>🪨 <span id="mat-stone">0</span></span>
@@ -369,7 +370,7 @@
 
     <script>
         // =====================================
-        // 🔐 全域變數宣告區 (絕無重複宣告)
+        // 🔐 全域變數宣告區
         // =====================================
         let emeralds = 0; 
         let materials = { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 }; 
@@ -382,6 +383,18 @@
         let currentQuestionCount = 0; 
         let totalStdQuestions = 0;
         
+        let MAX_HP = 100;
+        let hp = 100;
+        let foodCount = 0;
+        let questionsAnswered = 0;
+        let armorLevel = 0;
+        const BOSS_TRIGGER_COUNT = 8;
+        let bossHp = 3;
+        const BOSS_MAX_HP = 3;
+        let bossTargetData = null;
+        let bossCorrectAnswer = "";
+        let bossQuestType = "";
+
         // 怪物遊蕩系統變數
         let activeMapMonsters = [];
         let monsterInterval = null;
@@ -389,21 +402,12 @@
         let database = [];
         let currentDatabase = [];
         let questionDeck = []; 
-
-        let hp = 100;
-        const MAX_HP = 100;
-        let foodCount = 0;
-        let questionsAnswered = 0;
-        const BOSS_TRIGGER_COUNT = 8;
-        let bossHp = 3;
-        const BOSS_MAX_HP = 3;
-        let bossTargetData = null;
-        let bossCorrectAnswer = "";
-        let bossQuestType = "";
         let currentStdMode = "";
         let currentBoss = null;
 
         const craftRecipes = [
+            { id: 'hp_boost', name: '生命果實', icon: '💖', cost: {emerald: 20, gold: 1}, desc: '提升血量上限 +20', type: 'upgrade' },
+            { id: 'armor', name: '防護裝甲', icon: '🛡️', cost: {iron: 3, log: 2, fiber: 2}, desc: '減少 15% 怪物傷害', type: 'upgrade' },
             { id: 'wood_plank', name: '木板', icon: '🧱', cost: {log: 1}, desc: '建造地基 (🪵x1)' },
             { id: 'stone_brick', name: '石磚', icon: '🪨', cost: {stone: 1}, desc: '堅固外牆 (🪨x1)' },
             { id: 'brick', name: '紅磚', icon: '🧱', cost: {clay: 2}, desc: '經典建材 (🧱x2)' },
@@ -412,7 +416,7 @@
             { id: 'bed', name: '床舖', icon: '🛏️', cost: {log: 2, fiber: 2}, desc: '溫馨家具 (🪵x2 🌾x2)' },
             { id: 'torch', name: '火把', icon: '🏮', cost: {log: 1, stone: 1}, desc: '照明工具 (🪵x1 🪨x1)' },
             { id: 'plant', name: '小盆栽', icon: '🌷', cost: {clay: 1, fiber: 1}, desc: '綠化環境 (🧱x1 🌾x1)' },
-            { id: 'iron_block', name: '鐵塊', icon: '🛡️', cost: {iron: 2}, desc: '堅不可摧 (🪙x2)' },
+            { id: 'iron_block', name: '鐵塊', icon: '🧊', cost: {iron: 2}, desc: '堅不可摧 (🪙x2)' },
             { id: 'gold_block', name: '黃金磚', icon: '👑', cost: {gold: 2}, desc: '閃閃發光 (🌟x2)' },
             { id: 'chest', name: '寶箱', icon: '🧰', cost: {log: 2, iron: 1}, desc: '收藏寶物 (🪵x2 🪙x1)' },
             { id: 'water', name: '水源', icon: '💧', cost: {emerald: 5}, desc: '建造池塘 (❇️x5)' },
@@ -736,10 +740,18 @@
         
         function checkMonsterCollision(m, index) {
             if(m.x === pX && m.y === pY) {
-                takeDamage(m.type.dmg, `被 ${m.type.name} 襲擊`);
+                let dmg = calculateDamage(m.type.dmg);
+                takeDamage(dmg, `被 ${m.type.name} 襲擊`);
                 m.element.remove();
                 activeMapMonsters.splice(index, 1);
             }
+        }
+
+        // 🧠 計算裝甲減傷
+        function calculateDamage(amount) {
+            let reduction = armorLevel * 0.15;
+            if (reduction > 0.75) reduction = 0.75;
+            return Math.max(1, Math.floor(amount * (1 - reduction)));
         }
 
         // 🧠 載入題庫
@@ -797,7 +809,7 @@
             try {
                 let studentSelect = document.getElementById('student-select');
                 if(!studentSelect) return;
-                let student = studentSelect.value || "Justin";
+                let student = studentSelect.value || "Justin"; 
                 
                 let select = document.getElementById('unit-select');
                 if(select) {
@@ -884,9 +896,11 @@
                 try {
                     let state = JSON.parse(savedState);
                     emeralds = parseInt(state.emeralds) || 0;
+                    MAX_HP = parseInt(state.MAX_HP); if(isNaN(MAX_HP)) MAX_HP = 100;
                     hp = parseInt(state.hp); if(isNaN(hp)) hp = MAX_HP;
                     foodCount = parseInt(state.foodCount) || 0;
                     questionsAnswered = parseInt(state.questionsAnswered) || 0;
+                    armorLevel = parseInt(state.armorLevel) || 0;
                     gridSize = parseInt(state.gridSize); if(isNaN(gridSize) || gridSize < 6) gridSize = 8;
                     materials = state.materials || { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 };
                     inventory = state.inventory || {};
@@ -898,7 +912,7 @@
 
         function saveGameState() {
             try {
-                let state = { emeralds, materials, inventory, placedDecorations, gridSize, hp, foodCount, questionsAnswered };
+                let state = { emeralds, materials, inventory, placedDecorations, gridSize, hp, MAX_HP, foodCount, questionsAnswered, armorLevel };
                 localStorage.setItem('rpgGameState', JSON.stringify(state));
             } catch(e) { console.error("存檔失敗", e); }
         }
@@ -910,7 +924,8 @@
                 safeSet('mat-em', emeralds);
                 safeSet('mat-log', materials.log); safeSet('mat-stone', materials.stone); safeSet('mat-fiber', materials.fiber);
                 safeSet('mat-sand', materials.sand); safeSet('mat-clay', materials.clay); safeSet('mat-iron', materials.iron); safeSet('mat-gold', materials.gold);
-                safeSet('hp-std', hp); safeSet('hp-rpg', hp);
+                safeSet('hp-std', `${hp} / ${MAX_HP}`); 
+                safeSet('hp-rpg', `${hp} / ${MAX_HP}`);
                 safeSet('food-std', foodCount); safeSet('food-rpg', foodCount);
             } catch(e) { console.error("UI Update Error", e); }
         }
@@ -928,7 +943,7 @@
         function restartGame() {
             if(confirm("⚠️ 警告：確定要重新開始嗎？\n所有的綠寶石、收集的素材與島嶼方塊都會被完全清空！")) {
                 if(confirm("🚨 最後確認：進度清除後將【無法還原】，真的要重置嗎？")) {
-                    emeralds = 0; hp = MAX_HP; foodCount = 0; questionsAnswered = 0;
+                    emeralds = 0; MAX_HP = 100; hp = MAX_HP; foodCount = 0; questionsAnswered = 0; armorLevel = 0;
                     materials = { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 };
                     inventory = {}; placedDecorations = []; selectedHotbarItem = null; gridSize = 8; 
                     updateGridSize(); renderDecorations(); renderHotbar(); updateMaterialUI(); 
@@ -1140,9 +1155,10 @@
                     updateMaterialUI(); saveGameState(); 
                     if (currentStdMode === 'fill-blank') document.getElementById('question-text-std').innerText = safe.mFormat.replace(/＿|_/g, `【${correctAnswer}】`);
                 } else {
-                    feedback.innerText = "❌ 答錯了！遭受小妖精襲擊，扣 15 血！答案是：" + correctAnswer; feedback.style.color = "#d32f2f";
+                    let dmg = calculateDamage(15);
+                    feedback.innerText = `❌ 答錯了！遭受小妖精襲擊，扣 ${dmg} 血！答案是：` + correctAnswer; feedback.style.color = "#d32f2f";
                     if(clickedElement.className !== "std-char-block") clickedElement.style.backgroundColor = "#ffcdd2";
-                    takeDamage(15, "被小妖精襲擊");
+                    takeDamage(dmg, "被小妖精襲擊");
                 }
             } catch(e) { console.error("Check Ans Error", e); }
             
@@ -1240,8 +1256,9 @@
                 }
             } else {
                 btn.style.backgroundColor = "#ffcdd2";
-                alert(`❌ 答錯了！正確答案是：「${bossCorrectAnswer}」\n${currentBoss.name} 對你發動攻擊，扣 ${currentBoss.dmg} 血！`);
-                takeDamage(currentBoss.dmg, `被 ${currentBoss.name} 擊殺`);
+                let dmg = calculateDamage(currentBoss.dmg);
+                alert(`❌ 答錯了！正確答案是：「${bossCorrectAnswer}」\n${currentBoss.name} 對你發動攻擊，扣 ${dmg} 血！`);
+                takeDamage(dmg, `被 ${currentBoss.name} 擊殺`);
                 if (hp > 0) setTimeout(() => { loadBossQuestion(); }, 1200);
             }
         }
@@ -1267,7 +1284,8 @@
             document.getElementById('rpg-game').style.display = 'block';
             updateGridSize(); renderDecorations(); renderHotbar(); 
             
-            questionDeck = buildWordDeck();
+            // RPG 模式涵蓋所有變化 (包含例句擴展)
+            questionDeck = buildSentenceDeck();
             loadRPGQuest();
         }
 
@@ -1277,7 +1295,7 @@
                 document.getElementById('rpg-next-btn').style.display = 'none'; document.getElementById('rpg-controls').style.display = 'flex';
                 document.getElementById('feedback-rpg').innerText = "用方向鍵或點擊地圖移動！小心避開怪物！"; document.getElementById('feedback-rpg').style.color = "#d32f2f";
                 
-                if (!questionDeck || questionDeck.length === 0) questionDeck = buildWordDeck();
+                if (!questionDeck || questionDeck.length === 0) questionDeck = buildSentenceDeck();
                 currentTargetData = questionDeck.pop();
 
                 let safe = getSafeData(currentTargetData);
@@ -1293,12 +1311,7 @@
                 } else if (rpgQuestType === 'fill-blank') { title = "📜 任務：修補殘缺字詞"; question = safe.mFormat; actualCorrectAnswer = safe.mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random());
                 } else if (rpgQuestType === 'sentence') { 
                     title = "📜 任務：填補情境對白"; 
-                    let possibleSentences = [];
-                    if (safe.sentence && safe.sentence !== "無例句") possibleSentences.push(safe.sentence);
-                    if (safe.sentence1) possibleSentences.push(safe.sentence1);
-                    if (safe.sentence2) possibleSentences.push(safe.sentence2);
-                    let sText = possibleSentences.length > 0 ? possibleSentences[Math.floor(Math.random() * possibleSentences.length)] : "無例句";
-                    
+                    let sText = currentTargetData.activeSentence || "無例句";
                     activeSentenceText = sText;
                     if (!sText.includes("＿")) question = sText.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】");
                     else question = sText.replace(/＿＿＿＿/g, "【 ＿＿ 】");
@@ -1380,8 +1393,9 @@
                     document.getElementById('rpg-controls').style.display = 'none'; 
                     checkBossTrigger();
                 } else {
-                    block.element.classList.add('wrong'); feedback.innerText = "💥 答錯了！觸動了陷阱扣 20 血！"; feedback.style.color = "#d32f2f";
-                    takeDamage(20, "在採集時被陷阱擊殺");
+                    let dmg = calculateDamage(20);
+                    block.element.classList.add('wrong'); feedback.innerText = `💥 答錯了！觸動了陷阱扣 ${dmg} 血！`; feedback.style.color = "#d32f2f";
+                    takeDamage(dmg, "在採集時被陷阱擊殺");
                 }
             } catch(e) { console.error("Mine Block Error", e); }
             
@@ -1466,14 +1480,28 @@
         function renderCraftItems() {
             let container = document.getElementById('craft-items-container'); container.innerHTML = "";
             craftRecipes.forEach(item => {
-                let card = document.createElement('div'); card.className = "craft-card"; let canAfford = canAffordCraft(item.cost);
+                let canAfford = canAffordCraft(item.cost);
+                let btnText = "🔨 合成";
+                let extraDesc = "";
+
+                if (item.id === 'armor') {
+                    if (armorLevel >= 5) {
+                        canAfford = false;
+                        btnText = "已滿級";
+                        extraDesc = " <span style='color:#d32f2f;'>(MAX)</span>";
+                    } else {
+                        extraDesc = ` <span style='color:#1565c0;'>(當前 Lv.${armorLevel})</span>`;
+                    }
+                }
+
                 let costMsg = [];
                 if(item.cost.log) costMsg.push(`🪵${item.cost.log}`); if(item.cost.stone) costMsg.push(`🪨${item.cost.stone}`);
                 if(item.cost.fiber) costMsg.push(`🌾${item.cost.fiber}`); if(item.cost.sand) costMsg.push(`🏜️${item.cost.sand}`);
                 if(item.cost.clay) costMsg.push(`🧱${item.cost.clay}`); if(item.cost.iron) costMsg.push(`🪙${item.cost.iron}`);
                 if(item.cost.gold) costMsg.push(`🌟${item.cost.gold}`); if(item.cost.emerald) costMsg.push(`❇️${item.cost.emerald}`);
 
-                card.innerHTML = `<div class="craft-item-top"><div class="craft-item-icon">${item.icon}</div><div class="craft-item-info"><h4>${item.name}</h4><p>${item.desc}</p><div class="craft-cost">需求：${costMsg.join(' ')}</div></div></div><button class="craft-buy-btn" ${canAfford ? '' : 'disabled'} onclick="craftItem('${item.id}')">🔨 合成</button>`;
+                let card = document.createElement('div'); card.className = "craft-card";
+                card.innerHTML = `<div class="craft-item-top"><div class="craft-item-icon">${item.icon}</div><div class="craft-item-info"><h4>${item.name}${extraDesc}</h4><p>${item.desc}</p><div class="craft-cost">需求：${costMsg.join(' ')}</div></div></div><button class="craft-buy-btn" ${canAfford ? '' : 'disabled'} onclick="craftItem('${item.id}')">${btnText}</button>`;
                 container.appendChild(card);
             });
         }
@@ -1487,8 +1515,21 @@
                 if(item.cost.clay) materials.clay -= item.cost.clay; if(item.cost.iron) materials.iron -= item.cost.iron;
                 if(item.cost.gold) materials.gold -= item.cost.gold; if(item.cost.emerald) emeralds -= item.cost.emerald;
                 
-                if (item.type === 'upgrade' && itemId === 'expand') { gridSize += 2; updateGridSize(); alert("綠地已成功擴大！"); } 
-                else { if(!inventory[itemId]) inventory[itemId] = 0; inventory[itemId]++; renderHotbar(); }
+                if (item.type === 'upgrade') {
+                    if (itemId === 'expand') {
+                        gridSize += 2; updateGridSize(); alert("綠地已成功擴大！");
+                    } else if (itemId === 'hp_boost') {
+                        MAX_HP += 20; hp += 20; 
+                        alert(`💖 生命上限已提升！目前最大血量：${MAX_HP}`);
+                    } else if (itemId === 'armor') {
+                        armorLevel++;
+                        alert(`🛡️ 防護裝甲已升級！目前等級：Lv.${armorLevel} (減少 ${armorLevel * 15}% 傷害)`);
+                    }
+                } else { 
+                    if(!inventory[itemId]) inventory[itemId] = 0; 
+                    inventory[itemId]++; renderHotbar(); 
+                }
+                
                 updateMaterialUI(); renderCraftItems();
                 saveGameState();
             }
