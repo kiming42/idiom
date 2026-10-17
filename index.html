@@ -394,6 +394,7 @@
         let foodCount = 0;
         let questionsAnswered = 0;
         let armorLevel = 0;
+        let bossesDefeated = 0; 
         const BOSS_TRIGGER_COUNT = 8;
         let bossHp = 3;
         const BOSS_MAX_HP = 3;
@@ -575,7 +576,7 @@
         }
 
         // =====================================
-        // 💾 題庫系統 (無錯別字版)
+        // 💾 題庫系統 
         // =====================================
         const defaultDatabaseRaw = [
             { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。鼎，古代的煮食器具。", missingFormat: "人聲鼎＿", missingTarget: "沸", fillOptions: ["是", "你", "沸", "地"], synonyms: "喧鬧", antonyms: "鴉雀無聲、萬籟俱寂", sentence1: "酒樓內人聲鼎沸，坐滿了來吃午飯的人。", sentence2: "大家都在為球隊吶喊助威，觀眾席上人聲鼎沸。" },
