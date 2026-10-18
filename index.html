@@ -1,1633 +1,1406 @@
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>學神領域：方塊戰記</title>
-    
-    <!-- 📱 PWA Web App 支援設定 -->
-    <meta name="theme-color" content="#5b8731">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="學神領域">
-    
-    <!-- 連結外部 Manifest 與設定 App 圖示 -->
-    <link rel="manifest" href="./manifest.json">
-    <link rel="icon" href="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%235b8731'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='white'%3E%F0%9F%8C%8D%3C/text%3E%3C/svg%3E">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%235b8731'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='white'%3E%F0%9F%8C%8D%3C/text%3E%3C/svg%3E">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Steal an Egg v5.0：Justin (@XnamX0917) 太空奪蛋大作戰</title>
+<style>
+  :root {
+    --bg-dark: #070913;
+    --panel-bg: #161c33;
+    --accent: #ffcd75;
+    --green: #38b764;
+    --red: #ef7d57;
+    --blue: #41a6f6;
+  }
+  * { box-sizing: border-box; user-select: none; -webkit-user-select: none; font-family: 'PingFang HK', 'Microsoft JhengHei', sans-serif; }
+  body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg-dark); color: #fff; overflow: hidden; display: flex; flex-direction: column; }
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+  /* 頂部狀態列 */
+  #top-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 6px 12px; background: #05060c; border-bottom: 3px solid #3b5dc9;
+    z-index: 20; flex-wrap: wrap; gap: 6px;
+  }
+  .mode-group { display: flex; gap: 6px; align-items: center; }
+  .btn-tab {
+    background: #161c33; color: #73eff7; border: 2px solid #3b5dc9;
+    padding: 5px 10px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer;
+  }
+  .btn-tab.active { background: #3b5dc9; color: #fff; border-color: #73eff7; box-shadow: 0 0 10px rgba(65,166,246,0.7); }
+  .stats-group { display: flex; gap: 8px; align-items: center; font-size: 13px; font-weight: bold; flex-wrap: wrap; }
+  .stat-pill { background: #161c33; padding: 4px 10px; border-radius: 20px; border: 1px solid #41a6f6; display: flex; align-items: center; gap: 4px; }
+  .income-pill { background: #112a22; border-color: #38b764; color: #a7f070; }
+  .btn-ui {
+    background: #ef7d57; color: #fff; border: 2px solid #ffcd75;
+    padding: 5px 12px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer;
+  }
+  .btn-hatch-ready {
+    background: linear-gradient(90deg, #f59e0b, #eab308); color: #000 !important;
+    border: 2px solid #fff; animation: pulseBtn 0.8s infinite alternate; cursor: pointer;
+  }
+  @keyframes pulseBtn { from { transform: scale(1); } to { transform: scale(1.08); box-shadow: 0 0 15px #ffcd75; } }
 
-        /* 基礎設定 */
-        body { font-family: "PingFang HK", "Microsoft YaHei", sans-serif; background-color: #5b8731; text-align: center; padding: 10px; margin: 0; color: #333; user-select: none; touch-action: manipulation; transition: background-color 0.1s; }
-        .page { display: none; background: #e0e0e0; max-width: 950px; margin: 0 auto; padding: 20px; border: 6px solid #3c3c3c; box-shadow: 10px 10px 0px rgba(0,0,0,0.5); box-sizing: border-box; }
-        #main-dashboard { display: block; } 
-        
-        /* 💥 受傷特效 */
-        @keyframes flashRed { 0% { background-color: #ff5252; } 100% { background-color: #5b8731; } }
-        .damage-flash { animation: flashRed 0.3s forwards; }
+  /* 遊戲畫布區 */
+  #game-wrap { position: relative; flex: 1; display: flex; justify-content: center; align-items: center; background: #030408; overflow: hidden; }
+  canvas { background: #080b1a; border-left: 4px solid #3b5dc9; border-right: 4px solid #3b5dc9; max-width: 100%; max-height: 100%; box-shadow: 0 0 40px rgba(59,93,201,0.35); }
 
-        .header-container { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; gap: 10px;}
-        .title-area { text-align: left; }
-        h1 { color: #2e7d32; font-size: 28px; margin: 0 0 5px 0; font-family: 'DotGothic16', sans-serif; text-shadow: 1px 1px 0px #fff; }
-        .subtitle { color: #555; margin: 0; font-size: 14px; font-weight: bold; }
-        
-        .header-btns-group { display: flex; flex-direction: column; gap: 8px; }
-        .db-btn { background: #fff; border: 3px solid #ccc; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; color: #555; font-size: 14px; display: flex; align-items: center; justify-content: center; gap: 5px; box-shadow: 0 2px 0 #ccc; }
-        .db-btn:active { transform: translateY(2px); box-shadow: none; }
-        
-        .install-btn { background: #ff9800; color: white; border: 3px solid #e65100; box-shadow: 0 2px 0 #e65100; }
-        .install-btn:active { transform: translateY(2px); box-shadow: none; }
+  /* 底部虛擬搖桿與豐富道具快捷列 */
+  #touch-controls {
+    position: absolute; bottom: 14px; left: 14px; right: 14px;
+    display: flex; justify-content: space-between; align-items: flex-end; pointer-events: none; z-index: 12;
+  }
+  #joystick-zone {
+    width: 115px; height: 115px; background: rgba(65,166,246,0.15);
+    border: 2px solid rgba(115,239,247,0.5); border-radius: 50%;
+    position: relative; pointer-events: auto; touch-action: none;
+  }
+  #joystick-knob {
+    width: 48px; height: 48px; background: rgba(115, 239, 247, 0.9);
+    border: 2px solid #fff; border-radius: 50%;
+    position: absolute; top: 31px; left: 31px; pointer-events: none;
+  }
+  #skill-buttons { display: flex; gap: 6px; pointer-events: auto; flex-wrap: wrap; justify-content: flex-end; max-width: 65%; }
+  .skill-btn {
+    background: rgba(22, 28, 51, 0.94); border: 2px solid #41a6f6; color: #fff;
+    padding: 7px 10px; border-radius: 12px; font-weight: bold; font-size: 12px;
+    cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.7); min-width: 68px;
+  }
+  .skill-btn:active { transform: scale(0.93); }
 
-        /* 🎯 課題與玩家選擇區 */
-        .filter-section { background: #fdfdfd; border: 3px solid #aed581; border-radius: 12px; padding: 20px; margin-bottom: 25px; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .filter-header h3 { color: #1a4231; margin: 0 0 5px 0; font-size: 20px; }
-        .filter-header p { color: #666; margin: 0 0 15px 0; font-size: 14px; font-weight: bold;}
-        .filter-controls { display: flex; gap: 15px; flex-wrap: wrap; }
-        .filter-group { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
-        .filter-group label { font-size: 14px; font-weight: bold; color: #555; }
-        .filter-group select { padding: 10px 15px; font-size: 16px; border: 2px solid #ccc; border-radius: 8px; font-family: "PingFang HK", sans-serif; cursor: pointer; outline: none; font-weight: bold; color: #333; background: #fff; width: 100%; box-sizing: border-box; }
-        .filter-group select:focus { border-color: #8bc34a; box-shadow: 0 0 5px rgba(139, 195, 74, 0.5); }
-        .scope-info-text { margin: 15px 0 0 0; font-size: 14px; color: #777; font-weight: bold; border-top: 1px dashed #ddd; padding-top: 15px; }
+  /* 彈出視窗 Modal (極簡清晰版題目卡) */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(3, 4, 9, 0.9);
+    display: none; justify-content: center; align-items: center; z-index: 50; padding: 14px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-card {
+    background: #101528; border: 4px solid #41a6f6; border-radius: 18px;
+    max-width: 520px; width: 100%; padding: 20px; max-height: 92vh; overflow-y: auto;
+    box-shadow: 0 0 35px rgba(65,166,246,0.5); text-align: center;
+  }
+  .modal-title { font-size: 19px; font-weight: bold; color: #ffcd75; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .q-badge { background: #3b5dc9; color: #73eff7; padding: 4px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; display: inline-block; margin-bottom: 10px; }
+  .q-text { font-size: 22px; font-weight: bold; line-height: 1.4; background: #1a2240; padding: 16px; border-radius: 12px; margin-bottom: 16px; border: 2px solid #3b5dc9; color: #fff; }
+  .blank-hl { color: #ffcd75; text-decoration: underline; padding: 0 6px; }
 
-        .section-title { text-align: left; color: #2e7d32; font-size: 18px; margin-bottom: 10px; border-bottom: 3px dashed #999; padding-bottom: 5px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-        .emerald-display { background: #fff; color: #333; padding: 4px 12px; border: 3px inset #ccc; font-size: 16px; font-weight: bold; border-radius: 8px; display: flex; gap: 8px; white-space: nowrap;}
-        
-        .modes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 25px; }
-        .mode-card { background: #f5f5f5; border: 3px solid #ccc; padding: 15px; cursor: pointer; text-align: left; border-radius: 10px; transition: 0.1s; }
-        .mode-card:active { transform: scale(0.95); background: #e0e0e0; }
-        .mode-icon { background: #fff; border: 2px solid #ccc; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; border-radius: 8px; margin-bottom: 10px; }
-        .mode-card h3 { margin: 0 0 5px 0; font-size: 16px; color: #333; }
-        .mode-card p { margin: 0; font-size: 12px; color: #666; font-weight: bold; line-height: 1.4; }
+  /* 多元題型按鈕樣式 */
+  .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .opt-grid.single-col { grid-template-columns: 1fr; }
+  .opt-btn {
+    background: #232d54; color: #fff; border: 2px solid #41a6f6;
+    padding: 14px 12px; border-radius: 12px; font-size: 18px; font-weight: bold;
+    text-align: center; cursor: pointer; transition: 0.15s;
+  }
+  .opt-btn:hover { background: #3b5dc9; transform: translateY(-2px); }
+  .opt-btn.correct { background: #38b764 !important; border-color: #a7f070 !important; }
+  .opt-btn.wrong { background: #b13e53 !important; border-color: #ef7d57 !important; }
 
-        /* 🎮 RPG 遊戲介面 (零捲動新排版) */
-        .rpg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 8px; }
-        .header-btn { background: #fff; border: 2px solid #ccc; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; color: #333; display: flex; align-items: center; gap: 5px; }
-        
-        /* ❤️ 玩家血條與食物 */
-        .player-status { display: flex; gap: 10px; align-items: center; background: #fff; padding: 6px 12px; border-radius: 8px; border: 3px inset #ccc; font-weight: bold; font-size: 15px; flex-wrap: wrap; justify-content: center; flex-grow: 1;}
-        .eat-btn { background: #4CAF50; border: 2px solid #2E7D32; color: white; border-radius: 6px; cursor: pointer; font-weight: bold; padding: 4px 8px; font-size: 13px;}
-        .eat-btn:active { transform: scale(0.95); }
+  /* 順序題專用槽 */
+  .seq-slots { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; min-height: 46px; }
+  .seq-slot { flex: 1; background: #0b0e1c; border: 2px dashed #73eff7; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; color: #ffcd75; padding: 8px; }
 
-        /* 左右分欄設計 */
-        .rpg-content { display: flex; flex-direction: row; flex-wrap: wrap; gap: 15px; justify-content: center; align-items: flex-start; }
-        .rpg-map-side { display: flex; flex-direction: column; align-items: center; }
-        .rpg-quest-side { flex: 1; min-width: 300px; max-width: 500px; }
+  .explain-box { margin-top: 14px; padding: 12px; background: #162629; border-radius: 10px; color: #a7f070; font-size: 16px; font-weight: bold; display: none; border: 2px solid #38b764; }
+  .tts-mini { background: #3b5dc9; border: 1px solid #73eff7; color: #fff; border-radius: 8px; padding: 5px 10px; cursor: pointer; font-size: 13px; font-weight: bold; }
 
-        .mission-panel { background: #fff; border: 4px solid #8bc34a; padding: 15px; border-radius: 10px; text-align: left; box-shadow: 0 4px 0 #689f38; margin: 0; width: 100%; box-sizing: border-box; }
-        .mission-panel h3 { margin: 0 0 8px 0; font-size: 18px; color: #555; }
-        .mission-panel p { margin: 0; font-size: 20px; font-weight: bold; color: #1a4231; line-height: 1.5; min-height: 30px;}
-        
-        .mc-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; font-size: 16px; font-weight: bold; color: #222; background: #f0f0f0; padding: 12px; border-radius: 8px; border: 2px solid #ccc; }
-        .mc-choices div { padding: 5px; }
-        
-        .map-wrapper { overflow: hidden; padding: 5px; text-align: center; border-radius: 8px; background: #bdbdbd; box-shadow: inset 0 0 10px rgba(0,0,0,0.3);}
-        .island-container { display: inline-block; position: relative; background-color: #689f38; background-image: linear-gradient(#558b2f 2px, transparent 2px), linear-gradient(90deg, #558b2f 2px, transparent 2px); background-size: 40px 40px; border: 6px solid #3c3c3c; box-shadow: 5px 5px 0px rgba(0,0,0,0.3); cursor: crosshair; box-sizing: content-box; vertical-align: top; }
+  /* 商店與圖鑑網格 */
+  .grid-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-top: 10px; text-align: center; }
+  .item-card { background: #1a2240; border: 2px solid #3b5dc9; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; justify-content: space-between; gap: 6px; }
+  .item-card.unlocked { border-color: #ffcd75; background: #232d54; }
+  .item-icon { font-size: 32px; }
 
-        /* 👦🏻 像素主角 SVG */
-        #player { position: absolute; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; transition: top 0.15s linear, left 0.15s linear; z-index: 10; }
-        #player::after { content: ""; display: block; width: 32px; height: 32px; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%238d6e63'/%3E%3Crect x='1' y='2' width='6' height='6' fill='%23ffcc80'/%3E%3Crect x='0' y='0' width='8' height='2' fill='%235d4037'/%3E%3Crect x='0' y='2' width='1' height='2' fill='%235d4037'/%3E%3Crect x='7' y='2' width='1' height='2' fill='%235d4037'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%23fff'/%3E%3Crect x='2.5' y='4' width='0.5' height='1' fill='%233f51b5'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%23fff'/%3E%3Crect x='5' y='4' width='0.5' height='1' fill='%233f51b5'/%3E%3Crect x='3' y='6' width='2' height='1' fill='%23795548'/%3E%3C/svg%3E"); background-size: cover; image-rendering: pixelated; border: 2px solid #222; border-radius: 3px; box-shadow: 2px 2px 0 rgba(0,0,0,0.4); }
-        
-        /* 🛡️ 防護罩特效 */
-        .shield-active::before {
-            content: "";
-            position: absolute;
-            width: 46px;
-            height: 46px;
-            border: 3px solid #00e5ff;
-            border-radius: 50%;
-            box-shadow: 0 0 12px #00e5ff, inset 0 0 12px #00e5ff;
-            animation: pulseShield 0.8s infinite alternate;
-            z-index: 20;
-            background: rgba(0, 229, 255, 0.25);
-            pointer-events: none;
-        }
-        @keyframes pulseShield {
-            0% { transform: scale(0.85); opacity: 0.6; }
-            100% { transform: scale(1.05); opacity: 1; }
-        }
-
-        .quest-block { position: absolute; width: 36px; height: 36px; margin: 2px; background-color: #e0e0e0; border: 4px outset #fff; box-sizing: border-box; display: flex; justify-content: center; align-items: center; text-align: center; font-size: 22px; font-weight: bold; color: #333; z-index: 5; transition: 0.2s; }
-        .quest-block.broken { transform: scale(0); opacity: 0; }
-        .quest-block.wrong { border-color: #424242; background-color: #212121; color: #757575; }
-        .decoration-item { position: absolute; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 30px; z-index: 2; filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.4)); }
-
-        .hotbar { display: flex; justify-content: flex-start; gap: 6px; margin-top: 10px; background: rgba(0,0,0,0.6); padding: 8px; border: 4px solid #333; border-radius: 5px; overflow-x: auto; min-height: 56px; width: 100%; box-sizing: border-box; }
-        .hotbar-slot { width: 44px; height: 44px; background: #8b8b8b; border: 3px inset #ffffff; display: flex; justify-content: center; align-items: center; font-size: 26px; cursor: pointer; position: relative; flex-shrink: 0;}
-        .hotbar-slot.active { border: 3px solid #ffeb3b; background: #a6a6a6; }
-        .hotbar-qty { position: absolute; bottom: -2px; right: 2px; font-size: 13px; color: white; font-weight: bold; text-shadow: 1px 1px 0 #000; }
-
-        .next-btn { display: none; margin: 15px auto 0; padding: 12px 30px; background-color: #ff9800; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; box-shadow: 0 4px 0 #e65100; font-family: 'DotGothic16', sans-serif;}
-
-        /* 🔨 題庫管理 Modal */
-        .db-modal, .craft-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 10px; }
-        .db-wrapper, .craft-wrapper { background: #fff; width: 100%; max-width: 700px; max-height: 90vh; border-radius: 12px; padding: 20px; text-align: left; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto;}
-        
-        .db-actions { display: flex; justify-content: space-between; margin-top: 15px; gap: 8px; flex-wrap: wrap; }
-        .db-actions button { padding: 10px 15px; font-size: 15px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; }
-        .db-actions-right { display: flex; gap: 8px; flex-wrap: wrap; }
-        .btn-cancel { background: #e0e0e0; color: #333; }
-        .btn-clear { background: #ff9800; color: white; }
-        .btn-reset { background: #f44336; color: white; }
-        .btn-save { background: #4CAF50; color: white; }
-
-        .craft-wrapper { background: #d7ccc8; border: 6px solid #5d4037; }
-        .craft-close { position: absolute; top: 15px; right: 15px; font-size: 20px; font-weight: bold; color: #fff; cursor: pointer; background: #d32f2f; width: 35px; height: 35px; display: flex; justify-content: center; align-items: center; border-radius: 8px; border: 2px solid #b71c1c;}
-        .craft-title { font-size: 26px; color: #3e2723; margin: 0 0 15px 0; font-weight: bold; border-bottom: 2px dashed #8d6e63; padding-bottom: 10px;}
-        
-        .material-stats { background: #efebe9; border: 3px inset #bcaaa4; border-radius: 8px; padding: 10px; font-weight: bold; color: #4e342e; display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; font-size: 15px; }
-        .material-stats span { background: #fff; padding: 4px 8px; border-radius: 6px; border: 2px solid #d7ccc8;}
-        
-        .craft-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .craft-card { background: #fafafa; border: 3px solid #a1887f; border-radius: 10px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px; }
-        .craft-item-top { display: flex; gap: 12px; align-items: center; }
-        .craft-item-icon { background: #e0e0e0; width: 55px; height: 55px; border-radius: 8px; border: 2px inset #fff; display: flex; justify-content: center; align-items: center; font-size: 35px; }
-        .craft-item-info h4 { margin: 0 0 4px 0; font-size: 16px; color: #333; }
-        .craft-item-info p { margin: 0; font-size: 12px; color: #666; }
-        .craft-cost { font-size: 13px; color: #d84315; font-weight: bold; margin-top: 5px; }
-        .craft-buy-btn { background: #4CAF50; border: 2px solid #388E3C; border-radius: 6px; padding: 10px; font-weight: bold; color: white; cursor: pointer; text-align: center; font-size: 15px; }
-        .craft-buy-btn:active { transform: translateY(2px); }
-        .craft-buy-btn:disabled { background: #9e9e9e; border-color: #757575; color: #e0e0e0; cursor: not-allowed; }
-
-        @media (max-width: 600px) { .craft-grid { grid-template-columns: 1fr; } .mc-choices { grid-template-columns: 1fr; } .page { padding: 10px; border-width: 4px; } }
-
-        /* 標準模式 UI */
-        #question-area-std { background: #e0e0e0; border: 4px inset #fff; padding: 20px; margin-bottom: 20px; text-align: left; position: relative;}
-        #question-text-std { font-size: 22px; color: #111; line-height: 1.6; font-weight: bold; font-family: "PingFang HK", "Microsoft YaHei", sans-serif; margin-top: 10px;}
-        .std-option-btn { display: block; width: 100%; margin: 8px 0; padding: 15px; font-size: 18px; background-color: #d6d6d6; border: 4px outset #ffffff; color: #111; cursor: pointer; text-align: center; font-weight: bold; box-sizing: border-box; }
-        .std-char-block { display: inline-block; background: #d6d6d6; border: 4px outset #ffffff; color: #111; font-size: 32px; padding: 15px 25px; margin: 8px; cursor: pointer; font-weight: bold; }
-        
-        /* 🔊 語音按鈕 */
-        .tts-btn { display: inline-flex; align-items: center; gap: 6px; background: #2196F3; color: white; border: 2px solid #0d47a1; border-radius: 8px; padding: 6px 12px; font-size: 15px; font-weight: bold; cursor: pointer; margin-bottom: 0px; box-shadow: 0 3px 0 #0d47a1; transition: 0.1s;}
-        .tts-btn:active { transform: translateY(3px); box-shadow: none; }
-        .tts-btn.playing { background: #4CAF50; border-color: #1b5e20; box-shadow: 0 3px 0 #1b5e20; }
-
-        /* 🐉 Boss 戰 Modal */
-        .boss-modal { background: rgba(30,0,0,0.95); }
-        .boss-wrapper { background: #3e2723; color: white; border: 6px solid #b71c1c; text-align: center; max-width: 600px; }
-        .boss-img { display: inline-block; margin: 10px; animation: float 2s infinite ease-in-out; }
-        @keyframes float { 0% {transform: translateY(0px);} 50% {transform: translateY(-10px);} 100% {transform: translateY(0px);} }
-        .boss-hp-bar { width: 100%; height: 25px; background: #222; border-radius: 12px; margin-bottom: 15px; overflow: hidden; border: 2px solid #fff;}
-        .boss-hp-fill { width: 100%; height: 100%; background: #ff1744; transition: width 0.3s; }
-        .boss-choices div { background: #fff; border: 3px solid #ccc; color: #111; padding: 12px; cursor: pointer; font-weight: bold; font-size: 18px; border-radius: 8px; margin-top: 10px; }
-    </style>
+  /* 浮動提示 Toast */
+  #toast {
+    position: fixed; top: 68px; left: 50%; transform: translateX(-50%);
+    background: rgba(16, 21, 40, 0.96); border: 2px solid #73eff7; color: #fff;
+    padding: 9px 20px; border-radius: 25px; font-weight: bold; font-size: 15px;
+    z-index: 60; pointer-events: none; opacity: 0; transition: opacity 0.25s; text-align: center; max-width: 92%;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+  }
+</style>
 </head>
 <body>
 
-    <!-- 🌟 首頁大本營 -->
-    <div id="main-dashboard" class="page">
-        <div class="header-container">
-            <div class="title-area">
-                <h1>⛏️ 學神領域：方塊戰記</h1>
-                <p class="subtitle">Domain of the Study God: Block Chronicles</p>
-            </div>
-            <div class="header-btns-group">
-                <button class="db-btn" onclick="checkParentPassword()">⚙️ 設定與題庫</button>
-                <button class="db-btn install-btn" onclick="installApp()" id="install-button">📱 安裝成 App</button>
-            </div>
-        </div>
-        
-        <div class="filter-section">
-            <div class="filter-header">
-                <h3>歡迎來到知識世界，你是誰？</h3>
-                <p>請先選擇玩家，系統會為你準備專屬的溫習範圍。</p>
-            </div>
-            <div class="filter-controls">
-                <div class="filter-group">
-                    <label>👤 玩家選擇</label>
-                    <select id="student-select" onchange="updateUnitDropdown()">
-                        <option value="Justin">Justin</option>
-                        <option value="峰">峰</option>
-                        <option value="Marcus">Marcus</option>
-                        <option value="all">所有玩家大挑戰</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label>📚 單元選擇</label>
-                    <select id="unit-select" onchange="updateScopeInfo()">
-                        <option value="all">所有範圍 (綜合挑戰)</option>
-                    </select>
-                </div>
-            </div>
-            <p id="scope-info" class="scope-info-text">準備中...</p>
-        </div>
+<!-- 頂部狀態列 -->
+<div id="top-bar">
+  <div class="mode-group">
+    <button class="btn-tab active" onclick="switchSubject('sci')" id="tab-sci">🧪 科學科 (U2-U3)</button>
+    <button class="btn-tab" onclick="switchSubject('hum')" id="tab-hum">🏛️ 人文科 (預留)</button>
+  </div>
+  <div class="stats-group">
+    <div class="stat-pill">💰 $<span id="ui-coins">10</span></div>
+    <div class="stat-pill income-pill">⚡ +$<span id="ui-income">0</span>/秒</div>
+    <div class="stat-pill" id="pill-incubator" onclick="tryManualHatch()">🥚 孵化器: <span id="ui-incubator">空閒 (0/3)</span></div>
+    <button class="btn-ui" onclick="openShop()">🛒 太空商店 / 圖鑑</button>
+    <button class="btn-ui" style="background:#3b5dc9;" onclick="openHelp()">❓ 玩法</button>
+  </div>
+</div>
 
-        <div class="section-title">▶ 準備區</div>
-        <div class="modes-grid" style="grid-template-columns: 1fr;">
-            <div class="mode-card" onclick="openLearningArea()" style="background: #e3f2fd; border-color: #64b5f6;">
-                <div class="mode-icon" style="background: #1565c0; color: white;">📚</div>
-                <h3 style="color: #1565c0; font-size: 18px;">進入學習區</h3>
-                <p>正式挑戰前，先溫習一下目前範圍的所有字詞與解釋吧！</p>
-            </div>
-        </div>
+<!-- 遊戲主畫布與觸控區 -->
+<div id="game-wrap">
+  <canvas id="gameCanvas" width="760" height="600"></canvas>
 
-        <div class="section-title">
-            <span>▶ 傳統溫習區 (賺取寶石)</span>
-            <span class="emerald-display">❇️ <span id="em-menu">0</span></span>
-        </div>
-        <div class="modes-grid">
-            <div class="mode-card" onclick="startStandardGame('word-to-meaning')">
-                <div class="mode-icon">詞</div><h3>詞語選意思</h3><p>找正確解釋</p>
-            </div>
-            <div class="mode-card" onclick="startStandardGame('meaning-to-word')">
-                <div class="mode-icon">意</div><h3>意思找詞語</h3><p>讀解釋選詞語</p>
-            </div>
-            <div class="mode-card" onclick="startStandardGame('fill-blank')">
-                <div class="mode-icon">填</div><h3>詞語填空</h3><p>補回缺少的一字</p>
-            </div>
-            <div class="mode-card" onclick="startStandardGame('sentence')">
-                <div class="mode-icon">用</div><h3>情境用法</h3><p>把詞語放進句子</p>
-            </div>
-        </div>
+  <div id="touch-controls">
+    <div id="joystick-zone"><div id="joystick-knob"></div></div>
+    <div id="skill-buttons">
+      <button class="skill-btn" onclick="useJetpack()">
+        <span>🚀 噴射翼</span>
+        <small id="ui-jetpack-cd">就緒</small>
+      </button>
+      <button class="skill-btn" onclick="useFreezeBomb()">
+        <span>❄️ 冰封彈</span>
+        <small id="ui-freeze-count">x1</small>
+      </button>
+      <button class="skill-btn" onclick="useDecoy()">
+        <span>🤖 誘餌公仔</span>
+        <small id="ui-decoy-count">x0</small>
+      </button>
+      <button class="skill-btn" onclick="useTeleport()">
+        <span>🛸 瞬間回城</span>
+        <small id="ui-tele-count">x0</small>
+      </button>
+    </div>
+  </div>
+</div>
 
-        <div class="section-title">▶ 創世冒險與建設 (採集素材)</div>
-        <div class="modes-grid" style="grid-template-columns: 1fr;">
-            <div class="mode-card" onclick="startRPGGame()" style="background: #e8f5e9; border-color: #8bc34a;">
-                <div class="mode-icon" style="background: #2e7d32; color: white;">🌍</div>
-                <h3 style="color: #2e7d32; font-size: 18px;">進入方塊採集世界</h3>
-                <p>在地圖上尋寶答題，避開主動追蹤的殭屍與骷髏，收集各種建築素材！</p>
-            </div>
-        </div>
+<div id="toast">歡迎 @XnamX0917 Justin 進入太空奪蛋基地！</div>
+
+<!-- 極簡多元化問答 Modal -->
+<div class="modal-overlay" id="quiz-modal">
+  <div class="modal-card">
+    <div class="modal-title">
+      <span id="quiz-title">🔓 偷蛋解鎖</span>
+      <button class="tts-mini" onclick="speakCurrentModalQ()">🔊 朗讀</button>
+    </div>
+    <div class="q-badge" id="quiz-cat">題型</div>
+    <div class="q-text" id="quiz-q">題目</div>
+    <div class="seq-slots" id="quiz-seq-slots" style="display:none;"></div>
+    <div class="opt-grid" id="quiz-opts"></div>
+    <div class="explain-box" id="quiz-explain"></div>
+  </div>
+</div>
+
+<!-- 太空道具商店與寵物圖鑑 Modal -->
+<div class="modal-overlay" id="shop-modal">
+  <div class="modal-card" style="max-width:640px;">
+    <div class="modal-title">
+      <span>🛒 @XnamX0917 太空裝備店 & 🛸 基地孵化器</span>
+      <button class="btn-ui" onclick="closeShop()">關閉 ✖</button>
     </div>
 
-    <!-- 📚 學習區 Page -->
-    <div id="learning-area" class="page">
-        <div class="rpg-header">
-            <button class="header-btn" onclick="goToMenu()">⬅️ 返回大本營</button>
-            <h2 style="margin:0; color:#1565c0; font-size: 24px;">📚 詞語學習區</h2>
-        </div>
-        <div id="learning-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; text-align: left;"></div>
+    <!-- 基地孵化器手動破殼專區 -->
+    <div style="background:#1a2240; border:2px solid #ffcd75; border-radius:12px; padding:10px; margin-bottom:12px;">
+      <div style="font-weight:bold; color:#ffcd75; margin-bottom:6px;">🥚 基地太空孵化槽（時間到後請親手撳「破殼孵出」！）</div>
+      <div class="grid-list" id="incubator-list" style="grid-template-columns: repeat(3, 1fr);"></div>
     </div>
 
-    <!-- 📚 標準答題區 -->
-    <div id="standard-game" class="page">
-        <div class="rpg-header">
-            <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
-            <div class="player-status">
-                <span style="color:#d32f2f;">❤️ <span id="hp-std">100 / 100</span></span>
-                <span style="color:#d84315;">🍎 <span id="food-std">0</span></span>
-                <button class="eat-btn" onclick="eatFood()">吃 (+30)</button>
-            </div>
-            <span class="emerald-display">❇️ <span id="em-std2">0</span></span>
-        </div>
-        <div id="question-area-std">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
-                <button class="tts-btn" id="tts-btn-std" onclick="readQuestionTTS()">🔊 朗讀題目</button>
-                <div id="std-q-counter" style="font-size:16px; font-weight:bold; color:#1565c0; background:#e3f2fd; padding:4px 10px; border-radius:6px; border:2px solid #64b5f6; box-shadow: 0 2px 0 #64b5f6;">題號: 0 / 0</div>
-            </div>
-            <h3 id="std-title" style="margin-top:0; color:#555; border-bottom: 2px solid #999; padding-bottom: 10px;">題型載入中</h3>
-            <div id="question-text-std">載入題目中...</div>
-        </div>
-        <div id="options-container"></div>
-        <div id="feedback-std" style="font-size: 18px; font-weight: bold; margin-top: 15px; min-height: 25px;"></div>
-        <button class="next-btn" id="std-next-btn" onclick="loadStandardQuestion()">繼續挑戰 ➡️</button>
+    <div style="font-weight:bold; color:#73eff7; text-align:left;">⚡ 8 大太空黑科技道具（助你擺脫高級怪獸！）</div>
+    <div class="grid-list">
+      <div class="item-card">
+        <div class="item-icon">👟</div>
+        <div><b>反重力跑鞋</b><br><small id="txt-speed-lv">Lv.1 (永久提升跑速)</small></div>
+        <button class="btn-ui" id="btn-buy-speed" onclick="buyUpgrade('speed')">💰 $150</button>
+      </div>
+      <div class="item-card">
+        <div class="item-icon">🦾</div>
+        <div><b>機械抱蛋臂</b><br><small id="txt-carry-lv">Lv.1 (抱大蛋唔減速)</small></div>
+        <button class="btn-ui" id="btn-buy-carry" onclick="buyUpgrade('carry')">💰 $200</button>
+      </div>
+      <div class="item-card">
+        <div class="item-icon">❄️</div>
+        <div><b>時間冰封彈</b><br><small>冰封追擊怪獸 4.5 秒</small></div>
+        <button class="btn-ui" onclick="buyUpgrade('freeze')">💰 $90 買1粒</button>
+      </div>
+      <div class="item-card">
+        <div class="item-icon">🤖</div>
+        <div><b>全息誘餌公仔</b><br><small>放假公仔引開怪獸 5 秒</small></div>
+        <button class="btn-ui" onclick="buyUpgrade('decoy')">💰 $110 買1個</button>
+      </div>
+      <div class="item-card">
+        <div class="item-icon">🛸</div>
+        <div><b>瞬間回城傳送器</b><br><small>抱住蛋1秒直接飛返基地</small></div>
+        <button class="btn-ui" onclick="buyUpgrade('tele')">💰 $220 買1個</button>
+      </div>
+      <div class="item-card">
+        <div class="item-icon">🛡️</div>
+        <div><b>數碼屏幕護盾</b><br><small id="txt-shield-cnt">被怪獸捉到自動免死</small></div>
+        <button class="btn-ui" onclick="buyUpgrade('shield')">💰 $130 買1個</button>
+      </div>
+      <div class="item-card">
+        <div class="item-icon">⚡</div>
+        <div><b>孵化加速電池</b><br><small>所有孵緊嘅蛋減 30 秒</small></div>
+        <button class="btn-ui" onclick="buyUpgrade('hatchboost')">💰 $100 即用</button>
+      </div>
+      <div class="item-card">
+        <div class="item-icon">💎</div>
+        <div><b>VIP 雙倍金幣卡</b><br><small>基地每秒收入永久 x2 倍</small></div>
+        <button class="btn-ui" id="btn-buy-double" onclick="buyUpgrade('double')">💰 $900</button>
+      </div>
     </div>
 
-    <!-- ⛏️ Minecraft RPG 世界 (零捲動新排版) -->
-    <div id="rpg-game" class="page">
-        <div class="rpg-header">
-            <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
-            <div class="player-status" style="padding: 4px 8px;">
-                <span style="color:#d32f2f;">❤️ <span id="hp-rpg">100 / 100</span></span>
-                <span style="color:#d84315;">🍎 <span id="food-rpg">0</span></span>
-                <button class="eat-btn" onclick="eatFood()">吃</button>
-            </div>
-            <div style="display: flex; gap: 5px;">
-                <button class="header-btn" onclick="openCrafting()" style="background: #5d4037; color: white; border-color: #3e2723; padding: 6px;">🔨 裝備</button>
-                <button class="header-btn" onclick="restartGame()" style="background: #d32f2f; color: white; border-color: #b71c1c; padding: 6px;">🔄 重置</button>
-            </div>
-        </div>
-        
-        <div class="rpg-content">
-            <div class="rpg-map-side">
-                <div class="map-wrapper">
-                    <div class="island-container" id="island" style="width: 320px; height: 320px;" onclick="handleGridClick(event)">
-                        <div id="decorations-layer"></div>
-                        <div id="player"></div>
-                    </div>
-                </div>
-                <div class="hotbar" id="hotbar"></div>
-            </div>
-            
-            <div class="rpg-quest-side mission-panel">
-                <button class="tts-btn" id="tts-btn-rpg" onclick="readQuestionTTS()" style="float: right;">🔊 朗讀</button>
-                <h3 id="rpg-mission-title">📜 任務：載入中...</h3>
-                <p id="rpg-question-text">載入中...</p>
-                <div id="mc-choices" class="mc-choices"></div>
-                <div id="feedback-rpg" style="font-size: 15px; color: #d32f2f; margin-top: 15px; font-weight: bold; min-height: 22px;">點擊地圖方格移動！</div>
-                <button class="next-btn" id="rpg-next-btn" onclick="loadRPGQuest()" style="width:100%; margin-top:15px; font-size:20px;">接取下一個任務 ➡️</button>
-            </div>
-        </div>
+    <div style="font-weight:bold; color:#a7f070; margin-top:16px; text-align:left;">🦖 太空神獸圖鑑（點擊可聽廣東話重點！）</div>
+    <div class="grid-list" id="pet-grid"></div>
+  </div>
+</div>
+
+<!-- 玩法說明 Modal -->
+<div class="modal-overlay" id="help-modal">
+  <div class="modal-card">
+    <div class="modal-title">
+      <span>🎮 @XnamX0917 太空奪蛋攻略 (v5.0)</span>
+      <button class="btn-ui" onclick="document.getElementById('help-modal').classList.remove('show')">出發！</button>
     </div>
+    <ul style="line-height:1.7; font-size:15px; padding-left:20px; text-align:left;">
+      <li><b>1. 隨機稀有度宇宙蛋</b>：每個巢穴會隨機刷出 <b>普通(50%)、稀有(27%)、史詩(14%)、傳說(7%)、神話(2%)</b> 嘅蛋！見到傳說或神話蛋出現快啲去搶！</li>
+      <li><b>2. 極簡4大題型</b>：偷蛋時會出現<b>是非題、填充揀字、二選一分類、順序點擊</b>，字少清晰！</li>
+      <li><b>3. 無中途阻礙純逃生</b>：取消咗回程選擇題！抱起蛋之後用<b>噴射翼、冰封彈、誘餌公仔或瞬間傳送器</b>避開 8 種宇宙怪獸跑返基地！</li>
+      <li><b>4. 手動破殼孵蛋</b>：蛋放落基地孵化器後需要時間孵化，<b>倒數完畢後唔會自動爆開</b>，要返基地行近孵化器（或撳頂部黃色閃光掣）親手破殼！</li>
+    </ul>
+  </div>
+</div>
 
-    <!-- 獨立放置的所有彈出視窗 (Modals) -->
-    
-    <!-- 🔨 合成台 Modal -->
-    <div class="craft-modal" id="craft-modal">
-        <div class="craft-wrapper">
-            <div class="craft-close" onclick="closeCrafting()">✖</div>
-            <div class="craft-title">🔨 創世裝備與工作台</div>
-            <div class="material-stats">
-                <span>🪵 <span id="mat-log">0</span></span>
-                <span>🪨 <span id="mat-stone">0</span></span>
-                <span>🌾 <span id="mat-fiber">0</span></span>
-                <span>🏜️ <span id="mat-sand">0</span></span>
-                <span>🧱 <span id="mat-clay">0</span></span>
-                <span>🧊 <span id="mat-iron">0</span></span>
-                <span>🌟 <span id="mat-gold">0</span></span>
-                <span>❇️ <span id="mat-em">0</span></span>
-            </div>
-            <div class="craft-grid" id="craft-items-container"></div>
-        </div>
-    </div>
+<script>
+/* ============================================================================
+   1. 極簡化、多元化題庫 (字數精簡、大字清晰、4種不同互動玩法)
+   題型：'tf' (是非), 'fill' (填充3選1), 'cat2' (二選一分類), 'seq' (3步順序點擊)
+============================================================================ */
+const SCIENCE_QUESTIONS = [
+  // --- A. 【🧩 填充揀字題】 (短句留空) ---
+  { type: 'fill', cat: "🧩 填充題", q: "人生五個階段中，【 ？ 】的生長速度最快。", opts: ["嬰幼兒期", "兒童期", "老年期"], ans: 0, exp: "嬰幼兒期 (0歲~) 生長速度最快！" },
+  { type: 'fill', cat: "🧩 填充題", q: "一般而言，【 ？ 】約在 7 至 12 歲較早踏入青春期。", opts: ["女性", "男性", "老年人"], ans: 0, exp: "女性約7-12歲開始青春期；男性約9-14歲。" },
+  { type: 'fill', cat: "🧩 填充題", q: "在【 ？ 】初期，人的身體發育完全成熟且最強壯。", opts: ["成年期 (20歲~)", "兒童期 (5歲~)", "老年期 (60歲~)"], ans: 0, exp: "成年期初期身體最強壯！" },
+  { type: 'fill', cat: "🧩 填充題", q: "進入青春期，男孩的【 ？ 】開始產生男性荷爾蒙。", opts: ["睾丸", "輸精管", "陰囊"], ans: 0, exp: "睾丸負責製造精子及產生男性荷爾蒙。" },
+  { type: 'fill', cat: "🧩 填充題", q: "進入青春期，女孩的【 ？ 】開始產生女性荷爾蒙。", opts: ["卵巢", "子宮", "輸卵管"], ans: 0, exp: "卵巢負責排卵及產生女性荷爾蒙。" },
+  { type: 'fill', cat: "🧩 填充題", q: "男性生殖系統中，【 ？ 】負責保護睾丸。", opts: ["陰囊", "輸精管", "尿道"], ans: 0, exp: "陰囊位於體外，負責保護睾丸。" },
+  { type: 'fill', cat: "🧩 填充題", q: "女性生殖系統中，【 ？ 】是孕育胎兒的地方。", opts: ["子宮", "卵巢", "陰道"], ans: 0, exp: "子宮負責孕育胎兒；陰道是嬰兒出生通道。" },
+  { type: 'fill', cat: "🧩 填充題", q: "精子形狀像【 ？ 】，是男性體內最小的細胞。", opts: ["蝌蚪 (0.05毫米)", "圓球 (0.2毫米)", "方塊"], ans: 0, exp: "精子像蝌蚪；卵子呈圓球狀。" },
+  { type: 'fill', cat: "🧩 填充題", q: "若卵子沒有受精，增厚的【 ？ 】會在約兩星期後脫落形成月經。", opts: ["子宮內膜", "輸卵管", "卵巢"], ans: 0, exp: "子宮內膜脫落經陰道排出形成月經。" },
+  { type: 'fill', cat: "🧩 填充題", q: "有助長高的生長荷爾蒙，主要在【 ？ 】深層睡眠分泌。", opts: ["晚上10時至凌晨2時", "早上8時至12時", "下午2時至6時"], ans: 0, exp: "記得早睡！晚上10時至凌晨2時分泌最多。" },
+  { type: 'fill', cat: "🧩 填充題", q: "6 至 13 歲學童，每天建議睡【 ？ 】小時。", opts: ["9 至 11", "4 至 5", "14 至 16"], ans: 0, exp: "充足睡眠 (9-11小時) 有助身心發展。" },
+  { type: 'fill', cat: "🧩 填充題", q: "健康飲食金字塔中，我們應該吃最多【 ？ 】。", opts: ["穀物類", "油、鹽、糖類", "肉、魚、蛋類"], ans: 0, exp: "底層吃最多是穀物類；頂層吃最少是油鹽糖。" },
+  { type: 'fill', cat: "🧩 填充題", q: "青少年每天應累積做至少【 ？ 】分鐘中等或以上運動。", opts: ["60 分鐘", "10 分鐘", "180 分鐘"], ans: 0, exp: "每天至少60分鐘運動，每週至少3次劇烈運動。" },
+  { type: 'fill', cat: "🧩 填充題", q: "雄性大猩猩背部毛髮變成【 ？ 】色，代表性成熟。", opts: ["銀灰", "金黃", "鮮紅"], ans: 0, exp: "銀背大猩猩代表已踏入性成熟階段。" },
 
-    <!-- 📚 題庫管理 Modal -->
-    <div class="db-modal" id="db-modal">
-        <div class="db-wrapper">
-            <h2>⚙️ 家長專區：自訂題庫</h2>
-            <p style="font-size: 14px; font-weight: bold; color: #333; margin-top: 10px;">📚 題庫資料 (JSON格式)：</p>
-            <textarea id="db-textarea" style="flex-grow: 1; min-height: 350px; font-family: monospace; padding: 10px;"></textarea>
-            <div class="db-actions">
-                <button class="btn-cancel" onclick="closeDBManager()">取消</button>
-                <div class="db-actions-right">
-                    <button class="btn-clear" onclick="clearDBTextarea()">🗑️ 清除全部</button>
-                    <button class="btn-reset" onclick="resetToDefaultDB()">還原預設</button>
-                    <button class="btn-save" onclick="saveCustomDB()">💾 儲存並套用</button>
-                </div>
-            </div>
-        </div>
-    </div>
+  // --- B. 【🗂️ 二選一極速分類題】 (2個大掣直覺揀) ---
+  { type: 'cat2', cat: "🗂️ 二選一分類", q: "「出現喉結、聲線變低沉、長鬍子」屬於誰的特徵？", opts: ["👦 男性特有特徵", "👧 女性特有特徵"], ans: 0, exp: "喉結、聲沉、鬍子、肌肉壯實屬男性特徵。" },
+  { type: 'cat2', cat: "🗂️ 二選一分類", q: "「乳房隆起、臀部變得豐滿」屬於誰的青春期特徵？", opts: ["👧 女性特有特徵", "👦 男性特有特徵"], ans: 0, exp: "乳房隆起和臀部豐滿屬於女性青春期特徵。" },
+  { type: 'cat2', cat: "🗂️ 二選一分類", q: "「身高體重增加、長暗瘡、長腋毛」屬於誰的特徵？", opts: ["👫 男女共同特徵", "👦 只有男性出現"], ans: 0, exp: "長暗瘡、腋毛、陰毛及長高是男女共同特徵！" },
+  { type: 'cat2', cat: "🗂️ 二選一分類", q: "影響發育的因素中，「父母遺傳」屬於哪類因素？", opts: ["🧬 先天因素", "🏃 後天因素"], ans: 0, exp: "遺傳是先天因素；睡眠、飲食、運動是後天因素。" },
+  { type: 'cat2', cat: "🗂️ 二選一分類", q: "影響發育的因素中，「睡眠、飲食和運動」屬於哪類？", opts: ["🏃 後天因素", "🧬 先天因素"], ans: 0, exp: "後天的健康生活習慣對發育十分重要！" },
+  { type: 'cat2', cat: "🗂️ 二選一分類", q: "運動時「仍能說話，但不能唱歌」（如打乒乓球）屬於？", opts: ["🏓 中等強度運動", "🏃 劇烈強度運動"], ans: 0, exp: "能說話不能唱歌＝中等強度；說不完整句子＝劇烈強度。" },
+  { type: 'cat2', cat: "🗂️ 二選一分類", q: "運動時「除非停下呼吸，否則說不完整個句子」（如跑步）屬於？", opts: ["🏃 劇烈強度運動", "🏓 中等強度運動"], ans: 0, exp: "跑步、跳繩、踢足球屬於劇烈強度運動。" },
+  { type: 'cat2', cat: "🗂️ 二選一分類", q: "家誠經常照鏡整理髮型，這屬於哪種青春期心理特徵？", opts: ["🪞 注重自我形象", "🏠 渴望獨立自主"], ans: 0, exp: "照鏡注重外表＝注重自我形象。" },
+  { type: 'cat2', cat: "🗂️ 二選一分類", q: "對爸爸說：「我自己上學就可以了！」屬於哪種心理特徵？", opts: ["🏠 渴望獨立自主", "👯 重視朋輩認同"], ans: 0, exp: "想自己處理事情＝渴望獨立自主。" },
 
-    <!-- 🐉 巨龍/怪物 Boss Modal -->
-    <div class="db-modal boss-modal" id="boss-modal">
-        <div class="db-wrapper boss-wrapper">
-            <h2 id="boss-title-text" style="color:#ff5252; margin-top:0;">🔥 Boss 突襲！🔥</h2>
-            <div class="boss-img" id="boss-icon"></div>
-            <div class="boss-hp-bar"><div class="boss-hp-fill" id="boss-hp-fill"></div></div>
-            <p style="color:#ffcc80; font-weight:bold; font-size:16px;">高等怪物攔住了去路！連續答對 3 題擊退牠！</p>
-            <h3 id="boss-q-title" style="color:#fff; border-bottom: 1px solid #777; padding-bottom: 5px;">載入中...</h3>
-            <p id="boss-q-text" style="font-size:22px; font-weight:bold; color: #fff;">...</p>
-            <div id="boss-choices" class="boss-choices" style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
-        </div>
-    </div>
+  // --- C. 【⚖️ 是非快答題】 (⭕ / ❌) ---
+  { type: 'tf', cat: "⚖️ 是非判斷", q: "女性在月經期間，可以按身體狀況做適度運動。", ans: true, exp: "正確！適度運動對身體有益。" },
+  { type: 'tf', cat: "⚖️ 是非判斷", q: "青春期男性因肌肉和脂肪增長，胸部稍微變大也是正常現象。", ans: true, exp: "正確！若無其他不適，屬正常生理現象。" },
+  { type: 'tf', cat: "⚖️ 是非判斷", q: "長暗瘡時應該用手大力擠破，並一天洗臉十幾次。", ans: false, exp: "錯誤！擠壓會發炎留疤，過度清潔反而刺激更多油脂。" },
+  { type: 'tf', cat: "⚖️ 是非判斷", q: "男性睡覺時陰莖受刺激排出精液稱為「夢遺」，對身體無害。", ans: true, exp: "正確！夢遺是青春期正常的生理現象。" },
+  { type: 'tf', cat: "⚖️ 是非判斷", q: "睡覺前玩平板電腦或做劇烈運動，有助提升睡眠質素。", ans: false, exp: "錯誤！睡前玩電子產品或劇烈運動會減低睡眠質素。" },
+  { type: 'tf', cat: "⚖️ 是非判斷", q: "常吃高糖高脂的垃圾食物，會引致營養失衡、肥胖和情緒不穩。", ans: true, exp: "正確！高糖飲食令血糖波動大，易煩躁及情緒不穩。" },
+  { type: 'tf', cat: "⚖️ 是非判斷", q: "我們每天應該喝 6 至 8 杯流質飲料（如開水、奶）。", ans: true, exp: "正確！每天應補充 6-8 杯流質。" },
 
-    <script>
-        // =====================================
-        // 🔐 全域變數宣告區
-        // =====================================
-        let emeralds = 0; 
-        let materials = { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 }; 
-        let inventory = {}; let placedDecorations = []; let selectedHotbarItem = null; 
-        const TILE_SIZE = 40; let gridSize = 8; let pX = 3, pY = 3; 
-        let questBlocks = []; let rpgQuestType = ""; let rpgCorrectAnswer = ""; 
-        let isQuestionActive = false; let currentTargetData = null;
+  // --- D. 【🔢 3步順序點擊題】 (撳1、2、3排次序) ---
+  { type: 'seq', cat: "🔢 順序排列", q: "請按年齡由小至大，依序點擊成長階段：", steps: ["1. 嬰幼兒及兒童期", "2. 青春期 (約10歲~)", "3. 成年及老年期"], exp: "正確次序：嬰幼兒/兒童期 ➔ 青春期 ➔ 成年/老年期！" },
+  { type: 'seq', cat: "🔢 順序排列", q: "請按「黑頭與暗瘡」形成的先後次序點擊：", steps: ["1. 皮脂腺分泌過多油脂", "2. 混合塵埃塞毛孔成黑頭", "3. 細菌感染發炎成暗瘡"], exp: "油脂過多 ➔ 塞毛孔變黑頭 ➔ 細菌感染變暗瘡！" },
+  { type: 'seq', cat: "🔢 順序排列", q: "請按女性「月經周期」的先後次序點擊：", steps: ["1. 卵巢排卵及內膜增厚", "2. 卵子經輸卵管移向子宮", "3. 未受精內膜脫落排出"], exp: "卵巢排卵 ➔ 移向子宮 ➔ 未受精內膜脫落形成月經！" },
+  { type: 'seq', cat: "🔢 順序排列", q: "請按「健康飲食金字塔」由吃最多至吃最少點擊：", steps: ["1. 穀物類 (吃最多)", "2. 蔬果及肉蛋奶類", "3. 油、鹽、糖類 (吃最少)"], exp: "吃最多穀物 ➔ 多吃蔬果及適量肉奶 ➔ 吃最少油鹽糖！" }
+];
 
-        let activeSentenceText = ""; 
-        let currentQuestionCount = 0; 
-        let totalStdQuestions = 0;
-        let hasPlayerMoved = false; 
-        
-        let MAX_HP = 100;
-        let hp = 100;
-        let foodCount = 0;
-        let questionsAnswered = 0;
-        let armorLevel = 0;
-        let bossesDefeated = 0; 
-        const BOSS_TRIGGER_COUNT = 8;
-        let bossHp = 3;
-        const BOSS_MAX_HP = 3;
-        let bossTargetData = null;
-        let bossCorrectAnswer = "";
-        let bossQuestType = "";
-        
-        let isShieldActive = false;
+const HUMANITIES_QUESTIONS = [
+  { type: 'fill', cat: "🏛️ 人文預留", q: "【人文科預留位】香港特別行政區的區花是【 ？ 】。", opts: ["洋紫荊", "木棉花", "荷花"], ans: 0, exp: "人文科題庫位置已預留，隨時可加入！" }
+];
 
-        let activeMapMonsters = [];
-        let monsterInterval = null;
+/* ============================================================================
+   2. 隨機稀有度設定 (越稀有越少出現！) + 8大宇宙神獸 + 8種外星怪獸
+============================================================================ */
+const RARITY_TIERS = [
+  { tier: 1, name: "普通太空蛋", color: "#a7f070", chance: 0.50, hatchSec: 20,  income: 1,  weight: 0.04 },
+  { tier: 2, name: "稀有藍晶蛋", color: "#41a6f6", chance: 0.27, hatchSec: 40,  income: 3,  weight: 0.08 },
+  { tier: 3, name: "史詩紫星蛋", color: "#c084fc", chance: 0.14, hatchSec: 75,  income: 8,  weight: 0.13 },
+  { tier: 4, name: "傳說金陽蛋", color: "#ffcd75", chance: 0.07, hatchSec: 120, income: 22, weight: 0.18 },
+  { tier: 5, name: "宇宙神話蛋", color: "#ef7d57", chance: 0.02, hatchSec: 180, income: 65, weight: 0.23 }
+];
 
-        let database = [];
-        let currentDatabase = [];
-        let questionDeck = []; 
-        let currentStdMode = "";
-        let currentBoss = null;
+const PET_DEX = [
+  { id: "p1", tier: 1, name: "星際史萊姆龍", icon: "🟢", rarity: "普通", income: 1,  color: "#a7f070", note: "嬰幼兒期(0歲~生長最快) ➔ 兒童期(5歲~) ➔ 青春期(10歲~) ➔ 成年期(20歲~最強壯) ➔ 老年期(60歲~)。" },
+  { id: "p2", tier: 2, name: "藍翼荷爾蒙獸", icon: "🦋", rarity: "稀有", income: 3,  color: "#41a6f6", note: "腦部分泌荷爾蒙刺激生殖器官：睾丸產生男性荷爾蒙；卵巢產生女性荷爾蒙。" },
+  { id: "p3", tier: 2, name: "量子生命水母", icon: "🪼", rarity: "稀有", income: 4,  color: "#41a6f6", note: "精子(0.05mm似蝌蚪，睾丸製造)；卵子(0.1-0.2mm圓球狀，卵巢排卵、子宮孕育胎兒)。" },
+  { id: "p4", tier: 3, name: "裝甲戰痘機神", icon: "🤖", rarity: "史詩", income: 8,  color: "#c084fc", note: "油脂＋塵埃塞毛孔＝黑頭；細菌感染發炎＝暗瘡。切勿擠壓或過度清潔！" },
+  { id: "p5", tier: 3, name: "深空月光睡神", icon: "🌙", rarity: "史詩", income: 10, color: "#c084fc", note: "6-13歲每天睡9-11小時！生長荷爾蒙在晚上10時至凌晨2時深層睡眠分泌。" },
+  { id: "p6", tier: 4, name: "黃金金字塔龍", icon: "🐉", rarity: "傳說", income: 22, color: "#ffcd75", note: "吃最多穀物、多吃蔬果、適量奶肉蛋、最少油鹽糖＋每天6-8杯水！少吃垃圾食物。" },
+  { id: "p7", tier: 4, name: "超光速運動虎", icon: "⚡", rarity: "傳說", income: 26, color: "#ffcd75", note: "每天累積60分鐘中等運動(能說話不能唱歌)＋每週3次劇烈運動(說不完整句子)。" },
+  { id: "p8", tier: 5, name: "神話銀背星王", icon: "🦍", rarity: "神話", income: 65, color: "#ef7d57", note: "雄性大猩猩背部變銀灰色代表性成熟；樽鼻海豚成年前獨立探索。做個負責任數碼公民！" }
+];
 
-        const craftRecipes = [
-            { id: 'hp_boost', name: '生命果實', icon: '💖', cost: {emerald: 20, gold: 1}, desc: '提升血量上限 +20', type: 'upgrade' },
-            { id: 'armor', name: '防護裝甲', icon: '🛡️', cost: {iron: 3, log: 2, fiber: 2}, desc: '減少 15% 怪物傷害', type: 'upgrade' },
-            { id: 'wood_plank', name: '木板', icon: '🧱', cost: {log: 1}, desc: '建造地基 (🪵x1)' },
-            { id: 'stone_brick', name: '石磚', icon: '🪨', cost: {stone: 1}, desc: '堅固外牆 (🪨x1)' },
-            { id: 'brick', name: '紅磚', icon: '🧱', cost: {clay: 2}, desc: '經典建材 (🧱x2)' },
-            { id: 'glass', name: '玻璃窗', icon: '🪟', cost: {sand: 2}, desc: '透光明亮 (🏜️x2)' },
-            { id: 'door', name: '木門', icon: '🚪', cost: {log: 2}, desc: '房屋入口 (🪵x2)' },
-            { id: 'bed', name: '床舖', icon: '🛏️', cost: {log: 2, fiber: 2}, desc: '溫馨家具 (🪵x2 🌾x2)' },
-            { id: 'torch', name: '火把', icon: '🏮', cost: {log: 1, stone: 1}, desc: '照明工具 (🪵x1 🪨x1)' },
-            { id: 'plant', name: '小盆栽', icon: '🌷', cost: {clay: 1, fiber: 1}, desc: '綠化環境 (🧱x1 🌾x1)' },
-            { id: 'iron_block', name: '鐵塊', icon: '🧊', cost: {iron: 2}, desc: '堅不可摧 (🪙x2)' },
-            { id: 'gold_block', name: '黃金磚', icon: '👑', cost: {gold: 2}, desc: '閃閃發光 (🌟x2)' },
-            { id: 'chest', name: '寶箱', icon: '🧰', cost: {log: 2, iron: 1}, desc: '收藏寶物 (🪵x2 🪙x1)' },
-            { id: 'water', name: '水源', icon: '💧', cost: {emerald: 5}, desc: '建造池塘 (❇️x5)' },
-            { id: 'expand', name: '擴大領土', icon: '🗺️', cost: {emerald: 30}, desc: '增加邊界 (❇️x30)', type: 'upgrade' }
-        ];
+// 跑道上 8 個太空星球巢穴 + 8 種不同外星守護怪物！
+const NEST_SPOTS = [
+  { id: 0, x: 160, y: 2150, monsterName: "綠色史萊姆怪", mIcon: "🦠", mColor: "#38b764", mSpeed: 2.5, mRadius: 20, minTier: 1 },
+  { id: 1, x: 600, y: 1900, monsterName: "獨眼激光外星人", mIcon: "👁️", mColor: "#41a6f6", mSpeed: 2.8, mRadius: 22, minTier: 1 },
+  { id: 2, x: 160, y: 1620, monsterName: "雙頭隕石巨怪", mIcon: "☄️", mColor: "#a855f7", mSpeed: 3.1, mRadius: 24, minTier: 1 },
+  { id: 3, x: 600, y: 1350, monsterName: "虛空機械蜘蛛", mIcon: "🕷️", mColor: "#ec4899", mSpeed: 3.4, mRadius: 23, minTier: 2 },
+  { id: 4, x: 160, y: 1050, monsterName: "銀河暗影刺客", mIcon: "🥷", mColor: "#6366f1", mSpeed: 3.7, mRadius: 21, minTier: 2 },
+  { id: 5, x: 600, y: 760,  monsterName: "熔岩泰坦巨獸", mIcon: "🌋", mColor: "#f97316", mSpeed: 4.0, mRadius: 27, minTier: 2 },
+  { id: 6, x: 170, y: 460,  monsterName: "宇宙冰霜魔龍", mIcon: "🐲", mColor: "#06b6d4", mSpeed: 4.3, mRadius: 28, minTier: 3 },
+  { id: 7, x: 380, y: 160,  monsterName: "黑洞終極吞噬者", mIcon: "🕳️", mColor: "#ef4444", mSpeed: 4.7, mRadius: 32, minTier: 3 }
+];
 
-        // =====================================
-        // 🔐 防崩潰自動修復機制與全域錯誤捕獲
-        // =====================================
-        window.onerror = function(msg, url, lineNo, columnNo, error) {
-            console.error("Game System Error:", msg, error);
-            let nextBtn1 = document.getElementById('std-next-btn');
-            let nextBtn2 = document.getElementById('rpg-next-btn');
-            if(nextBtn1) nextBtn1.style.display = 'block';
-            if(nextBtn2) nextBtn2.style.display = 'block';
-            return false;
-        };
+// 按概率隨機抽蛋（越深入太空，越有機會出高稀有度！）
+function rollRandomEggTier(minTier = 1) {
+  const r = Math.random();
+  let chosen = 1;
+  if (r < 0.025) chosen = 5;      // 2.5% 神話
+  else if (r < 0.10) chosen = 4;  // 7.5% 傳說
+  else if (r < 0.26) chosen = 3;  // 16% 史詩
+  else if (r < 0.55) chosen = 2;  // 29% 稀有
+  else chosen = 1;                // 45% 普通
+  return Math.max(minTier, chosen);
+}
 
-        function getSafeData(dataObj) {
-            if(!dataObj) dataObj = {};
-            let word = String(dataObj.word || "未知");
-            let meaning = String(dataObj.meaning || "無解釋");
-            let mFormat = String(dataObj.missingFormat || word);
-            let mTarget = String(dataObj.missingTarget || word.charAt(0) || "字");
-            let sentence = String(dataObj.sentence || "無例句");
-            let sentence1 = dataObj.sentence1 ? String(dataObj.sentence1) : "";
-            let sentence2 = dataObj.sentence2 ? String(dataObj.sentence2) : "";
-            let synonyms = dataObj.synonyms ? String(dataObj.synonyms) : "";
-            let antonyms = dataObj.antonyms ? String(dataObj.antonyms) : "";
-            let unit = String(dataObj.unit || "未分類");
-            let fillOpts = Array.isArray(dataObj.fillOptions) ? dataObj.fillOptions : [];
-            return { word, meaning, mFormat, mTarget, sentence, sentence1, sentence2, synonyms, antonyms, unit, fillOpts };
+/* ============================================================================
+   3. 遊戲核心狀態與存檔 (3個孵化槽 + 手動破殼系統)
+============================================================================ */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const WORLD_W = 760;
+const WORLD_H = 2800;
+
+let cameraY = WORLD_H - canvas.height;
+let currentSubject = 'sci';
+
+let save = JSON.parse(localStorage.getItem('justin_xnamx_v5')) || {
+  coins: 10,
+  speedLv: 1,
+  carryLv: 1,
+  freezeCount: 1,
+  decoyCount: 0,
+  teleCount: 0,
+  shieldCount: 1,
+  hasDoubleCoin: false,
+  incubators: [], // 最多同時孵 3 隻蛋: [{ tier, timeLeft, ready: boolean }]
+  basePets: [],   // 最多 8 個展示台
+  unlockedIds: []
+};
+
+function getTotalIncomePerSec() {
+  const base = save.basePets.reduce((sum, pId) => {
+    const p = PET_DEX.find(x => x.id === pId);
+    return sum + (p ? p.income : 0);
+  }, 0);
+  return save.hasDoubleCoin ? base * 2 : base;
+}
+
+function saveData() {
+  localStorage.setItem('justin_xnamx_v5', JSON.stringify(save));
+  updateUI();
+}
+
+// 初始化 8 個巢穴上嘅隨機蛋同守護怪獸
+const nests = NEST_SPOTS.map(s => {
+  const eggTier = rollRandomEggTier(s.minTier);
+  return {
+    ...s,
+    eggTier: eggTier,
+    hasEgg: true,
+    respawnTimer: 0,
+    monster: {
+      x: s.x < 380 ? s.x + 70 : s.x - 70,
+      y: s.y,
+      homeX: s.x < 380 ? s.x + 70 : s.x - 70,
+      homeY: s.y,
+      state: 'idle', // 'idle' | 'chasing' | 'returning'
+      stunTimer: 0
+    }
+  };
+});
+
+// 每 25 秒自動刷新場上未被偷走嘅蛋稀有度，等 Justin 可以捕住傳說/神話蛋！
+setInterval(() => {
+  if (gamePaused) return;
+  nests.forEach(n => {
+    if (n.hasEgg && n.monster.state === 'idle') {
+      n.eggTier = rollRandomEggTier(n.minTier);
+    }
+  });
+}, 25000);
+
+// 每秒基地收錢 & 孵化器倒數（倒數到 0 時變 ready = true，絕不自動孵出！）
+let floatingCoins = [];
+setInterval(() => {
+  if (gamePaused) return;
+
+  const inc = getTotalIncomePerSec();
+  if (inc > 0) {
+    save.coins += inc;
+    floatingCoins.push({ x: 380 + (Math.random()*240 - 120), y: 2660, text: `+$${inc}`, alpha: 1.0 });
+  }
+
+  save.incubators.forEach(slot => {
+    if (!slot.ready && slot.timeLeft > 0) {
+      slot.timeLeft--;
+      if (slot.timeLeft <= 0) {
+        slot.timeLeft = 0;
+        slot.ready = true;
+        showToast("✨ 有太空蛋已經孵好啦！返基地行埋去孵化器（或撳頂部黃掣）親手破殼啦！");
+      }
+    }
+  });
+
+  saveData();
+}, 1000);
+
+// 玩家 Justin (@XnamX0917) 狀態
+const player = {
+  x: 380, y: 2600, r: 18,
+  baseSpeed: 3.3,
+  carryingTier: null,
+  jetpackTimer: 0,
+  jetpackCd: 0
+};
+
+// 全息誘餌實體
+let activeDecoy = null; // { x, y, timer }
+
+let gamePaused = false;
+let currentModalQ = null;
+let targetNest = null;
+let seqUserPicked = [];
+
+/* ============================================================================
+   4. 繪製 Justin (@XnamX0917) 專屬 Roblox 角色 (圖1 & 圖2 100% 還原)
+   黃色皮膚、藍黑禮帽、酷炫太陽眼鏡、黑色「有感筆電」T恤、藍色手臂、藍水花大翅膀 + 環繞科技屏幕
+============================================================================ */
+function drawJustinAvatar(ctx, x, y, CarryingTier, isJetpack) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  const t = Date.now() / 180;
+  const wingFlap = Math.sin(t) * 4;
+
+  // 1. 背部：圖2 標誌性「藍水花／數碼冰翼」(Blue Splash Wings)
+  ctx.save();
+  // 左翼
+  ctx.fillStyle = 'rgba(30, 144, 255, 0.75)';
+  ctx.strokeStyle = '#73eff7';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(-8, -2);
+  ctx.quadraticCurveTo(-36, -24 + wingFlap, -44, -6 + wingFlap);
+  ctx.quadraticCurveTo(-30, 8, -8, 6);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+
+  // 右翼
+  ctx.beginPath();
+  ctx.moveTo(8, -2);
+  ctx.quadraticCurveTo(36, -24 + wingFlap, 44, -6 + wingFlap);
+  ctx.quadraticCurveTo(30, 8, 8, 6);
+  ctx.closePath();
+  ctx.fill(); ctx.stroke();
+
+  // 水花粒子點綴
+  ctx.fillStyle = '#73eff7';
+  ctx.fillRect(-48, -14 + wingFlap, 4, 4);
+  ctx.fillRect(44, -14 + wingFlap, 4, 4);
+  ctx.restore();
+
+  // 2. 雙腳 (黑色 Roblox 積木褲)
+  ctx.fillStyle = '#0f121d';
+  ctx.fillRect(-9, 8, 8, 10);
+  ctx.fillRect(1, 8, 8, 10);
+
+  // 3. 身體軀幹 (黑色「有感筆電 DAPTOPER」T-shirt)
+  ctx.fillStyle = '#151926';
+  ctx.fillRect(-10, -6, 20, 15);
+  // 胸前黃色卡通公仔 + 紅字 Logo
+  ctx.fillStyle = '#facc15';
+  ctx.fillRect(-4, -3, 8, 7);
+  ctx.fillStyle = '#ef4444';
+  ctx.fillRect(-5, 5, 10, 2);
+
+  // 4. 雙臂 (鮮藍色 Roblox 手臂)
+  ctx.fillStyle = '#2563eb';
+  ctx.fillRect(-16, -5, 6, 12);
+  ctx.fillRect(10, -5, 6, 12);
+
+  // 5. 頭部 (經典黃色 Roblox 方塊頭)
+  ctx.fillStyle = '#eab308';
+  ctx.fillRect(-8, -18, 16, 12);
+
+  // 酷炫黑超太陽眼鏡
+  ctx.fillStyle = '#090a0f';
+  ctx.fillRect(-7, -14, 6, 4);
+  ctx.fillRect(1, -14, 6, 4);
+  ctx.fillRect(-1, -13, 2, 2);
+
+  // 6. 頭頂：藍黑色牛仔禮帽 (Blue/Black Fedora Hat)
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(-12, -19, 24, 3); // 帽簷
+  ctx.fillStyle = '#1d4ed8';
+  ctx.fillRect(-8, -25, 16, 6);  // 帽身
+
+  // 7. 身旁環繞嘅 3 塊「藍色發光全息屏幕」(Floating Tech Screens)
+  for (let i = 0; i < 3; i++) {
+    const ang = (Date.now() / 600) + (i * Math.PI * 2 / 3);
+    const sx = Math.cos(ang) * 26;
+    const sy = Math.sin(ang) * 14 + 2;
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.8)';
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1;
+    ctx.fillRect(sx - 6, sy - 4, 12, 8);
+    ctx.strokeRect(sx - 6, sy - 4, 12, 8);
+  }
+
+  // 8. 頭頂名字標籤 @XnamX0917
+  ctx.font = 'bold 11px sans-serif';
+  ctx.fillStyle = '#73eff7';
+  ctx.textAlign = 'center';
+  ctx.fillText('Justin @XnamX0917', 0, 29);
+
+  // 9. 如果抱緊宇宙蛋，顯示喺頭頂發光！
+  if (CarryingTier) {
+    const rObj = RARITY_TIERS.find(r => r.tier === CarryingTier);
+    ctx.beginPath();
+    ctx.arc(0, -38, 13, 0, Math.PI * 2);
+    ctx.fillStyle = rObj ? rObj.color : '#fff';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#fff';
+    ctx.stroke();
+    ctx.font = '18px sans-serif';
+    ctx.fillText('🥚', 0, -32);
+  }
+
+  ctx.restore();
+}
+
+/* ============================================================================
+   5. 極簡多元化問答系統 (4種題型：填充、分類、是非、順序)
+============================================================================ */
+function speakText(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'zh-HK';
+  u.rate = 1.04;
+  window.speechSynthesis.speak(u);
+}
+
+function speakCurrentModalQ() {
+  if (currentModalQ) speakText(currentModalQ.q.replace('【 ？ 】', '邊個選項'));
+}
+
+function switchSubject(subj) {
+  currentSubject = subj;
+  document.querySelectorAll('.btn-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + subj).classList.add('active');
+  if (subj === 'hum') showToast("🏛️ 人文科位置已預留！上傳課文後即可載入！");
+}
+
+function triggerQuizModal(mode, nestObj) {
+  gamePaused = true;
+  keys['w'] = keys['a'] = keys['s'] = keys['d'] = false;
+  joyVec = { x: 0, y: 0 };
+  targetNest = nestObj || null;
+
+  const pool = (currentSubject === 'sci') ? SCIENCE_QUESTIONS : HUMANITIES_QUESTIONS;
+  const rawQ = pool[Math.floor(Math.random() * pool.length)];
+  currentModalQ = JSON.parse(JSON.stringify(rawQ));
+
+  const modal = document.getElementById('quiz-modal');
+  const titleEl = document.getElementById('quiz-title');
+  const catEl = document.getElementById('quiz-cat');
+  const qEl = document.getElementById('quiz-q');
+  const optsEl = document.getElementById('quiz-opts');
+  const seqSlotsEl = document.getElementById('quiz-seq-slots');
+  const expEl = document.getElementById('quiz-explain');
+
+  expEl.style.display = 'none';
+  seqSlotsEl.style.display = 'none';
+  optsEl.innerHTML = '';
+  optsEl.className = 'opt-grid';
+
+  if (mode === 'steal' && nestObj) {
+    const rObj = RARITY_TIERS.find(r => r.tier === nestObj.eggTier);
+    titleEl.innerHTML = `🥚 搶奪【<span style="color:${rObj.color}">${rObj.name}</span>】`;
+  } else {
+    titleEl.innerHTML = `🚨 怪獸攔截！答啱震退怪獸！`;
+  }
+
+  catEl.textContent = currentModalQ.cat;
+  qEl.innerHTML = currentModalQ.q.replace('【 ？ 】', '<span class="blank-hl">【 ？ 】</span>');
+
+  // 根據 4 種題型渲染簡潔按鈕
+  if (currentModalQ.type === 'tf') {
+    ['⭕ 正確', '❌ 錯誤'].forEach((label, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.textContent = label;
+      btn.onclick = () => checkSimpleAnswer((idx === 0) === currentModalQ.ans, btn, mode);
+      optsEl.appendChild(btn);
+    });
+
+  } else if (currentModalQ.type === 'cat2') {
+    const indices = [0, 1].sort(() => Math.random() - 0.5);
+    indices.forEach(i => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.textContent = currentModalQ.opts[i];
+      btn.onclick = () => checkSimpleAnswer(i === currentModalQ.ans, btn, mode);
+      optsEl.appendChild(btn);
+    });
+
+  } else if (currentModalQ.type === 'fill') {
+    optsEl.className = 'opt-grid single-col';
+    const indices = [0, 1, 2].sort(() => Math.random() - 0.5);
+    indices.forEach(i => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.textContent = currentModalQ.opts[i];
+      btn.onclick = () => checkSimpleAnswer(i === currentModalQ.ans, btn, mode);
+      optsEl.appendChild(btn);
+    });
+
+  } else if (currentModalQ.type === 'seq') {
+    // 3步順序點擊題
+    seqUserPicked = [];
+    seqSlotsEl.style.display = 'flex';
+    seqSlotsEl.innerHTML = `
+      <div class="seq-slot" id="slot-0">第 1 步</div>
+      <div class="seq-slot" id="slot-1">第 2 步</div>
+      <div class="seq-slot" id="slot-2">第 3 步</div>
+    `;
+    optsEl.className = 'opt-grid single-col';
+    const indices = [0, 1, 2].sort(() => Math.random() - 0.5);
+    indices.forEach(i => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      // 隱藏開頭數字讓 Justin 自己排
+      const cleanTxt = currentModalQ.steps[i].replace(/^[123]\.\s*/, '');
+      btn.textContent = cleanTxt;
+      btn.onclick = () => handleSeqPick(i, cleanTxt, btn, mode);
+      optsEl.appendChild(btn);
+    });
+  }
+
+  modal.classList.add('show');
+}
+
+function handleSeqPick(stepIdx, cleanTxt, btnEl, mode) {
+  btnEl.disabled = true;
+  btnEl.style.opacity = '0.4';
+  const currentSlot = document.getElementById(`slot-${seqUserPicked.length}`);
+  if (currentSlot) currentSlot.textContent = cleanTxt;
+  seqUserPicked.push(stepIdx);
+
+  if (seqUserPicked.length === 3) {
+    const isCorrect = (seqUserPicked[0] === 0 && seqUserPicked[1] === 1 && seqUserPicked[2] === 2);
+    checkSimpleAnswer(isCorrect, btnEl, mode);
+  }
+}
+
+function checkSimpleAnswer(isCorrect, btnEl, mode) {
+  const allBtns = document.querySelectorAll('#quiz-opts .opt-btn');
+  allBtns.forEach(b => b.disabled = true);
+  const expEl = document.getElementById('quiz-explain');
+  expEl.style.display = 'block';
+
+  if (isCorrect) {
+    btnEl.classList.add('correct');
+    expEl.innerHTML = `✅ <b>答啱啦！</b> ${currentModalQ.exp}<br><br><button class="btn-ui" id="btn-go">即刻行動！🚀</button>`;
+    document.getElementById('btn-go').onclick = () => {
+      document.getElementById('quiz-modal').classList.remove('show');
+      gamePaused = false;
+      if (mode === 'steal') {
+        startStealAndChase(targetNest);
+      } else {
+        nests.forEach(n => { if (n.monster.state === 'chasing') n.monster.stunTimer = 180; });
+        player.jetpackTimer = 80;
+        showToast("💥 成功震飛怪獸！快啲跑返基地！");
+      }
+    };
+  } else {
+    btnEl.classList.add('wrong');
+    expEl.style.borderColor = '#ef7d57';
+    expEl.style.color = '#ffcd75';
+    expEl.innerHTML = `💡 <b>記住重點：</b> ${currentModalQ.exp}<br><br><button class="btn-ui" onclick="closeWrong('${mode}')">明白！繼續 ➡️</button>`;
+  }
+}
+
+function closeWrong(mode) {
+  document.getElementById('quiz-modal').classList.remove('show');
+  gamePaused = false;
+  if (mode === 'steal') {
+    player.x = 380;
+    showToast("再行埋去巢穴挑戰多一次！");
+  } else {
+    resetToBase("🦖 怪獸搶返隻蛋啦！返基地升級裝備再戰！");
+  }
+}
+
+/* ============================================================================
+   6. 偷蛋觸發怪獸狂追 & 返基地放入孵化器 (手動破殼！)
+============================================================================ */
+function startStealAndChase(nestObj) {
+  if (save.incubators.length >= 3) {
+    showToast("⚠️ 基地 3 個孵化槽滿晒啦！快啲返基地破殼孵咗蛋先！");
+    return;
+  }
+
+  player.carryingTier = nestObj.eggTier;
+  nestObj.hasEgg = false;
+  nestObj.respawnTimer = 600; // 10秒後巢穴重生新隨機蛋
+
+  // 蛋旁邊隻專屬怪獸即刻發狂追主角！
+  nestObj.monster.state = 'chasing';
+  nestObj.monster.stunTimer = 40; // 0.6秒反應時間
+
+  const rObj = RARITY_TIERS.find(r => r.tier === nestObj.eggTier);
+  showToast(`🚨 搶到【${rObj.name}】！【${nestObj.monsterName}】發狂追緊你，快跑返最底基地！`);
+}
+
+function deliverEggToIncubator() {
+  const tier = player.carryingTier;
+  player.carryingTier = null;
+
+  // 所有追緊嘅怪獸掉頭返巢穴
+  nests.forEach(n => {
+    if (n.monster.state === 'chasing') n.monster.state = 'returning';
+  });
+
+  const rObj = RARITY_TIERS.find(r => r.tier === tier);
+  save.incubators.push({
+    tier: tier,
+    name: rObj.name,
+    color: rObj.color,
+    timeLeft: rObj.hatchSec,
+    ready: false
+  });
+
+  saveData();
+  showToast(`🥚 已將【${rObj.name}】放入基地孵化器（需時 ${rObj.hatchSec} 秒，時間到記得親手破殼）！`);
+}
+
+// 玩家親手點擊破殼孵蛋！
+function hatchReadyEgg(slotIndex) {
+  const slot = save.incubators[slotIndex];
+  if (!slot || !slot.ready) return;
+
+  const candidates = PET_DEX.filter(p => p.tier === slot.tier);
+  const hatched = candidates[Math.floor(Math.random() * candidates.length)];
+
+  if (!save.unlockedIds.includes(hatched.id)) {
+    save.unlockedIds.push(hatched.id);
+  }
+
+  if (save.basePets.length < 8) {
+    save.basePets.push(hatched.id);
+  } else {
+    let minIdx = 0, minInc = 99999;
+    save.basePets.forEach((pId, idx) => {
+      const pObj = PET_DEX.find(x => x.id === pId);
+      if (pObj && pObj.income < minInc) { minInc = pObj.income; minIdx = idx; }
+    });
+    if (hatched.income > minInc) save.basePets[minIdx] = hatched.id;
+  }
+
+  save.incubators.splice(slotIndex, 1);
+  saveData();
+  showToast(`🎉 破殼成功！孵出【${hatched.icon} ${hatched.name}】放入基地每秒 +$${hatched.income}/s！`);
+  if (document.getElementById('shop-modal').classList.contains('show')) openShop();
+}
+
+function tryManualHatch() {
+  const readyIdx = save.incubators.findIndex(s => s.ready);
+  if (readyIdx !== -1) {
+    hatchReadyEgg(readyIdx);
+  } else {
+    openShop();
+  }
+}
+
+function resetToBase(msg) {
+  player.x = 380;
+  player.y = 2600;
+  player.carryingTier = null;
+  activeDecoy = null;
+  nests.forEach(n => {
+    n.monster.state = 'idle';
+    n.monster.x = n.monster.homeX;
+    n.monster.y = n.monster.homeY;
+    n.monster.stunTimer = 0;
+  });
+  showToast(msg);
+}
+
+/* ============================================================================
+   7. 四大主動逃生道具 (噴射翼、冰封彈、誘餌公仔、瞬間回城)
+============================================================================ */
+const keys = {};
+window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+let joyVec = { x: 0, y: 0 };
+const joyZone = document.getElementById('joystick-zone');
+const joyKnob = document.getElementById('joystick-knob');
+let joyActive = false;
+
+function handleJoy(clientX, clientY) {
+  const rect = joyZone.getBoundingClientRect();
+  let dx = clientX - (rect.left + rect.width / 2);
+  let dy = clientY - (rect.top + rect.height / 2);
+  const dist = Math.hypot(dx, dy);
+  const maxR = 40;
+  if (dist > maxR) { dx = (dx / dist) * maxR; dy = (dy / dist) * maxR; }
+  joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
+  joyVec.x = dx / maxR;
+  joyVec.y = dy / maxR;
+}
+joyZone.addEventListener('pointerdown', e => { joyActive = true; handleJoy(e.clientX, e.clientY); });
+window.addEventListener('pointermove', e => { if (joyActive) handleJoy(e.clientX, e.clientY); });
+window.addEventListener('pointerup', () => { joyActive = false; joyKnob.style.transform = `translate(0px, 0px)`; joyVec = { x: 0, y: 0 }; });
+
+function useJetpack() {
+  if (player.jetpackCd > 0) return;
+  player.jetpackTimer = 100;
+  player.jetpackCd = 240;
+  showToast("🚀 藍水花噴射翼全開！");
+}
+
+function useFreezeBomb() {
+  if (save.freezeCount <= 0) return showToast("❄️ 無冰封彈啦！去商店買啦！");
+  const chasers = nests.filter(n => n.monster.state === 'chasing');
+  if (chasers.length === 0) return showToast("❄️ 而家無怪獸追緊你！");
+  save.freezeCount--;
+  chasers.forEach(n => n.monster.stunTimer = 270); // 4.5秒
+  saveData();
+  showToast("❄️ 時間冰封彈發動！怪獸結冰 4.5 秒！");
+}
+
+function useDecoy() {
+  if (save.decoyCount <= 0) return showToast("🤖 無全息誘餌公仔啦！去商店買啦！");
+  save.decoyCount--;
+  activeDecoy = { x: player.x, y: player.y - 30, timer: 300 }; // 吸引怪獸 5 秒
+  saveData();
+  showToast("🤖 已放出 Justin 全息誘餌公仔！怪獸俾假公仔吸引住 5 秒！");
+}
+
+function useTeleport() {
+  if (save.teleCount <= 0) return showToast("🛸 無瞬間回城器啦！去商店買啦！");
+  save.teleCount--;
+  player.x = 380;
+  player.y = 2520; // 直接傳送返基地門口
+  saveData();
+  showToast("🛸 瞬間轉移成功！已連人帶蛋飛返太空基地！");
+}
+
+/* ============================================================================
+   8. 主循環 Update & 2800px 豐富太空地圖渲染
+============================================================================ */
+function update() {
+  if (gamePaused) return;
+
+  if (player.jetpackTimer > 0) player.jetpackTimer--;
+  if (player.jetpackCd > 0) player.jetpackCd--;
+  if (activeDecoy) {
+    activeDecoy.timer--;
+    if (activeDecoy.timer <= 0) activeDecoy = null;
+  }
+
+  document.getElementById('ui-jetpack-cd').textContent =
+    player.jetpackCd > 0 ? `${Math.ceil(player.jetpackCd/60)}s` : '就緒';
+
+  // 計算移動速度
+  let spd = player.baseSpeed + (save.speedLv - 1) * 0.32;
+  if (player.carryingTier) {
+    const rObj = RARITY_TIERS.find(r => r.tier === player.carryingTier);
+    const penalty = Math.max(0.02, (rObj ? rObj.weight : 0.1) - (save.carryLv - 1) * 0.035);
+    spd *= (1 - penalty);
+  }
+  if (player.jetpackTimer > 0) spd *= 1.55;
+
+  let dx = joyVec.x, dy = joyVec.y;
+  if (keys['w'] || keys['arrowup']) dy -= 1;
+  if (keys['s'] || keys['arrowdown']) dy += 1;
+  if (keys['a'] || keys['arrowleft']) dx -= 1;
+  if (keys['d'] || keys['arrowright']) dx += 1;
+
+  if (dx !== 0 || dy !== 0) {
+    const len = Math.hypot(dx, dy);
+    player.x += (dx / len) * spd;
+    player.y += (dy / len) * spd;
+  }
+
+  player.x = Math.max(68, Math.min(WORLD_W - 68, player.x));
+  player.y = Math.max(50, Math.min(WORLD_H - 35, player.y));
+
+  // 檢查巢穴重生與偷蛋觸發
+  for (const n of nests) {
+    if (!n.hasEgg) {
+      n.respawnTimer--;
+      if (n.respawnTimer <= 0) {
+        n.hasEgg = true;
+        n.eggTier = rollRandomEggTier(n.minTier);
+      }
+    } else if (!player.carryingTier && Math.hypot(player.x - n.x, player.y - n.y) < 42) {
+      if (save.incubators.length >= 3) {
+        showToast("⚠️ 基地 3 個孵化槽滿咗！先返基地破殼孵蛋！");
+        player.x = 380;
+      } else {
+        triggerQuizModal('steal', n);
+        return;
+      }
+    }
+  }
+
+  // 抱蛋返到底部太空基地 (Y > 2460)
+  if (player.carryingTier && player.y > 2460) {
+    deliverEggToIncubator();
+    return;
+  }
+
+  // 在基地行近孵化器 (Y: 2510~2580) 時，如果有 ready 嘅蛋，自動彈出破殼！
+  if (player.y > 2490 && player.y < 2595 && Math.abs(player.x - 380) < 130) {
+    const readyIdx = save.incubators.findIndex(s => s.ready);
+    if (readyIdx !== -1) {
+      hatchReadyEgg(readyIdx);
+    }
+  }
+
+  // 更新 8 隻守護怪獸 AI
+  for (const n of nests) {
+    const m = n.monster;
+    if (m.stunTimer > 0) { m.stunTimer--; continue; }
+
+    if (m.state === 'chasing') {
+      // 如果場上有誘餌公仔，怪獸會跑去追誘餌公仔！
+      const targetX = activeDecoy ? activeDecoy.x : player.x;
+      const targetY = activeDecoy ? activeDecoy.y : player.y;
+
+      const ang = Math.atan2(targetY - m.y, targetX - m.x);
+      m.x += Math.cos(ang) * n.mSpeed;
+      m.y += Math.sin(ang) * n.mSpeed;
+
+      if (!activeDecoy && Math.hypot(player.x - m.x, player.y - m.y) < player.r + n.mRadius - 4) {
+        if (save.shieldCount > 0) {
+          save.shieldCount--;
+          m.stunTimer = 150;
+          saveData();
+          showToast(`🛡️ 數碼屏幕護盾擋住咗【${n.monsterName}】！`);
+        } else {
+          triggerQuizModal('escape', n);
+          return;
         }
-
-        // =====================================
-        // 🔐 家長密碼系統
-        // =====================================
-        function checkParentPassword() {
-            let pin = prompt("🔒 這是家長專區：\n請輸入 4 位數密碼以進入設定與題庫 (預設密碼：1234)");
-            if (pin === "1234") openDBManager();
-            else if (pin !== null) alert("❌ 密碼錯誤！請由家長輸入。");
-        }
-
-        // =====================================
-        // 📱 PWA 安裝成 App 邏輯
-        // =====================================
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); deferredPrompt = e;
-        });
-
-        function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
-            } else {
-                alert("💡 安裝至手機教學：\n\n【Android / Chrome 用戶】\n請點擊右上角「⋮」選單，選擇「加至主畫面」。\n\n【iPhone / Safari 用戶】\n請點擊底部「分享」圖示，選擇「加入主畫面」。");
-            }
-        }
-
-        // =====================================
-        // 🎵 原生音效引擎 (Web Audio API)
-        // =====================================
-        let audioCtx;
-        function initAudio() {
-            try {
-                if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if(audioCtx.state === 'suspended') audioCtx.resume();
-            } catch(e) { console.error("Audio init error", e); }
-        }
-
-        function playTone(freq, type, duration, vol=0.1) {
-            try {
-                if(!audioCtx) return;
-                let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
-                osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                osc.start(); osc.stop(audioCtx.currentTime + duration);
-            } catch(e) {}
-        }
-
-        const sfx = {
-            correct: () => { playTone(523.25, 'sine', 0.1); setTimeout(() => playTone(659.25, 'sine', 0.1), 100); setTimeout(() => playTone(783.99, 'sine', 0.2), 200); },
-            wrong: () => { playTone(150, 'sawtooth', 0.3, 0.15); },
-            move: () => { playTone(300, 'sine', 0.05, 0.03); },
-            mine: () => { playTone(200, 'square', 0.1, 0.05); },
-            craft: () => { playTone(400, 'triangle', 0.1); setTimeout(() => playTone(800, 'triangle', 0.2), 100); },
-            eat: () => { playTone(600, 'sine', 0.1); setTimeout(() => playTone(800, 'sine', 0.1), 150); },
-            boss: () => { playTone(100, 'square', 0.5); setTimeout(() => playTone(80, 'square', 0.8), 500); },
-            hit: () => { playTone(150, 'sawtooth', 0.2); setTimeout(() => playTone(100, 'sawtooth', 0.2), 150); }
-        };
-
-        // =====================================
-        // 🎙️ 原生瀏覽器語音系統
-        // =====================================
-        let isPlayingAudio = false;
-
-        function readLearningTTS(word, meaning) {
-            try {
-                initAudio(); 
-                if(window.speechSynthesis) window.speechSynthesis.cancel();
-                isPlayingAudio = true;
-                let text = word + "。解釋是：" + meaning;
-                let u = new SpeechSynthesisUtterance(text);
-                u.lang = 'zh-HK';
-                u.onend = () => { isPlayingAudio = false; };
-                u.onerror = () => { isPlayingAudio = false; };
-                speechSynthesis.speak(u);
-            } catch(e) { console.error("TTS Error", e); }
-        }
-
-        function readQuestionTTS() {
-            try {
-                if(!currentTargetData || isPlayingAudio) return;
-                initAudio(); 
-                let textToRead = "";
-                let mode = document.getElementById('standard-game').style.display === 'block' ? currentStdMode : rpgQuestType;
-                if(document.getElementById('boss-modal').style.display === 'flex') mode = bossQuestType;
-
-                let targetData = document.getElementById('boss-modal').style.display === 'flex' ? bossTargetData : currentTargetData;
-                let safe = getSafeData(targetData);
-
-                if (mode === 'meaning-to-word') textToRead = safe.meaning;
-                else if (mode === 'word-to-meaning') textToRead = safe.word;
-                else if (mode === 'sentence') textToRead = activeSentenceText.replace(/[＿【】_]+/g, "什麼").replace(new RegExp(safe.word, "g"), "什麼");
-                else if (mode === 'fill-blank') textToRead = safe.mFormat.replace(/[＿_]+/g, "什麼");
-                
-                if(textToRead) {
-                    isPlayingAudio = true;
-                    let btnStd = document.getElementById('tts-btn-std');
-                    let btnRpg = document.getElementById('tts-btn-rpg');
-                    if(btnStd && document.getElementById('standard-game').style.display === 'block') { btnStd.classList.add('playing'); btnStd.innerText = "🔊 播放中..."; }
-                    if(btnRpg && document.getElementById('rpg-game').style.display === 'block') { btnRpg.classList.add('playing'); btnRpg.innerText = "🔊 播放中..."; }
-
-                    let u = new SpeechSynthesisUtterance(textToRead);
-                    u.lang = 'zh-HK'; u.onend = resetTTSBtn; u.onerror = resetTTSBtn;
-                    speechSynthesis.speak(u);
-                }
-            } catch(e) { console.error("TTS Error", e); resetTTSBtn(); }
-        }
-
-        function resetTTSBtn() {
-            isPlayingAudio = false;
-            let btnStd = document.getElementById('tts-btn-std'); let btnRpg = document.getElementById('tts-btn-rpg');
-            if(btnStd) { btnStd.classList.remove('playing'); btnStd.innerText = "🔊 朗讀題目"; }
-            if(btnRpg) { btnRpg.classList.remove('playing'); btnRpg.innerText = "🔊 朗讀"; }
-        }
-
-        // =====================================
-        // 💾 題庫系統 (無錯別字版)
-        // =====================================
-        const defaultDatabaseRaw = [
-            { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。鼎，古代的煮食器具。", missingFormat: "人聲鼎＿", missingTarget: "沸", fillOptions: ["是", "你", "沸", "地"], synonyms: "喧鬧", antonyms: "鴉雀無聲、萬籟俱寂", sentence1: "酒樓內人聲鼎沸，坐滿了來吃午飯的人。", sentence2: "大家都在為球隊吶喊助威，觀眾席上人聲鼎沸。" },
-            { student: "Justin", unit: "單元一", word: "水泄不通", meaning: "連一滴水也流不出去，形容包圍緊密，也形容環境極度擁擠。", missingFormat: "水泄不＿", missingTarget: "通", fillOptions: ["雲", "天", "大", "通"], synonyms: "擁擠、人山人海", antonyms: "暢通無阻", sentence1: "警方把這幢大廈封鎖得水泄不通，躲藏在內的匪徒難以逃脫。", sentence2: "年三十晚，許多市民都會到年宵市場辦年貨，使場內擠得水泄不通。" },
-            { student: "Justin", unit: "單元一", word: "日積月累", meaning: "指每天、每月地不斷積累。", missingFormat: "日積月＿", missingTarget: "累", fillOptions: ["月", "在", "大", "累"], synonyms: "", antonyms: "揮霍無度", sentence1: "趙女士憑藉日積月累的工作經驗，很快就替公司解決了這個難題。", sentence2: "我每天都會學習英文新詞，經過日積月累，現在認識的詞彙量已非常豐富了。" },
-            { student: "Justin", unit: "單元一", word: "目不暇給", meaning: "形容眼前有太多美好的事物，或景物變化太快，眼睛來不及觀看。", missingFormat: "目不暇＿", missingTarget: "給", fillOptions: ["了", "上", "有", "給"], synonyms: "美不勝收", antonyms: "一覽無遺", sentence1: "聯歡晚會的節目既豐富又精彩，令觀眾們目不暇給。", sentence2: "在空中綻放的煙花色彩繽紛，形態變化多端，令人目不暇給。" },
-            { student: "Justin", unit: "單元一", word: "世外桃源", meaning: "與世隔絕、開滿桃花的樂土。比喻風景優美、人煙稀少的地方，亦比喻人們心目中的理想世界。", missingFormat: "世外桃＿", missingTarget: "源", fillOptions: ["大", "在", "雲", "源"], synonyms: "洞天福地、天府之國", antonyms: "人間地獄", sentence1: "這裡四周鳥語花香，遠離鬧市，就像住在世外桃源。", sentence2: "這個城市沒遭受戰火波及，對大批流亡的難民來說就好比世外桃源。" },
-            { student: "Justin", unit: "單元一", word: "杳無人煙", meaning: "形容地方偏僻荒涼，無人居住。杳，深遠。人煙，居民。", missingFormat: "杳無人＿", missingTarget: "煙", fillOptions: ["煙", "山", "大", "天"], synonyms: "人跡罕至", antonyms: "人煙稠密", sentence1: "這個村落杳無人煙，很多人已經從這兒搬到其他地方居住。", sentence2: "政府正計劃將一些杳無人煙的地區開發成新市鎮，希望增加土地供應，推動城市發展。" },
-            { student: "Justin", unit: "單元一", word: "風和日麗", meaning: "形容天氣晴朗和暖，十分宜人。", missingFormat: "風和日＿", missingTarget: "麗", fillOptions: ["明", "大", "麗", "是"], synonyms: "風輕雲淡", antonyms: "烏雲密佈、風雨交加", sentence1: "今天是風和日麗的好日子，我們一家人決定到郊野公園遊玩。", sentence2: "天氣真是變幻莫測，早上還是風和日麗，傍晚卻颳起了狂風暴雨。" },
-            { student: "Justin", unit: "單元一", word: "星羅棋布", meaning: "如羅列在天上的群星，分佈在棋盤上的棋子。形容事物眾多而分散排列。羅，排列；布，分佈。", missingFormat: "星羅棋＿", missingTarget: "布", fillOptions: ["中", "風", "布", "不"], synonyms: "不勝枚舉", antonyms: "疏落、寥寥無幾", sentence1: "表哥潛進深海裏，欣賞海底星羅棋布的珊瑚和魚兒。", sentence2: "從高處俯瞰，下面的房屋變成了一塊塊小積木嵌在土地上，猶如星羅棋布。" },
-            { student: "Justin", unit: "單元一", word: "破瓦頹垣", meaning: "指屋瓦破損，牆垣倒塌。形容破敗荒涼的景象。頹，倒塌。垣，矮牆。", missingFormat: "破瓦頹＿", missingTarget: "垣", fillOptions: ["他", "的", "垣", "山"], synonyms: "滿目瘡痍", antonyms: "富麗堂皇", sentence1: "地震過後，這一帶盡是破瓦頹垣，不少居民因而流離失所。", sentence2: "去年這兒還有一幢幢雄偉宏偉的高樓，如今卻只留下破瓦頹垣。" },
-            { student: "Justin", unit: "單元一", word: "氣象萬千", meaning: "形容景象千變萬化，極為壯觀。", missingFormat: "氣象萬＿", missingTarget: "千", fillOptions: ["千", "的", "有", "天"], synonyms: "變化無窮", antonyms: "千篇一律", sentence1: "這個新都市發展迅速，一派氣象萬千的景象。", sentence2: "雲霧繞着山峯不斷變化，景色氣象萬千，令人神往。" },
-            { student: "Justin", unit: "單元一", word: "琳琅滿目", meaning: "形容滿眼所見都是美好而珍貴的東西。琳琅，精美的玉石。", missingFormat: "琳琅滿＿", missingTarget: "目", fillOptions: ["好", "天", "目", "月"], synonyms: "美不勝收", antonyms: "滿目瘡痍", sentence1: "這家博物館的展品琳琅滿目，吸引了不少人於假日前來參觀。", sentence2: "哥哥打算在這些琳琅滿目的商品中，選購一份送給媽媽作為生日禮物。" },
-            { student: "Justin", unit: "單元一", word: "煥然一新", meaning: "形容散發光彩，呈現出新的面貌。煥然，鮮明、光亮。", missingFormat: "煥然一＿", missingTarget: "新", fillOptions: ["新", "他", "明", "上"], synonyms: "耳目一新", antonyms: "一如既往", sentence1: "表哥到外國讀書後，改變了衣着和打扮，整個人煥然一新。", sentence2: "這家咖啡店經過裝修後，風格變得簡約清新，給人煥然一新的感覺。" },
-            { student: "Justin", unit: "單元一", word: "萬籟俱寂", meaning: "形容萬物無聲，一片寂靜。萬籟，自然界的各種聲音。", missingFormat: "萬籟俱＿", missingTarget: "寂", fillOptions: ["明", "山", "寂", "中"], synonyms: "寂靜、鴉雀無聲", antonyms: "喧鬧、人聲鼎沸", sentence1: "山林中萬籟俱寂，彷彿萬物都沉睡了。", sentence2: "在這萬籟俱寂的環境下，我放輕腳步走路，以免破壞寧靜的氣氛。" },
-            { student: "Justin", unit: "單元一", word: "歷歷在目", meaning: "清楚明白地出現在眼前。歷歷，清楚分明。", missingFormat: "歷歷在＿", missingTarget: "目", fillOptions: ["地", "目", "水", "了"], synonyms: "一清二楚", antonyms: "模糊不清", sentence1: "我們用望遠鏡從太平洋山頂眺望，遠處的景物全都歷歷在目。", sentence2: "堂弟不經不覺八歲了，他嬰兒時的模樣，至今仍然歷歷在目。" },
-            { student: "Justin", unit: "單元一", word: "鑼鼓喧天", meaning: "本指鑼鼓聲音大得震天。現形容氣氛非常熱鬧，景象歡樂喜慶。", missingFormat: "鑼鼓喧＿", missingTarget: "天", fillOptions: ["大", "天", "是", "了"], synonyms: "鼓樂齊鳴", antonyms: "愁雲慘霧", sentence1: "龍舟比賽進行期間，城門河上鑼鼓喧天，非常熱鬧。", sentence2: "購物商場開幕時，請來了舞獅助興，鑼鼓喧天的盛況吸引了大批顧客。" },
-            { student: "Justin", unit: "單元二", word: "大快朵頤", meaning: "飽食、愉快的樣子。朵，動。頤，下巴。朵頤，動着腮頰進食。", missingFormat: "大快朵＿", missingTarget: "頤", fillOptions: ["頤", "個", "雲", "風"], synonyms: "大飽口福", antonyms: "食不知味", sentence1: "這條街道上美食店林立，總有一家能讓你大快朵頤！", sentence2: "爸爸媽媽帶柏軒到餐館大快朵頤了一番，令他感到非常滿足。" },
-            { student: "Justin", unit: "單元二", word: "口若懸河", meaning: "說起話來像河水傾瀉一樣，說個不停。形容能言善辯。", missingFormat: "口若懸＿", missingTarget: "河", fillOptions: ["河", "的", "我", "雲"], synonyms: "滔滔不絕", antonyms: "默默無言", sentence1: "惠萍發表意見時口若懸河，期望得到大家的認同。", sentence2: "售貨員口若懸河地推銷產品，吸引了很多顧客爭相購買。" },
-            { student: "Justin", unit: "單元二", word: "口蜜腹劍", meaning: "口中有蜜，肚子裏卻藏着劍。形容人把話說得動聽，事實上內心險惡，處處想陷害別人。", missingFormat: "口蜜腹＿", missingTarget: "劍", fillOptions: ["山", "有", "你", "劍"], synonyms: "笑裏藏刀、口是心非", antonyms: "苦口婆心", sentence1: "他這個人口蜜腹劍，嘴上說着好聽的話，心裏卻盤算着壞主意。", sentence2: "騙徒大多是口蜜腹劍的人，利用虛假動聽的話騙取別人的錢財。" },
-            { student: "Justin", unit: "單元二", word: "三緘其口", meaning: "嘴巴加了三道封條。形容說話小心謹慎或不說話。緘，封住、緊閉。", missingFormat: "三緘其＿", missingTarget: "口", fillOptions: ["口", "你", "明", "風"], synonyms: "默不作聲、守口如瓶", antonyms: "口若懸河、滔滔不絕", sentence1: "關於芷晴退學的原因，老師們都三緘其口，沒有透露半句。", sentence2: "你不知道事情的經過，就應該三緘其口，不要隨便發表意見。" },
-            { student: "Justin", unit: "單元二", word: "不亢不卑", meaning: "表示對別人的態度合宜，既傲慢自大，也不低聲下氣。亢，高傲。", missingFormat: "不亢不＿", missingTarget: "卑", fillOptions: ["這", "個", "卑", "雲"], synonyms: "", antonyms: "", sentence1: "這個人在公開場合的言行舉止不亢不卑，真有教養！", sentence2: "我要養成不亢不卑的處事態度，提升待人接物的技巧。" },
-            { student: "Justin", unit: "單元二", word: "自吹自擂", meaning: "自己吹喇叭，自己打鼓。比喻自我吹噓。擂，打鼓。", missingFormat: "自吹自＿", missingTarget: "擂", fillOptions: ["雲", "不", "擂", "個"], synonyms: "大言不慚", antonyms: "虛懷若谷", sentence1: "他自吹自擂的舉動令人反感，其他人都不愛跟他交往。", sentence2: "健常在別人面前自吹自擂，其實他並沒有甚麼真才實學。" },
-            { student: "Justin", unit: "單元二", word: "呆若木雞", meaning: "形容愚笨或受驚嚇而發呆的樣子。", missingFormat: "呆若木＿", missingTarget: "雞", fillOptions: ["雞", "是", "不", "有"], synonyms: "目瞪口呆", antonyms: "神色自若", sentence1: "玉儀上課時呆若木雞地看着天花板，所以被老師責罵。", sentence2: "看到不擅廚藝的媽媽又在廚房創作新菜式，姐姐呆若木雞，不知如何是好。" },
-            { student: "Justin", unit: "單元二", word: "虎視眈眈", meaning: "指像老虎般用威嚇的眼神盯着人，比喻人心裏存着不良的意圖，貪婪地注視着，等待機會搶奪。眈眈，注視的樣子。", missingFormat: "虎視眈＿", missingTarget: "眈", fillOptions: ["這", "有", "眈", "你"], synonyms: "", antonyms: "含情脈脈", sentence1: "花貓虎視眈眈地盯着洞口的老鼠，想要一把捉住牠。", sentence2: "貪吃的弟弟一直對我手上的這盒餅乾虎視眈眈，恨不得想要把它搶去。" },
-            { student: "Justin", unit: "單元二", word: "拐彎抹角", meaning: "比喻說話或做事繞圈子，不直接。", missingFormat: "拐彎抹＿", missingTarget: "角", fillOptions: ["大", "好", "在", "角"], synonyms: "旁敲側擊", antonyms: "開門見山", sentence1: "請你不要再拐彎抹角了，有甚麼事就直接告訴我吧！", sentence2: "麗欣說話從不拐彎抹角，因此大家都特別喜歡跟她聊天。" },
-            { student: "Justin", unit: "單元二", word: "神魂顛倒", meaning: "形容對某人或某事物非常着迷，以致心神不定，失去常態。", missingFormat: "神魂顛＿", missingTarget: "倒", fillOptions: ["倒", "個", "大", "了"], synonyms: "如痴如醉、失魂落魄", antonyms: "", sentence1: "時下不少青年人神魂顛倒地追捧偶像，甚至為了「追星」而做出很多瘋狂行為。", sentence2: "俊希最近被一款新推出的電子遊戲弄得神魂顛倒，難怪學業成績一落千丈。" },
-            { student: "Justin", unit: "單元二", word: "規行矩步", meaning: "指嚴格地按照規矩辦事，毫不敷衍。比喻做事刻板，不知變通。規、矩，分別指圓規和角尺，代指規定、準則。", missingFormat: "規行矩＿", missingTarget: "步", fillOptions: ["大", "步", "這", "水"], synonyms: "安分守己", antonyms: "胡作非為", sentence1: "叔叔是個規行矩步的人，做事謹慎，因而深得上司欣賞。", sentence2: "你做事過於規行矩步了，並不適合這項講求創新思維的工作。" },
-            { student: "Justin", unit: "單元二", word: "理直氣壯", meaning: "表示因理據充分，說話充滿氣勢，無所畏懼。", missingFormat: "理直氣＿", missingTarget: "壯", fillOptions: ["我", "壯", "大", "他"], synonyms: "義正辭嚴", antonyms: "理屈詞窮", sentence1: "我還沒見過有人可以把謊話說得這麼理直氣壯呢！", sentence2: "只要你的觀點合理，就不妨理直氣壯地向大家說出你的想法。" },
-            { student: "Justin", unit: "單元二", word: "戰戰兢兢", meaning: "因害怕而發抖。形容十分害怕或小心謹慎的樣子。", missingFormat: "戰戰兢＿", missingTarget: "兢", fillOptions: ["你", "兢", "天", "我"], synonyms: "誠惶誠恐", antonyms: "泰然自若", sentence1: "他在校長面前露出副戰戰兢兢的樣子。", sentence2: "這是志恒初次公開演講，所以表現得戰戰兢兢。" },
-            { student: "Justin", unit: "單元二", word: "信口雌黃", meaning: "比喻不顧事實，隨口亂說或隨意批評。雌黃，一種可用作原料的黃色礦物，古人用來塗改寫錯的字，作用類似現時的塗改液。", missingFormat: "信口雌＿", missingTarget: "黃", fillOptions: ["是", "黃", "有", "了"], synonyms: "口不擇言", antonyms: "言之鑿鑿", sentence1: "樂賢從不信口雌黃，他說的話一定是有事實根據的。", sentence2: "你還沒弄清真相，怎麼就在這兒信口雌黃，胡亂指控別人呢？" },
-            { student: "Justin", unit: "單元二", word: "顧影自憐", meaning: "形容人孤獨失意，亦可形容自我欣賞的樣子。顧，回頭看。", missingFormat: "顧影自＿", missingTarget: "憐", fillOptions: ["有", "憐", "上", "好"], synonyms: "孤芳自賞", antonyms: "自慚形穢", sentence1: "她想到親人已經先後離世，不免顧影自憐起來。", sentence2: "大家都認為他表現不理想，他卻繼續顧影自憐。" },
-            { student: "Justin", unit: "單元三", word: "火冒三丈", meaning: "頭上冒出三丈高的火。形容極度生氣。丈，計算長度的單位。", missingFormat: "火冒三＿", missingTarget: "丈", fillOptions: ["丈", "好", "天", "有"], synonyms: "七竅生煙、怒火中燒", antonyms: "心平氣和", sentence1: "弟弟做錯了事仍然嬉皮笑臉，令媽媽火冒三丈，破口大罵。", sentence2: "他掛上電話後立刻火冒三丈，究竟是甚麼事情讓他這麼生氣？" },
-            { student: "Justin", unit: "單元三", word: "扣人心弦", meaning: "形容事物深深地牽動人心，令人心情激動或覺得感動。扣，敲打。", missingFormat: "扣人心＿", missingTarget: "弦", fillOptions: ["弦", "水", "好", "中"], synonyms: "振奮人心、感人肺腑", antonyms: "無動於衷", sentence1: "台上的小提琴演奏扣人心弦，打動了在場的每一位觀眾。", sentence2: "這本小說充滿扣人心弦的情節，書中主角的種種遭遇都牽動我的情緒。" },
-            { student: "Justin", unit: "單元三", word: "心悅誠服", meaning: "誠心誠意地歸服或佩服。", missingFormat: "心悅誠＿", missingTarget: "服", fillOptions: ["他", "風", "服", "個"], synonyms: "心服口服、甘拜下風", antonyms: "心有不甘", sentence1: "這次比賽的對手實力高強，我對他們真是心悅誠服。", sentence2: "如果你想別人對你的觀點心悅誠服，你就必須提出充分的理據作支持。" },
-            { student: "Justin", unit: "單元三", word: "如釋重負", meaning: "像放下重擔那樣輕鬆。比喻因完成責任或渡過難關而感到身心輕快。釋，放下。重負，沉重的擔子。", missingFormat: "如釋重＿", missingTarget: "負", fillOptions: ["負", "水", "大", "不"], synonyms: "", antonyms: "", sentence1: "表哥把沉重的行李箱帶回家後，如釋重負地坐在沙發上休息。", sentence2: "期末考試結束後，我感到如釋重負，接下來終於可以計劃暑期活動了！" },
-            { student: "Justin", unit: "單元三", word: "自慚形穢", meaning: "比喻因能力不足或不如別人而感到慚愧。形穢，容貌醜陋，引申指缺點或不足的地方。", missingFormat: "自慚形＿", missingTarget: "穢", fillOptions: ["在", "穢", "好", "有"], synonyms: "自愧不如", antonyms: "自高自大", sentence1: "看到敏怡這麼積極，與她相比，真使我有自慚形穢的感覺。", sentence2: "雖然你的運動天賦沒有立賢高，但你也有自己的專長，何必自慚形穢呢？" },
-            { student: "Justin", unit: "單元三", word: "刻骨銘心", meaning: "刻在骨頭，刻在心上。形容感受深刻，永遠不會忘記。", missingFormat: "刻骨銘＿", missingTarget: "心", fillOptions: ["在", "他", "風", "心"], synonyms: "念念不忘、沒齒難忘", antonyms: "置之腦後", sentence1: "小時候在祖母家生活的一段日子，給我留下了刻骨銘心的回憶！", sentence2: "雖然張老師已離校多年，但她在課後耐心的教誨，至今依然令不少同學刻骨銘心。" },
-            { student: "Justin", unit: "單元三", word: "欣喜若狂", meaning: "形容高興到了極點，像失去控制一樣。", missingFormat: "欣喜若＿", missingTarget: "狂", fillOptions: ["了", "這", "狂", "他"], synonyms: "歡天喜地、喜不自勝", antonyms: "悲從中來", sentence1: "收到大學錄取通知後，表姐一家無不欣喜若狂。", sentence2: "在聯歡晚會上，大家都表現得欣喜若狂，沉醉於晚會的歡樂氣氛之中。" },
-            { student: "Justin", unit: "單元三", word: "風聲鶴唳", meaning: "原指聽到風聲和鶴鳴以為是敵兵，後用來形容非常驚慌、疑懼。唳，鳥類的鳴叫聲。", missingFormat: "風聲鶴＿", missingTarget: "唳", fillOptions: ["唳", "有", "他", "雲"], synonyms: "草木皆兵", antonyms: "處變不驚", sentence1: "自從這家公司傳出即將裁員的消息，員工都感到風聲鶴唳。", sentence2: "我們千萬不要被這些未經證實的消息弄得風聲鶴唳，以免自亂陣腳。" },
-            { student: "Justin", unit: "單元三", word: "晴天霹靂", meaning: "比喻突發的意外或令人吃驚的事情。霹靂，急而響的雷。", missingFormat: "晴天霹＿", missingTarget: "靂", fillOptions: ["風", "不", "你", "靂"], synonyms: "禍從天降", antonyms: "喜出望外", sentence1: "這個壞消息有如晴天霹靂，使他一時間難以接受。", sentence2: "爸爸打算把小狗叮噹送給表哥，這對我來說簡直就是晴天霹靂啊！" },
-            { student: "Justin", unit: "單元三", word: "無地自容", meaning: "指沒有地方可以藏身，形容羞愧至極。", missingFormat: "無地自＿", missingTarget: "容", fillOptions: ["容", "風", "我", "人"], synonyms: "羞愧難當", antonyms: "恬不知恥、厚顏無恥", sentence1: "梓軒知道自己闖了大禍，頓時羞愧得無地自容。", sentence2: "我曾冤枉你，現在你卻盡心盡力地幫助我，真叫我無地自容。" },
-            { student: "Justin", unit: "單元三", word: "無動於衷", meaning: "表示對應該關心的事卻表現得很冷漠。衷，內心。", missingFormat: "無動於＿", missingTarget: "衷", fillOptions: ["上", "衷", "地", "風"], synonyms: "漠不關心、麻木不仁", antonyms: "情不自禁", sentence1: "那個小孩就在你的眼前跌倒受傷，你怎麼還能無動於衷呢？", sentence2: "看過這齣舞台劇後，大家都感動落淚，只有智浩無動於衷。" },
-            { student: "Justin", unit: "單元三", word: "感恩圖報", meaning: "指感激別人的恩德而想辦法報答。", missingFormat: "感恩圖＿", missingTarget: "報", fillOptions: ["天", "報", "他", "好"], synonyms: "飲水思源", antonyms: "忘恩負義、過河拆橋", sentence1: "我是個感恩圖報的人，絕不會忘記你今天的大恩大德！", sentence2: "父母千辛萬苦地養育我們，我們應該感恩圖報，好好孝順他們。" },
-            { student: "Justin", unit: "單元三", word: "憂心忡忡", meaning: "形容人心事重重，非常擔憂。忡忡，憂愁的樣子。", missingFormat: "憂心忡＿", missingTarget: "忡", fillOptions: ["你", "忡", "人", "地"], synonyms: "愁眉苦臉", antonyms: "喜氣洋洋、眉開眼笑", sentence1: "思嘉上去憂心忡忡的，不知道有甚麼事情令她如此擔心呢？", sentence2: "當他收到父親病情惡化的消息後，便憂心忡忡地立即趕往醫院。" },
-            { student: "Justin", unit: "單元三", word: "驚心動魄", meaning: "指人內心感受極深，震撼很大。", missingFormat: "驚心動＿", missingTarget: "魄", fillOptions: ["上", "這", "人", "魄"], synonyms: "膽戰心驚", antonyms: "處之泰然", sentence1: "這部電影有許多驚心動魄的場面，令人回味無窮。", sentence2: "單是看着眼前的過山車高速飛馳，已經讓我感到驚心動魄了。" },
-            { student: "Justin", unit: "單元三", word: "樂極生悲", meaning: "歡樂到極點後，轉而發生令人悲傷的事情。", missingFormat: "樂極生＿", missingTarget: "悲", fillOptions: ["悲", "有", "是", "上"], synonyms: "物極必反", antonyms: "否極泰來", sentence1: "自由活動前，老師告誡大家要注意安全，以免樂極生悲。", sentence2: "惠琪吃自助餐時暴飲暴食，結果樂極生悲，得了急性腸胃炎。" },
-            // 峰 的題庫
-            { student: "峰", unit: "最新單元", word: "心往神馳", meaning: "形容心神嚮往，完全被吸引。", missingFormat: "心往神＿", missingTarget: "馳", fillOptions: ["馳", "池", "遲", "詞"], sentence: "看著這幅美麗的風景畫，真令人心往神馳。" },
-            { student: "峰", unit: "最新單元", word: "一成不變", meaning: "指守舊不變或固守常規。", missingFormat: "一成不＿", missingTarget: "變", fillOptions: ["變", "辨", "辯", "遍"], sentence: "社會每天都在發展，我們不能用一成不變的眼光看待事物。" },
-            { student: "峰", unit: "最新單元", word: "手足之情", meaning: "兄弟間的情誼。", missingFormat: "＿足之情", missingTarget: "手", fillOptions: ["手", "首", "守", "受"], sentence: "他們倆雖然沒有血緣關係，卻有著深厚的手足之情。" },
-            { student: "峰", unit: "最新單元", word: "亡羊補牢", meaning: "比喻出了問題以後想辦法補救，可以防止繼續受損失。", missingFormat: "亡羊補＿", missingTarget: "牢", fillOptions: ["牢", "勞", "撈", "爐"], sentence: "雖然這次測驗成績不理想，但只要現在開始努力，亡羊補牢，下次一定能考好。" },
-            { student: "峰", unit: "最新單元", word: "七嘴八舌", meaning: "形容人多口雜，議論紛紛。", missingFormat: "七嘴八＿", missingTarget: "舌", fillOptions: ["舌", "薛", "設", "泄"], sentence: "老師一宣佈要去旅行，同學們就七嘴八舌地討論起來。" },
-            { student: "峰", unit: "最新單元", word: "不翼而飛", meaning: "沒有翅膀卻飛走了。比喻物品忽然丟失。", missingFormat: "不＿而飛", missingTarget: "翼", fillOptions: ["翼", "亦", "易", "液"], sentence: "我剛才放在桌子上的橡皮擦，怎麼一轉眼就不翼而飛了？" },
-            { student: "峰", unit: "最新單元", word: "不拘小節", meaning: "不被生活上的小事所約束。", missingFormat: "不拘小＿", missingTarget: "節", fillOptions: ["節", "結", "哲", "折"], sentence: "他為人豁達，不拘小節，深受大家歡迎。" },
-            { student: "峰", unit: "最新單元", word: "五體投地", meaning: "兩手、兩膝和頭一起著地。比喻佩服到了極點。", missingFormat: "五體投＿", missingTarget: "地", fillOptions: ["地", "第", "帝", "遞"], sentence: "看到魔術師精湛的表演，觀眾們都佩服得五體投地。" },
-            { student: "峰", unit: "最新單元", word: "口若懸河", meaning: "說起話來像河水傾瀉一樣，說個不停。形容能言善辯。", missingFormat: "口若懸＿", missingTarget: "河", fillOptions: ["河", "何", "荷", "可"], sentence: "他在辯論比賽中表現出色，面對評判的提問口若懸河，贏得了熱烈掌聲。" },
-            { student: "峰", unit: "最新單元", word: "人定勝天", meaning: "人類憑藉智慧和努力，可以戰勝自然。", missingFormat: "人定勝＿", missingTarget: "天", fillOptions: ["天", "千", "偏", "添"], sentence: "面對嚴重的旱災，農民們深信人定勝天，積極引水灌溉。" },
-            { student: "峰", unit: "最新單元", word: "不勞而獲", meaning: "自己不勞動卻佔有別人的勞動成果。", missingFormat: "不勞而＿", missingTarget: "獲", fillOptions: ["獲", "穫", "惑", "或"], sentence: "天下間沒有不勞而獲的事，我們必須靠自己的努力去爭取成功。" },
-            { student: "峰", unit: "最新單元", word: "不合時宜", meaning: "不適合時代的形勢或當前的需要。", missingFormat: "不合時＿", missingTarget: "宜", fillOptions: ["宜", "儀", "兒", "疑"], sentence: "他提出的這套管理方法已經不合時宜，需要重新檢討。" },
-            { student: "峰", unit: "最新單元", word: "一念之差", meaning: "一個念頭的差錯。指因一時的疏忽或考慮不周而犯下嚴重的錯誤。", missingFormat: "一念之＿", missingTarget: "差", fillOptions: ["差", "叉", "猜", "車"], sentence: "由於他一念之差，竟然做出了違法的事情，現在後悔也來不及了。" },
-            { student: "峰", unit: "最新單元", word: "千鈞一髮", meaning: "千鈞的重量繫在一根頭髮上。比喻情況極度危急。", missingFormat: "千鈞一＿", missingTarget: "髮", fillOptions: ["髮", "發", "法", "罰"], sentence: "就在小童快要掉下河的那千鈞一髮之際，路人及時拉住了他。" },
-            { student: "峰", unit: "最新單元", word: "大發雷霆", meaning: "比喻大發脾氣，大聲斥責。", missingFormat: "大發雷＿", missingTarget: "霆", fillOptions: ["霆", "停", "庭", "亭"], sentence: "看到弟弟又把房間弄得一團糟而且不肯承認錯誤，媽媽頓時大發雷霆。" },
-            { student: "峰", unit: "最新單元", word: "人才濟濟", meaning: "形容有才能的人很多。", missingFormat: "人才濟＿", missingTarget: "濟", fillOptions: ["濟", "仔", "劑", "際"], sentence: "這間大型科技公司人才濟濟，聚集了來自世界各地的頂尖工程師。" },
-            // Marcus 的題庫
-            { student: "Marcus", unit: "課文 2", word: "笨拙", meaning: "反應遲鈍，動作不靈巧", missingFormat: "笨＿", missingTarget: "拙", fillOptions: ["雲", "拙", "天", "人"], synonyms: "", antonyms: "", sentence1: "他剛開始學跳舞時動作有些笨拙，但經過勤加練習後已經順暢許多。", sentence2: "" },
-            { student: "Marcus", unit: "課文 2", word: "四腳朝天", meaning: "形容人跌倒時仰面朝上、手腳豎起或張開的樣子", missingFormat: "四腳朝＿", missingTarget: "天", fillOptions: ["月", "天", "是", "上"], synonyms: "", antonyms: "", sentence1: "小明在冰面上不小心滑了一跤，跌了個四腳朝天。", sentence2: "" },
-            { student: "Marcus", unit: "課文 2", word: "戰戰兢兢", meaning: "形容做事小心謹慎，或是因恐懼而顫抖的樣子", missingFormat: "戰戰兢＿", missingTarget: "兢", fillOptions: ["月", "山", "兢", "個"], synonyms: "", antonyms: "", sentence1: "第一次登上大舞台演講，他戰戰兢兢地握緊麥克風。", sentence2: "" },
-            { student: "Marcus", unit: "課文 2", word: "膽怯", meaning: "膽小、害怕", missingFormat: "膽＿", missingTarget: "怯", fillOptions: ["有", "怯", "了", "大"], synonyms: "", antonyms: "", sentence1: "面對台下眾多的觀眾，她感到有些膽怯，不敢開口說話。", sentence2: "" },
-            { student: "Marcus", unit: "課文 2", word: "頻繁", meaning: "接連不斷，次數很多", missingFormat: "頻＿", missingTarget: "繁", fillOptions: ["繁", "中", "天", "個"], synonyms: "", antonyms: "", sentence1: "這座城市最近頻繁下雨，出門記得要隨身帶傘。", sentence2: "" },
-            { student: "Marcus", unit: "課文 2", word: "邁步", meaning: "抬起腳步向前走", missingFormat: "邁＿", missingTarget: "步", fillOptions: ["有", "步", "不", "上"], synonyms: "", antonyms: "", sentence1: "選手們邁步向前，朝著終點線全力衝刺。", sentence2: "" },
-            { student: "Marcus", unit: "課文 2", word: "東歪西倒", meaning: "形容站不穩或物體擺放得歪斜不齊", missingFormat: "東歪西＿", missingTarget: "倒", fillOptions: ["大", "好", "倒", "不"], synonyms: "", antonyms: "", sentence1: "強風吹過後，路邊的自行車被吹得東歪西倒。", sentence2: "" },
-            { student: "Marcus", unit: "課文 2", word: "張皇失措", meaning: "慌張得不知如何是好", missingFormat: "張皇失＿", missingTarget: "措", fillOptions: ["了", "措", "水", "人"], synonyms: "", antonyms: "", sentence1: "遇到突發狀況時要保持冷靜，切勿張皇失措。", sentence2: "" },
-            { student: "Marcus", unit: "課文 2", word: "無動於衷", meaning: "心裏一點也不受感動或影響", missingFormat: "無動於＿", missingTarget: "衷", fillOptions: ["在", "我", "水", "衷"], synonyms: "", antonyms: "", sentence1: "任憑大家怎麼勸說，他依然無動於衷，堅持自己的決定。", sentence2: "" },
-            { student: "Marcus", unit: "課文 2", word: "無可奈何", meaning: "毫無辦法，沒有別的選擇", missingFormat: "無可奈＿", missingTarget: "何", fillOptions: ["是", "水", "個", "何"], synonyms: "", antonyms: "", sentence1: "因為天氣太惡劣，班機取消了，大家只能無可奈何地留在機場等待。", sentence2: "" },
-            { student: "Marcus", unit: "課文 2", word: "啟示", meaning: "從事物中領悟出的道理或得到的啟發", missingFormat: "啟＿", missingTarget: "示", fillOptions: ["示", "的", "好", "風"], synonyms: "", antonyms: "", sentence1: "這篇寓言故事給了我們深刻的啟示，提醒大家要誠實守信。", sentence2: "" },
-            { student: "Marcus", unit: "課文 2", word: "獲益良多", meaning: "得到很多好處或收穫", missingFormat: "獲益良＿", missingTarget: "多", fillOptions: ["了", "多", "水", "人"], synonyms: "", antonyms: "", sentence1: "參加了這次的交流活動後，大家都感到獲益良多。", sentence2: "" },
-            { student: "Marcus", unit: "課文 3", word: "家境", meaning: "家庭的經濟狀況", missingFormat: "家＿", missingTarget: "境", fillOptions: ["有", "境", "不", "上"], synonyms: "", antonyms: "", sentence1: "雖然他的家境並不富裕，但他憑著努力考上了理想的大學。", sentence2: "" },
-            { student: "Marcus", unit: "課文 3", word: "不滿", meaning: "不符合心意，心裡不舒服或不高興", missingFormat: "不＿", missingTarget: "滿", fillOptions: ["滿", "月", "的", "中"], synonyms: "", antonyms: "", sentence1: "顧客對這家餐廳服務態度的不良表示強烈不滿。", sentence2: "" },
-            { student: "Marcus", unit: "課文 3", word: "可惜", meaning: "令人感嘆、惋惜的事物", missingFormat: "可＿", missingTarget: "惜", fillOptions: ["雲", "惜", "天", "人"], synonyms: "", antonyms: "", sentence1: "這場精彩的比賽因為下雨而提前結束，真是令人可惜。", sentence2: "" },
-            { student: "Marcus", unit: "課文 3", word: "叮囑", meaning: "再三囑咐與提醒", missingFormat: "叮＿", missingTarget: "囑", fillOptions: ["有", "囑", "不", "上"], synonyms: "", antonyms: "", sentence1: "出門前，媽媽一再叮囑我要注意交通安全。", sentence2: "" },
-            { student: "Marcus", unit: "課文 3", word: "整齊", meaning: "條理分明、乾淨有序，沒有雜亂", missingFormat: "整＿", missingTarget: "齊", fillOptions: ["在", "我", "水", "齊"], synonyms: "", antonyms: "", sentence1: "他的書桌總是整理得乾乾淨淨、非常整齊。", sentence2: "" },
-            { student: "Marcus", unit: "課文 3", word: "無奈", meaning: "感到沒有辦法，只能接受", missingFormat: "無＿", missingTarget: "奈", fillOptions: ["了", "奈", "水", "人"], synonyms: "", antonyms: "", sentence1: "面對這項無法改變的決定，他只能無奈地接受。", sentence2: "" },
-            { student: "Marcus", unit: "課文 3", word: "悶悶不樂", meaning: "心裡有事，感到不高興或憂鬱", missingFormat: "悶悶不＿", missingTarget: "樂", fillOptions: ["樂", "月", "的", "中"], synonyms: "", antonyms: "", sentence1: "自從心愛的寵物走失後，他就一直悶悶不樂。", sentence2: "" },
-            { student: "Marcus", unit: "課文 3", word: "絆", meaning: "腳被物體擋住或勾到而差點跌倒", missingFormat: "＿", missingTarget: "絆", fillOptions: ["是", "水", "個", "絆"], synonyms: "", antonyms: "", sentence1: "小華走路沒注意腳下，差點被地上的電線絆倒。", sentence2: "" },
-            { student: "Marcus", unit: "課文 3", word: "筆挺", meaning: "形容衣服平整無褶痕、挺拔", missingFormat: "筆＿", missingTarget: "挺", fillOptions: ["了", "水", "挺", "在"], synonyms: "", antonyms: "", sentence1: "他穿上一身筆挺的西裝，看起來十分精神。", sentence2: "" },
-            { student: "Marcus", unit: "課文 3", word: "誤會", meaning: "對事情或別人的意思產生錯誤的理解", missingFormat: "誤＿", missingTarget: "會", fillOptions: ["會", "的", "好", "風"], synonyms: "", antonyms: "", sentence1: "經過解釋後，兩人終於化解了彼此之間的誤會。", sentence2: "" },
-            { student: "Marcus", unit: "課文 3", word: "打轉", meaning: "圍繞著某個中心旋轉、轉動", missingFormat: "打＿", missingTarget: "轉", fillOptions: ["了", "水", "轉", "在"], synonyms: "", antonyms: "", sentence1: "聽到這個感人的故事，她的眼眶裡淚水直打轉。", sentence2: "" },
-            { student: "Marcus", unit: "課文 3", word: "心甘情願", meaning: "心裡完全願意，沒有一點勉強", missingFormat: "心甘情＿", missingTarget: "願", fillOptions: ["願", "月", "的", "中"], synonyms: "", antonyms: "", sentence1: "為了照顧生病的家人，他心甘情願付出時間與精力。", sentence2: "" },
-            { student: "Marcus", unit: "成語", word: "一籌莫展", meaning: "一點計策或辦法也想不出來", missingFormat: "一籌莫＿", missingTarget: "展", fillOptions: ["在", "我", "水", "展"], synonyms: "", antonyms: "", sentence1: "面對這個突如其來的難題，大家一時之間都一籌莫展。", sentence2: "" },
-            { student: "Marcus", unit: "成語", word: "一竅不通", meaning: "形容對某種技術或知識完全不懂", missingFormat: "一竅不＿", missingTarget: "通", fillOptions: ["通", "的", "好", "風"], synonyms: "", antonyms: "", sentence1: "我對電腦修繕一竅不通，還是請專業人員來幫忙吧。", sentence2: "" },
-            { student: "Marcus", unit: "成語", word: "一曝十寒", meaning: "比喻學習或工作沒有恆心，作輟無常", missingFormat: "一曝十＿", missingTarget: "寒", fillOptions: ["我", "寒", "地", "水"], synonyms: "", antonyms: "", sentence1: "學習語言最忌諱一曝十寒，只有每天堅持才能看到進步。", sentence2: "" },
-            { student: "Marcus", unit: "成語", word: "七竅生煙", meaning: "形容極度氣憤或焦急", missingFormat: "七竅生＿", missingTarget: "煙", fillOptions: ["了", "煙", "水", "人"], synonyms: "", antonyms: "", sentence1: "聽到對方無理取鬧的話語，氣得他七竅生煙。", sentence2: "" },
-            { student: "Marcus", unit: "成語", word: "大言不慚", meaning: "說大話卻一點也不感到羞愧", missingFormat: "大言不＿", missingTarget: "慚", fillOptions: ["在", "我", "水", "慚"], synonyms: "", antonyms: "", sentence1: "他明明沒有參與製作，卻大言不慚地把功勞全歸給自己。", sentence2: "" },
-            { student: "Marcus", unit: "成語", word: "不足掛齒", meaning: "微不足道，不值得一提", missingFormat: "不足掛＿", missingTarget: "齒", fillOptions: ["了", "水", "齒", "在"], synonyms: "", antonyms: "", sentence1: "這只是舉手之勞而已，不足掛齒，您不必放在心上。", sentence2: "" },
-            { student: "Marcus", unit: "成語", word: "匹夫之勇", meaning: "形容沒有智謀、光憑蠻力的勇敢", missingFormat: "匹夫之＿", missingTarget: "勇", fillOptions: ["勇", "的", "好", "風"], synonyms: "", antonyms: "", sentence1: "做事要講究策略，光憑匹夫之勇是無法順利解決問題的。", sentence2: "" },
-            { student: "Marcus", unit: "成語", word: "毛遂自薦", meaning: "比喻自告奮勇，主動推薦自己擔當重任", missingFormat: "毛遂自＿", missingTarget: "薦", fillOptions: ["水", "薦", "我", "了"], synonyms: "", antonyms: "", sentence1: "在會議中，他毛遂自薦擔任專案負責人，展示了積極的態度。", sentence2: "" }
-        ];
-
-        // 🧠 建立智能牌堆 (純字詞)
-        function buildWordDeck() {
-            return [...currentDatabase].sort(() => 0.5 - Math.random());
-        }
-
-        // 🧠 建立智能牌堆 (自動擴展例句) - 僅供「情境用法」使用
-        function buildSentenceDeck() {
-            let deck = [];
-            currentDatabase.forEach(item => {
-                let safe = getSafeData(item);
-                
-                let item1 = { ...item };
-                if (safe.sentence1) item1.activeSentence = safe.sentence1;
-                else if (safe.sentence && safe.sentence !== "無例句") item1.activeSentence = safe.sentence;
-                else item1.activeSentence = "無例句";
-                deck.push(item1);
-
-                if (safe.sentence2) {
-                    let item2 = { ...item };
-                    item2.activeSentence = safe.sentence2;
-                    deck.push(item2);
-                }
-            });
-            return deck.sort(() => 0.5 - Math.random());
-        }
-
-        // 🧟 地圖遊蕩怪物設定
-        const MAP_MONSTER_TYPES = [
-            { name: "殭屍", icon: "🧟", dmg: 10 },
-            { name: "骷髏", icon: "💀", dmg: 15 },
-            { name: "蜘蛛", icon: "🕷️", dmg: 10 }
-        ];
-
-        function spawnMapMonsters() {
-            activeMapMonsters.forEach(m => m.element.remove());
-            activeMapMonsters = [];
-            
-            // 計算小怪數量：基礎 2 隻，每打贏一隻 Boss 就 +1
-            let baseMonsters = 2; 
-            let maxMonstersLimit = Math.max(3, Math.floor((gridSize * gridSize) / 12)); 
-            let numMonsters = Math.min(baseMonsters + bossesDefeated, maxMonstersLimit); 
-            
-            for(let i=0; i<numMonsters; i++) {
-                let type = MAP_MONSTER_TYPES[Math.floor(Math.random() * MAP_MONSTER_TYPES.length)];
-                let randX, randY;
-                let attempts = 0;
-                do { 
-                    randX = Math.floor(Math.random() * gridSize); 
-                    randY = Math.floor(Math.random() * gridSize); 
-                    attempts++;
-                } while (
-                    attempts < 50 && (
-                        (Math.abs(randX - pX) <= 1 && Math.abs(randY - pY) <= 1) || 
-                        questBlocks.some(b => b.x === randX && b.y === randY) ||
-                        activeMapMonsters.some(m => m.x === randX && m.y === randY)
-                    )
-                );
-
-                let el = document.createElement('div');
-                el.className = 'decoration-item'; 
-                el.innerText = type.icon;
-                el.style.left = (randX * TILE_SIZE) + 'px';
-                el.style.top = (randY * TILE_SIZE) + 'px';
-                el.style.zIndex = 6;
-                el.style.transition = "top 0.3s, left 0.3s";
-                
-                document.getElementById('island').appendChild(el);
-                
-                activeMapMonsters.push({ x: randX, y: randY, type: type, element: el });
-            }
-            
-            if(monsterInterval) clearInterval(monsterInterval);
-            monsterInterval = setInterval(moveMapMonsters, 1000);
-        }
-
-        function moveMapMonsters() {
-            // 如果未行第一步，怪獸保持靜止 (Standby Mode)
-            if(!isQuestionActive || !hasPlayerMoved) return;
-            
-            activeMapMonsters.forEach((m, index) => {
-                let dirs = [[0,1], [0,-1], [1,0], [-1,0]];
-                
-                // 70% 機率主動追蹤玩家
-                if (Math.random() < 0.7) {
-                    let dx = pX - m.x; let dy = pY - m.y;
-                    if (Math.abs(dx) > Math.abs(dy)) {
-                        dirs = dx > 0 ? [[1,0], [0,1], [0,-1], [-1,0]] : [[-1,0], [0,1], [0,-1], [1,0]];
-                    } else {
-                        dirs = dy > 0 ? [[0,1], [1,0], [-1,0], [0,-1]] : [[0,-1], [1,0], [-1,0], [0,1]];
-                    }
-                } else {
-                    dirs = dirs.sort(() => 0.5 - Math.random());
-                }
-                
-                for(let i=0; i<dirs.length; i++) {
-                    let nx = m.x + dirs[i][0]; let ny = m.y + dirs[i][1];
-                    
-                    // 防撞檢查：如果保護罩開啟，怪物唔可以行入主角嗰格
-                    let isProtectedTile = isShieldActive && nx === pX && ny === pY;
-
-                    if(nx >= 0 && nx < gridSize && ny >= 0 && ny < gridSize && 
-                       !questBlocks.some(b => b.x === nx && b.y === ny && !b.broken) &&
-                       !activeMapMonsters.some(other => other !== m && other.x === nx && other.y === ny) &&
-                       !isProtectedTile) {
-                        m.x = nx; m.y = ny;
-                        m.element.style.left = (nx * TILE_SIZE) + 'px';
-                        m.element.style.top = (ny * TILE_SIZE) + 'px';
-                        break;
-                    }
-                }
-                checkMonsterCollision(m, index);
-            });
-        }
-        
-        function checkMonsterCollision(m, index) {
-            if(m.x === pX && m.y === pY && !isShieldActive) {
-                let dmg = calculateDamage(m.type.dmg);
-                takeDamage(dmg, `被 ${m.type.name} 襲擊`);
-                m.element.remove();
-                activeMapMonsters.splice(index, 1);
-            }
-        }
-
-        // 🧠 計算裝甲減傷
-        function calculateDamage(amount) {
-            let reduction = armorLevel * 0.15;
-            if (reduction > 0.75) reduction = 0.75;
-            return Math.max(1, Math.floor(amount * (1 - reduction)));
-        }
-
-        // 🧠 載入題庫
-        function initDatabase() {
-            try {
-                // 優先使用預設題庫作為保底，防止崩潰
-                database = [...defaultDatabaseRaw];
-                
-                let currentDefaultStr = JSON.stringify(defaultDatabaseRaw);
-                let lastDefaultStr = null;
-                try { lastDefaultStr = localStorage.getItem('lastDefaultDB'); } catch(e){}
-
-                if (lastDefaultStr !== currentDefaultStr) {
-                    try {
-                        localStorage.setItem('customVocabDB', currentDefaultStr);
-                        localStorage.setItem('lastDefaultDB', currentDefaultStr);
-                    } catch(e) {}
-                } else {
-                    let savedDB = null;
-                    try { savedDB = localStorage.getItem('customVocabDB'); } catch(e){}
-                    if (savedDB) {
-                        try { 
-                            let parsedDB = JSON.parse(savedDB); 
-                            if (Array.isArray(parsedDB) && parsedDB.length > 0) database = parsedDB;
-                        } catch(e) {}
-                    }
-                }
-
-                database = database.map(item => { 
-                    if(item && item.idiom) { item.word = item.idiom; delete item.idiom; } 
-                    return item; 
-                }).filter(item => item != null);
-                
-                let studentSelect = document.getElementById('student-select');
-                if (studentSelect) {
-                    studentSelect.innerHTML = ''; 
-                    let students = [...new Set(database.map(item => item.student || "未分類"))];
-                    students.forEach(s => {
-                        let opt = document.createElement('option');
-                        opt.value = s; opt.innerText = s; studentSelect.appendChild(opt);
-                    });
-                    
-                    let allOpt = document.createElement('option');
-                    allOpt.value = 'all'; allOpt.innerText = '所有玩家大挑戰';
-                    studentSelect.appendChild(allOpt);
-
-                    updateUnitDropdown();
-                }
-            } catch(e) { 
-                console.error("Init DB Error", e); 
-                updateUnitDropdown();
-            }
-        }
-
-        function updateUnitDropdown() {
-            try {
-                let studentSelect = document.getElementById('student-select');
-                if(!studentSelect) return;
-                let student = studentSelect.value || "Justin"; 
-                
-                let select = document.getElementById('unit-select');
-                if(select) {
-                    select.innerHTML = '<option value="all">所有範圍 (綜合挑戰)</option>';
-                    let studentDB = (student === 'all') ? database : database.filter(item => item.student === student);
-                    let units = [...new Set(studentDB.map(item => item.unit || "未分類"))];
-                    units.forEach(u => {
-                        let opt = document.createElement('option'); opt.value = u; opt.innerText = u; select.appendChild(opt);
-                    });
-                }
-                updateScopeInfo();
-            } catch(e) { console.error(e); }
-        }
-
-        function updateScopeInfo() {
-            try {
-                let studentSelect = document.getElementById('student-select');
-                if(!studentSelect) return;
-                
-                let student = studentSelect.value || "Justin";
-                let unitSelect = document.getElementById('unit-select');
-                let unit = unitSelect ? unitSelect.value : "all";
-                
-                let filteredDB = (student === 'all') ? database : database.filter(item => item.student === student);
-                currentDatabase = (unit === 'all') ? filteredDB : filteredDB.filter(item => item.unit === unit);
-                
-                if (!currentDatabase || currentDatabase.length === 0) {
-                    currentDatabase = database.length > 0 ? [...database] : [...defaultDatabaseRaw];
-                }
-                
-                let infoEl = document.getElementById('scope-info');
-                if(infoEl) infoEl.innerText = `這個範圍共有 ${currentDatabase.length} 個字詞。`;
-            } catch(e) { console.error(e); }
-        }
-
-        function openDBManager() { 
-            document.getElementById('db-textarea').value = JSON.stringify(database, null, 4); 
-            document.getElementById('db-modal').style.display = 'flex'; 
-        }
-        
-        function closeDBManager() { document.getElementById('db-modal').style.display = 'none'; }
-        
-        function clearDBTextarea() {
-            let textarea = document.getElementById('db-textarea');
-            textarea.value = ""; textarea.focus();
-        }
-
-        function saveCustomDB() {
-            try {
-                let textValue = document.getElementById('db-textarea').value;
-                if(textValue.trim() === "") throw new Error("資料不可為空！");
-                let newDB = JSON.parse(textValue);
-                if (!Array.isArray(newDB) || newDB.length === 0) throw new Error("必須是包含資料的陣列格式");
-                database = newDB.map(item => { if(item.idiom) { item.word = item.idiom; delete item.idiom; } return item; });
-                
-                try { localStorage.setItem('customVocabDB', JSON.stringify(database)); } catch(e){}
-                
-                initDatabase(); closeDBManager(); alert("題庫已成功更新並儲存於瀏覽器！");
-            } catch(e) { alert("儲存失敗！JSON 格式有誤。\n錯誤訊息: " + e.message); }
-        }
-
-        function resetToDefaultDB() {
-            if(confirm("確定要還原成預設題庫嗎？這將捨棄所有手機舊紀錄。")) {
-                let currentDefaultStr = JSON.stringify(defaultDatabaseRaw);
-                database = JSON.parse(currentDefaultStr);
-                database = database.map(item => { if(item.idiom) { item.word = item.idiom; delete item.idiom; } return item; });
-                
-                try { 
-                    localStorage.setItem('customVocabDB', JSON.stringify(database));
-                    localStorage.setItem('lastDefaultDB', currentDefaultStr);
-                } catch(e){}
-                
-                document.getElementById('db-textarea').value = JSON.stringify(database, null, 4);
-                initDatabase(); alert("已成功還原並修復題庫！");
-            }
-        }
-
-        // 📥 載入與儲存遊戲進度
-        function loadGameState() {
-            let savedState = null;
-            try { savedState = localStorage.getItem('rpgGameState'); } catch(e){}
-            
-            if (savedState) {
-                try {
-                    let state = JSON.parse(savedState);
-                    emeralds = parseInt(state.emeralds) || 0;
-                    MAX_HP = parseInt(state.MAX_HP); if(isNaN(MAX_HP)) MAX_HP = 100;
-                    hp = parseInt(state.hp); if(isNaN(hp)) hp = MAX_HP;
-                    foodCount = parseInt(state.foodCount) || 0;
-                    questionsAnswered = parseInt(state.questionsAnswered) || 0;
-                    armorLevel = parseInt(state.armorLevel) || 0;
-                    bossesDefeated = parseInt(state.bossesDefeated) || 0; 
-                    gridSize = parseInt(state.gridSize); if(isNaN(gridSize) || gridSize < 6) gridSize = 8;
-                    materials = state.materials || { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 };
-                    inventory = state.inventory || {};
-                    placedDecorations = Array.isArray(state.placedDecorations) ? state.placedDecorations : [];
-                } catch(e) { console.error("載入遊戲紀錄失敗", e); gridSize = 8; }
-            }
-            updateMaterialUI(); updateGridSize();
-        }
-
-        function saveGameState() {
-            try {
-                let state = { emeralds, materials, inventory, placedDecorations, gridSize, hp, MAX_HP, foodCount, questionsAnswered, armorLevel, bossesDefeated };
-                localStorage.setItem('rpgGameState', JSON.stringify(state));
-            } catch(e) { console.error("存檔失敗", e); }
-        }
-
-        function updateMaterialUI() {
-            try {
-                const safeSet = (id, val) => { let el = document.getElementById(id); if(el) el.innerText = val; };
-                safeSet('em-menu', emeralds); safeSet('em-std', emeralds); safeSet('em-std2', emeralds);
-                safeSet('mat-em', emeralds);
-                safeSet('mat-log', materials.log); safeSet('mat-stone', materials.stone); safeSet('mat-fiber', materials.fiber);
-                safeSet('mat-sand', materials.sand); safeSet('mat-clay', materials.clay); safeSet('mat-iron', materials.iron); safeSet('mat-gold', materials.gold);
-                safeSet('hp-std', `${hp} / ${MAX_HP}`); 
-                safeSet('hp-rpg', `${hp} / ${MAX_HP}`);
-                safeSet('food-std', foodCount); safeSet('food-rpg', foodCount);
-            } catch(e) { console.error("UI Update Error", e); }
-        }
-
-        function goToMenu() { 
-            try {
-                if(monsterInterval) clearInterval(monsterInterval);
-                document.querySelectorAll('.page').forEach(p => p.style.display = 'none'); 
-                document.getElementById('main-dashboard').style.display = 'block'; 
-                resetTTSBtn();
-                isQuestionActive = false;
-            } catch(e) { console.error("返回大本營出錯:", e); }
-        }
-
-        function restartGame() {
-            if(confirm("⚠️ 警告：確定要重新開始嗎？\n所有的綠寶石、收集的素材與島嶼方塊都會被完全清空！")) {
-                if(confirm("🚨 最後確認：進度清除後將【無法還原】，真的要重置嗎？")) {
-                    emeralds = 0; MAX_HP = 100; hp = MAX_HP; foodCount = 0; questionsAnswered = 0; armorLevel = 0; bossesDefeated = 0;
-                    materials = { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 };
-                    inventory = {}; placedDecorations = []; selectedHotbarItem = null; gridSize = 8; 
-                    updateGridSize(); renderDecorations(); renderHotbar(); updateMaterialUI(); 
-                    saveGameState(); 
-                    questionDeck = buildWordDeck();
-                    loadRPGQuest();
-                    alert("🔄 遊戲紀錄已完全重置！開始新的冒險吧！");
-                }
-            }
-        }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            initDatabase(); loadGameState();
-        });
-
-        function highlightSentence(sentence, word) {
-            if (!sentence || sentence === "無例句") return sentence;
-            let highlighted = `<span style="color:#d32f2f; font-weight:bold; border-bottom: 2px solid #d32f2f;">${word}</span>`;
-            if (sentence.includes("＿")) {
-                return sentence.replace(/＿+|_+/g, highlighted);
-            } else {
-                return sentence.replace(new RegExp(word, 'g'), highlighted);
-            }
-        }
-
-        // 📚 學習區邏輯
-        function openLearningArea() {
-            try {
-                if(!currentDatabase || currentDatabase.length === 0) return alert("目前範圍沒有題目！請先選擇玩家與單元。");
-                document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-                document.getElementById('learning-area').style.display = 'block';
-                
-                let titleSize = "28px";
-                let meaningSize = "22px";
-                let sentenceSize = "20px";
-
-                let listContent = "";
-                currentDatabase.forEach(item => {
-                    let safe = getSafeData(item);
-                    let unitBadge = safe.unit ? `<span style="background:#1565c0; color:#fff; font-size:14px; padding:2px 6px; border-radius:4px; margin-right:8px; vertical-align:middle;">[${safe.unit}]</span>` : "";
-                    
-                    let safeWord = safe.word.replace(/'/g, "\\'");
-                    let safeMeaning = safe.meaning.replace(/'/g, "\\'");
-
-                    let extraInfo = "";
-                    if (safe.synonyms) extraInfo += `<p style="margin: 0 0 5px 0; font-size: ${sentenceSize}; color: #43a047;"><strong>同義詞：</strong>${safe.synonyms}</p>`;
-                    if (safe.antonyms) extraInfo += `<p style="margin: 0 0 8px 0; font-size: ${sentenceSize}; color: #e53935;"><strong>反義詞：</strong>${safe.antonyms}</p>`;
-                    
-                    let sentenceHtml = "";
-                    if (safe.sentence1) sentenceHtml += `<p style="margin: 0 0 5px 0; font-size: ${sentenceSize}; color: #666; font-style: italic;">💡 例句 1：${highlightSentence(safe.sentence1, safe.word)}</p>`;
-                    if (safe.sentence2) sentenceHtml += `<p style="margin: 0 0 5px 0; font-size: ${sentenceSize}; color: #666; font-style: italic;">💡 例句 2：${highlightSentence(safe.sentence2, safe.word)}</p>`;
-                    
-                    if (!safe.sentence1 && !safe.sentence2 && safe.sentence !== "無例句") {
-                        sentenceHtml += `<p style="margin: 0 0 5px 0; font-size: ${sentenceSize}; color: #666; font-style: italic;">💡 例句：${highlightSentence(safe.sentence, safe.word)}</p>`;
-                    }
-
-                    listContent += `
-                        <div style="background: #fff; border: 3px solid #ccc; border-radius: 8px; padding: 15px; box-shadow: 0 3px 0 #999; position: relative;">
-                            <button onclick="readLearningTTS('${safeWord}', '${safeMeaning}')" style="position: absolute; right: 12px; top: 12px; background: #2196F3; color: white; border: 2px solid #0d47a1; border-radius: 6px; padding: 6px 10px; font-weight: bold; cursor: pointer; transition: 0.1s;">🔊 朗讀</button>
-                            <h3 style="margin: 0 0 8px 0; color: #1565c0; font-size: ${titleSize}; display: flex; align-items: center; padding-right: 70px;">${unitBadge}${safe.word}</h3>
-                            <p style="margin: 0 0 10px 0; font-size: ${meaningSize}; font-weight: bold; color: #333; padding-right: 70px; line-height: 1.4;">📖 ${safe.meaning}</p>
-                            ${extraInfo}
-                            ${sentenceHtml}
-                        </div>
-                    `;
-                });
-                document.getElementById('learning-list').innerHTML = listContent;
-            } catch(e) { console.error("打開學習區出錯:", e); }
-        }
-
-        // ⚔️ 戰鬥與生存系統
-        function takeDamage(amount, reason) {
-            hp = parseInt(hp); if(isNaN(hp)) hp = MAX_HP;
-            hp -= amount;
-            sfx.hit();
-            document.body.classList.add('damage-flash');
-            setTimeout(() => document.body.classList.remove('damage-flash'), 300);
-            
-            if (hp <= 0) {
-                hp = 0; updateMaterialUI();
-                if(monsterInterval) clearInterval(monsterInterval);
-                setTimeout(() => {
-                    alert(`💀 遊戲結束：${reason}\n你被擊倒了，失去 30% 綠寶石。你已被送回大本營休息。`);
-                    emeralds = Math.floor(emeralds * 0.7);
-                    hp = MAX_HP;
-                    saveGameState();
-                    document.getElementById('boss-modal').style.display = 'none';
-                    goToMenu();
-                }, 100);
-            } else {
-                updateMaterialUI(); saveGameState();
-            }
-        }
-
-        function eatFood() {
-            if (foodCount > 0 && hp < MAX_HP) {
-                sfx.eat(); foodCount--; hp = Math.min(MAX_HP, hp + 30);
-                updateMaterialUI(); saveGameState();
-            } else if (hp >= MAX_HP) {
-                alert("血量已經滿了，不需要吃東西！");
-            } else {
-                alert("沒有蘋果了！答對題目有機會掉落蘋果！");
-            }
-        }
-
-        function checkBossTrigger() {
-            if (questionsAnswered > 0 && questionsAnswered % BOSS_TRIGGER_COUNT === 0) {
-                setTimeout(() => { startBossFight(); }, 1200);
-            }
-        }
-
-        // =====================================
-        // 📚 標準模式邏輯
-        // =====================================
-        function startStandardGame(mode) {
-            initAudio(); 
-            if(!currentDatabase || currentDatabase.length === 0) return alert("目前範圍沒有題目！請在設定檢查題庫。");
-            currentStdMode = mode;
-            
-            if (mode === 'sentence') questionDeck = buildSentenceDeck();
-            else questionDeck = buildWordDeck();
-            
-            totalStdQuestions = questionDeck.length;
-            currentQuestionCount = 0;
-            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-            document.getElementById('standard-game').style.display = 'block';
-            const titles = { 'meaning-to-word': "📖 意思找詞語", 'word-to-meaning': "📖 詞語選意思", 'fill-blank': "📖 詞語填空", 'sentence': "📖 情境用法" };
-            document.getElementById('std-title').innerText = titles[mode];
-            loadStandardQuestion();
-        }
-
-        function generateOptions(correctAnswer, keyType) {
-            if (!correctAnswer) correctAnswer = "正確答案";
-            let options = [correctAnswer];
-            let shuffledDb = [...currentDatabase].sort(() => 0.5 - Math.random());
-            for(let i = 0; i < shuffledDb.length; i++) { 
-                let val = shuffledDb[i][keyType];
-                if(val && val !== correctAnswer && options.length < 4 && !options.includes(val)) options.push(val); 
-            }
-            let dummies = ["的", "了", "是", "在", "不", "有", "個", "人", "這", "上", "中", "大", "他", "我", "你", "好"];
-            while (options.length < 4) {
-                let d = dummies[Math.floor(Math.random() * dummies.length)];
-                if (!options.includes(d)) options.push(d);
-            }
-            return options.sort(() => 0.5 - Math.random()); 
-        }
-
-        function loadStandardQuestion() {
-            try {
-                document.getElementById('std-next-btn').style.display = 'none'; document.getElementById('feedback-std').innerText = "";
-                let optionsContainer = document.getElementById('options-container'); optionsContainer.innerHTML = "";
-                
-                if (!questionDeck || questionDeck.length === 0) {
-                    alert("🎉 恭喜！你已經完成本單元的所有題目！");
-                    goToMenu();
-                    return;
-                }
-                
-                currentTargetData = questionDeck.pop();
-                currentQuestionCount++;
-                document.getElementById('std-q-counter').innerText = `題號: ${currentQuestionCount} / ${totalStdQuestions}`;
-                
-                let safe = getSafeData(currentTargetData);
-                let options = [];
-
-                if (currentStdMode === 'meaning-to-word') {
-                    document.getElementById('question-text-std').innerText = safe.meaning; options = generateOptions(safe.word, 'word');
-                } else if (currentStdMode === 'word-to-meaning') {
-                    document.getElementById('question-text-std').innerText = safe.word; options = generateOptions(safe.meaning, 'meaning');
-                } else if (currentStdMode === 'sentence') {
-                    let sText = currentTargetData.activeSentence || "無例句";
-                    activeSentenceText = sText;
-                    let displaySentence = sText;
-                    if (!displaySentence.includes("＿")) displaySentence = displaySentence.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】");
-                    else displaySentence = displaySentence.replace(/＿＿＿＿/g, "【 ＿＿ 】");
-                    document.getElementById('question-text-std').innerText = displaySentence;
-                    options = generateOptions(safe.word, 'word');
-                } else if (currentStdMode === 'fill-blank') {
-                    document.getElementById('question-text-std').innerText = safe.mFormat;
-                    options = safe.fillOpts.length > 0 ? [...safe.fillOpts].sort(() => 0.5 - Math.random()) : generateOptions(safe.mTarget, 'missingTarget');
-                }
-                renderStdButtons(options, "std-option-btn");
-                resetTTSBtn();
-            } catch(e) { console.error("Load Standard Q Error", e); }
-        }
-
-        function renderStdButtons(optionsArray, className) {
-            let container = document.getElementById('options-container');
-            optionsArray.forEach(opt => {
-                let btn = document.createElement(className === "std-char-block" ? "div" : "button");
-                btn.className = className; btn.innerText = opt;
-                btn.onclick = function() { checkStandardAnswer(this.innerText, this); }; container.appendChild(btn);
-            });
-        }
-
-        function checkStandardAnswer(selectedText, clickedElement) {
-            try {
-                let safe = getSafeData(currentTargetData);
-                let feedback = document.getElementById('feedback-std');
-                let correctAnswer = (currentStdMode === 'word-to-meaning') ? safe.meaning : (currentStdMode === 'fill-blank' ? safe.mTarget : safe.word);
-                Array.from(document.getElementById('options-container').children).forEach(btn => { btn.style.pointerEvents = 'none'; if(btn.className !== "std-char-block") btn.style.filter = 'brightness(0.8)'; });
-
-                if(selectedText === correctAnswer) {
-                    sfx.correct(); 
-                    feedback.innerText = "✅ 答對了！獲得 5 綠寶石！"; feedback.style.color = "#2e7d32";
-                    if(clickedElement.className !== "std-char-block") clickedElement.style.backgroundColor = "#c5e1a5";
-                    emeralds += 5; 
-                    if (Math.random() < 0.3) { foodCount++; feedback.innerText += " (並幸運獲得 🍎x1)"; }
-                    updateMaterialUI(); saveGameState(); 
-                    if (currentStdMode === 'fill-blank') document.getElementById('question-text-std').innerText = safe.mFormat.replace(/＿|_/g, `【${correctAnswer}】`);
-                } else {
-                    let dmg = calculateDamage(15);
-                    feedback.innerText = `❌ 答錯了！遭受小妖精襲擊，扣 ${dmg} 血！答案是：` + correctAnswer; feedback.style.color = "#d32f2f";
-                    if(clickedElement.className !== "std-char-block") clickedElement.style.backgroundColor = "#ffcdd2";
-                    takeDamage(dmg, "被小妖精襲擊");
-                }
-            } catch(e) { console.error("Check Ans Error", e); }
-            
-            let nextBtn = document.getElementById('std-next-btn');
-            if (questionDeck.length === 0) {
-                nextBtn.innerText = "完成挑戰 ➡️";
-            } else {
-                nextBtn.innerText = "繼續挑戰 ➡️";
-            }
-            nextBtn.style.display = 'block';
-        }
-
-        // =====================================
-        // 🐉 巨龍/Minecraft Boss 戰邏輯 (僅限 RPG 模式)
-        // =====================================
-        const BOSS_LIST = [
-            { name: "終界龍 (Ender Dragon)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%231a1a1a'/%3E%3Crect x='1' y='3' width='2' height='1' fill='%23d800d8'/%3E%3Crect x='5' y='3' width='2' height='1' fill='%23d800d8'/%3E%3Crect x='2' y='5' width='4' height='3' fill='%230a0a0a'/%3E%3C/svg%3E", dmg: 60 },
-            { name: "苦力怕 (Creeper)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%2355FF55'/%3E%3Crect x='1' y='2' width='2' height='2' fill='%23000'/%3E%3Crect x='5' y='2' width='2' height='2' fill='%23000'/%3E%3Crect x='3' y='4' width='2' height='3' fill='%23000'/%3E%3Crect x='2' y='5' width='1' height='2' fill='%23000'/%3E%3Crect x='5' y='5' width='1' height='2' fill='%23000'/%3E%3C/svg%3E", dmg: 40 },
-            { name: "末影人 (Enderman)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%23111'/%3E%3Crect x='0' y='4' width='3' height='1' fill='%23FF55FF'/%3E%3Crect x='5' y='4' width='3' height='1' fill='%23FF55FF'/%3E%3C/svg%3E", dmg: 35 },
-            { name: "地獄幽靈 (Ghast)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%23eee'/%3E%3Crect x='1' y='3' width='2' height='1' fill='%23000'/%3E%3Crect x='5' y='3' width='2' height='1' fill='%23000'/%3E%3Crect x='3' y='5' width='2' height='1' fill='%23000'/%3E%3Crect x='1' y='7' width='1' height='1' fill='%23aaa'/%3E%3Crect x='3' y='7' width='1' height='1' fill='%23aaa'/%3E%3Crect x='5' y='7' width='1' height='1' fill='%23aaa'/%3E%3C/svg%3E", dmg: 45 },
-            { name: "監守者 (Warden)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%23004c4c'/%3E%3Crect x='2' y='2' width='4' height='4' fill='%23002222'/%3E%3Crect x='3' y='4' width='2' height='2' fill='%23118888'/%3E%3Crect x='0' y='1' width='1' height='3' fill='%23008888'/%3E%3Crect x='7' y='1' width='1' height='3' fill='%23008888'/%3E%3C/svg%3E", dmg: 80 },
-            { name: "凋靈 (Wither)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='4' y='0' width='4' height='4' fill='%23333'/%3E%3Crect x='5' y='1' width='1' height='1' fill='%23000'/%3E%3Crect x='7' y='1' width='1' height='1' fill='%23000'/%3E%3Crect x='1' y='1' width='3' height='3' fill='%23333'/%3E%3Crect x='1.5' y='1.5' width='0.5' height='0.5' fill='%23000'/%3E%3Crect x='3' y='1.5' width='0.5' height='0.5' fill='%23000'/%3E%3Crect x='8' y='1' width='3' height='3' fill='%23333'/%3E%3Crect x='8.5' y='1.5' width='0.5' height='0.5' fill='%23000'/%3E%3Crect x='10' y='1.5' width='0.5' height='0.5' fill='%23000'/%3E%3Crect x='3' y='4' width='6' height='1' fill='%23222'/%3E%3Crect x='5' y='5' width='2' height='3' fill='%23222'/%3E%3C/svg%3E", dmg: 50 }
-        ];
-
-        function startBossFight() {
-            initAudio(); sfx.boss();
-            bossHp = BOSS_MAX_HP;
-            currentBoss = BOSS_LIST[Math.floor(Math.random() * BOSS_LIST.length)];
-            
-            document.getElementById('boss-title-text').innerText = `🔥 ${currentBoss.name} 突襲！🔥`;
-            document.getElementById('boss-icon').innerHTML = `<img src="${currentBoss.icon}" style="width: 100px; height: 100px; image-rendering: pixelated; border: 4px solid #333; box-shadow: 0 0 15px #ff5252; border-radius: 12px; background: #fff;">`;
-            document.getElementById('boss-hp-fill').style.width = '100%';
-            document.getElementById('boss-modal').style.display = 'flex';
-            loadBossQuestion();
-        }
-
-        function loadBossQuestion() {
-            try {
-                bossTargetData = currentDatabase[Math.floor(Math.random() * currentDatabase.length)];
-                let safe = getSafeData(bossTargetData);
-                const types = ['meaning-to-word', 'word-to-meaning', 'fill-blank', 'sentence'];
-                bossQuestType = types[Math.floor(Math.random() * types.length)];
-                
-                let qText = "", rawOptions = [], actualAns = "";
-                
-                let fillOpts = safe.fillOpts.length > 0 ? safe.fillOpts : generateOptions(safe.mTarget, 'missingTarget');
-
-                if (bossQuestType === 'meaning-to-word') { qText = safe.meaning; actualAns = safe.word; rawOptions = generateOptions(actualAns, 'word'); }
-                else if (bossQuestType === 'word-to-meaning') { qText = safe.word; actualAns = safe.meaning; rawOptions = generateOptions(actualAns, 'meaning'); }
-                else if (bossQuestType === 'fill-blank') { qText = safe.mFormat; actualAns = safe.mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random()); }
-                else if (bossQuestType === 'sentence') { 
-                    let possibleSentences = [];
-                    if (safe.sentence && safe.sentence !== "無例句") possibleSentences.push(safe.sentence);
-                    if (safe.sentence1) possibleSentences.push(safe.sentence1);
-                    if (safe.sentence2) possibleSentences.push(safe.sentence2);
-                    let sText = possibleSentences.length > 0 ? possibleSentences[Math.floor(Math.random() * possibleSentences.length)] : "無例句";
-                    
-                    activeSentenceText = sText;
-                    if (!sText.includes("＿")) qText = sText.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】");
-                    else qText = sText.replace(/＿＿＿＿/g, "【 ＿＿ 】");
-                    actualAns = safe.word; rawOptions = generateOptions(actualAns, 'word'); 
-                }
-
-                document.getElementById('boss-q-text').innerText = qText;
-                
-                let choicesHTML = "";
-                rawOptions.forEach((opt) => {
-                    choicesHTML += `<div onclick="checkBossAnswer('${opt}', this)">${opt}</div>`;
-                    if (opt === actualAns) bossCorrectAnswer = opt;
-                });
-                document.getElementById('boss-choices').innerHTML = choicesHTML;
-                resetTTSBtn();
-            } catch(e) { console.error("Boss Load Error", e); }
-        }
-
-        function checkBossAnswer(selectedText, btn) {
-            Array.from(document.getElementById('boss-choices').children).forEach(b => b.style.pointerEvents = 'none');
-            
-            if (selectedText === bossCorrectAnswer) {
-                sfx.mine(); setTimeout(sfx.correct, 100);
-                btn.style.backgroundColor = "#c5e1a5";
-                bossHp--;
-                document.getElementById('boss-hp-fill').style.width = (bossHp / BOSS_MAX_HP * 100) + '%';
-                
-                if (bossHp <= 0) {
-                    setTimeout(() => {
-                        bossesDefeated++; // 擊敗 Boss 次數 +1，令地圖小怪增加
-                        alert(`🎉 恭喜！你成功擊敗了 ${currentBoss.name}！\n獲得戰利品：50 綠寶石、🌟黃金x2、🍎蘋果x3！\n⚠️ 警告：地圖上的小怪數量增加了！`);
-                        emeralds += 50; materials.gold += 2; foodCount += 3;
-                        updateMaterialUI(); saveGameState();
-                        document.getElementById('boss-modal').style.display = 'none';
-                        if(document.getElementById('rpg-game').style.display === 'block') loadRPGQuest(); else loadStandardQuestion();
-                    }, 500);
-                } else {
-                    setTimeout(() => { loadBossQuestion(); }, 1000);
-                }
-            } else {
-                btn.style.backgroundColor = "#ffcdd2";
-                let dmg = calculateDamage(currentBoss.dmg);
-                alert(`❌ 答錯了！正確答案是：「${bossCorrectAnswer}」\n${currentBoss.name} 對你發動攻擊，扣 ${dmg} 血！`);
-                takeDamage(dmg, `被 ${currentBoss.name} 擊殺`);
-                if (hp > 0) setTimeout(() => { loadBossQuestion(); }, 1200);
-            }
-        }
-
-        // =====================================
-        // ⛏️ RPG 模式邏輯
-        // =====================================
-        function updateGridSize() {
-            try {
-                gridSize = parseInt(gridSize);
-                if (isNaN(gridSize) || gridSize < 6) gridSize = 8;
-                let island = document.getElementById('island'); 
-                if(!island) return;
-                let sizePx = (gridSize * TILE_SIZE) + 'px';
-                island.style.cssText = `width: ${sizePx}; height: ${sizePx}; min-width: ${sizePx}; min-height: ${sizePx}; display: inline-block; position: relative;`;
-            } catch(e) { console.error("Grid Size Error:", e); }
-        }
-
-        function startRPGGame() {
-            initAudio(); 
-            if(!currentDatabase || currentDatabase.length === 0) return alert("目前範圍沒有題目！");
-            document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-            document.getElementById('rpg-game').style.display = 'block';
-            updateGridSize(); renderDecorations(); renderHotbar(); 
-            
-            questionDeck = buildSentenceDeck();
-            loadRPGQuest();
-        }
-
-        function loadRPGQuest() {
-            try {
-                isQuestionActive = true; 
-                hasPlayerMoved = false; 
-                isShieldActive = true; 
-                document.getElementById('player').classList.add('shield-active');
-                
-                resetTTSBtn();
-                document.getElementById('rpg-next-btn').style.display = 'none';
-                document.getElementById('feedback-rpg').innerText = "🛡️ 你已受保護罩庇護！行出第一步保護罩即會消失！"; 
-                document.getElementById('feedback-rpg').style.color = "#1565c0";
-                
-                if (!questionDeck || questionDeck.length === 0) questionDeck = buildSentenceDeck();
-                currentTargetData = questionDeck.pop();
-
-                let safe = getSafeData(currentTargetData);
-
-                const types = ['meaning-to-word', 'word-to-meaning', 'fill-blank', 'sentence'];
-                rpgQuestType = types[Math.floor(Math.random() * types.length)];
-                
-                let title = "", question = "", rawOptions = [], actualCorrectAnswer = "";
-                let fillOpts = safe.fillOpts.length > 0 ? safe.fillOpts : generateOptions(safe.mTarget, 'missingTarget');
-
-                if (rpgQuestType === 'meaning-to-word') { title = "📜 任務：尋找匹配字詞"; question = safe.meaning; actualCorrectAnswer = safe.word; rawOptions = generateOptions(safe.word, 'word');
-                } else if (rpgQuestType === 'word-to-meaning') { title = "📜 任務：解讀告示牌"; question = safe.word; actualCorrectAnswer = safe.meaning; rawOptions = generateOptions(safe.meaning, 'meaning');
-                } else if (rpgQuestType === 'fill-blank') { title = "📜 任務：修補殘缺字詞"; question = safe.mFormat; actualCorrectAnswer = safe.mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random());
-                } else if (rpgQuestType === 'sentence') { 
-                    title = "📜 任務：填補情境對白"; 
-                    let possibleSentences = [];
-                    if (safe.sentence && safe.sentence !== "無例句") possibleSentences.push(safe.sentence);
-                    if (safe.sentence1) possibleSentences.push(safe.sentence1);
-                    if (safe.sentence2) possibleSentences.push(safe.sentence2);
-                    let sText = possibleSentences.length > 0 ? possibleSentences[Math.floor(Math.random() * possibleSentences.length)] : "無例句";
-                    
-                    activeSentenceText = sText;
-                    if (!sText.includes("＿")) question = sText.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】");
-                    else question = sText.replace(/＿＿＿＿/g, "【 ＿＿ 】");
-                    actualCorrectAnswer = safe.word; rawOptions = generateOptions(safe.word, 'word'); 
-                }
-
-                document.getElementById('rpg-mission-title').innerText = title; document.getElementById('rpg-question-text').innerText = question;
-                
-                const letters = ["A", "B", "C", "D"]; let choicesHTML = "";
-                rawOptions.forEach((opt, idx) => { choicesHTML += `<div>[${letters[idx]}] ${opt}</div>`; if (opt === actualCorrectAnswer) rpgCorrectAnswer = letters[idx]; });
-                document.getElementById('mc-choices').innerHTML = choicesHTML;
-                
-                pX = Math.floor(gridSize / 2); pY = Math.floor(gridSize / 2); updatePlayerDOM();
-                
-                document.querySelectorAll('.quest-block').forEach(el => el.remove()); questBlocks = [];
-                letters.forEach(label => {
-                    let el = document.createElement('div'); el.className = 'quest-block'; el.innerText = label;
-                    let randX, randY;
-                    do { randX = Math.floor(Math.random() * gridSize); randY = Math.floor(Math.random() * gridSize); } while ((randX === pX && randY === pY) || questBlocks.some(b => b.x === randX && b.y === randY));
-                    el.style.left = (randX * TILE_SIZE) + 'px'; el.style.top = (randY * TILE_SIZE) + 'px';
-                    document.getElementById('island').appendChild(el); questBlocks.push({ element: el, label: label, x: randX, y: randY, broken: false });
-                });
-                
-                spawnMapMonsters();
-            } catch(e) { console.error("RPG Load Error", e); document.getElementById('rpg-question-text').innerText = "載入出現錯誤，請返回大本營重試。"; }
-        }
-
-        function updatePlayerDOM() { let p = document.getElementById('player'); p.style.left = (pX * TILE_SIZE) + 'px'; p.style.top = (pY * TILE_SIZE) + 'px'; }
-
-        function movePlayer(dx, dy) {
-            if(!isQuestionActive) return; 
-            
-            if (isShieldActive) {
-                isShieldActive = false;
-                hasPlayerMoved = true;
-                document.getElementById('player').classList.remove('shield-active');
-                document.getElementById('feedback-rpg').innerText = "⚠️ 保護罩已消失！小心避開主動追蹤的怪物！"; 
-                document.getElementById('feedback-rpg').style.color = "#d32f2f";
-            }
-            
-            let nextX = pX + dx; let nextY = pY + dy;
-            if (nextX < 0 || nextX >= gridSize || nextY < 0 || nextY >= gridSize) return;
-            let block = questBlocks.find(b => b.x === nextX && b.y === nextY && !b.broken);
-            
-            sfx.move(); 
-            
-            if (block) {
-                mineBlock(block);
-            } else { 
-                pX = nextX; pY = nextY; updatePlayerDOM(); 
-                for (let i = activeMapMonsters.length - 1; i >= 0; i--) {
-                    checkMonsterCollision(activeMapMonsters[i], i);
-                }
-            }
-        }
-
-        function mineBlock(block) {
-            try {
-                let feedback = document.getElementById('feedback-rpg');
-                if (block.label === rpgCorrectAnswer) {
-                    if(monsterInterval) clearInterval(monsterInterval); 
-                    sfx.mine(); setTimeout(sfx.correct, 150); 
-                    block.broken = true; block.element.classList.add('broken'); isQuestionActive = false; 
-                    
-                    let dropCounts = {log:0, stone:0, fiber:0, sand:0, clay:0, iron:0, gold:0};
-                    let dropPool = ['log','log','stone','stone','fiber','fiber','sand','sand','clay','clay','iron','gold'];
-                    let numDrops = Math.floor(Math.random() * 2) + 1; 
-                    for(let i=0; i<numDrops; i++) { let t = dropPool[Math.floor(Math.random() * dropPool.length)]; dropCounts[t]++; materials[t]++; }
-                    emeralds += 2; 
-                    if (Math.random() < 0.4) { foodCount++; dropCounts['food'] = 1; }
-                    
-                    questionsAnswered++;
-                    updateMaterialUI(); saveGameState(); 
-                    
-                    let icons = {log:'🪵', stone:'🪨', fiber:'🌾', sand:'🏜️', clay:'🧱', iron:'🪙', gold:'🌟', food:'🍎'};
-                    let dropMsg = []; for(let key in dropCounts) { if(dropCounts[key] > 0) dropMsg.push(`${icons[key]}x${dropCounts[key]}`); }
-                    feedback.innerHTML = `<span style="color:#2e7d32">✨ 採集成功！獲得: ${dropMsg.join(' ')} 及 ❇️x2</span>`;
-                    
-                    let safe = getSafeData(currentTargetData);
-                    let foundEl = Array.from(document.getElementById('mc-choices').children).find(div => div.innerText.startsWith(`[${rpgCorrectAnswer}]`));
-                    let realAnsText = foundEl ? foundEl.innerText.substring(4) : safe.word;
-                    
-                    if(rpgQuestType === 'fill-blank') document.getElementById('rpg-question-text').innerText = safe.mFormat.replace(/＿|_/g, `【${realAnsText}】`);
-                    else if(rpgQuestType === 'sentence') {
-                        document.getElementById('rpg-question-text').innerText = activeSentenceText.replace(/＿＿＿＿/g, `【${realAnsText}】`).replace(new RegExp(safe.word, "g"), `【${realAnsText}】`);
-                    }
-                    
-                    checkBossTrigger();
-                } else {
-                    let dmg = calculateDamage(20);
-                    block.element.classList.add('wrong'); 
-                    feedback.innerText = `💥 答錯了！觸動了陷阱扣 ${dmg} 血！怪物加速接近中！`; 
-                    feedback.style.color = "#d32f2f";
-                    takeDamage(dmg, "在採集時被陷阱擊殺");
-                }
-            } catch(e) { console.error("Mine Block Error", e); }
-            
-            if (block.label === rpgCorrectAnswer) {
-                document.getElementById('rpg-next-btn').style.display = 'block';
-            }
-        }
-
-        function handleGridClick(e) {
-            const rect = document.getElementById('island').getBoundingClientRect();
-            const targetX = Math.floor((e.clientX - rect.left) / TILE_SIZE);
-            const targetY = Math.floor((e.clientY - rect.top) / TILE_SIZE);
-
-            if (selectedHotbarItem && inventory[selectedHotbarItem] > 0) {
-                if (questBlocks.some(b => b.x === targetX && b.y === targetY && !b.broken)) return;
-                
-                sfx.mine(); 
-                inventory[selectedHotbarItem]--;
-                let catItem = craftRecipes.find(c => c.id === selectedHotbarItem);
-                placedDecorations.push({ icon: catItem.icon, x: targetX, y: targetY });
-                if(inventory[selectedHotbarItem] === 0) selectedHotbarItem = null;
-                renderDecorations(); renderHotbar(); 
-                saveGameState(); 
-                return;
-            }
-
-            if (!isQuestionActive) return;
-            const diffX = targetX - pX; const diffY = targetY - pY;
-            
-            // 滑鼠點擊智能走位
-            if (Math.abs(diffX) > Math.abs(diffY)) movePlayer(diffX > 0 ? 1 : -1, 0);
-            else if (Math.abs(diffY) > 0) movePlayer(0, diffY > 0 ? 1 : -1);
-        }
-
-        // =====================================
-        // 🔨 建築與合成面板
-        // =====================================
-        function renderHotbar() {
-            try {
-                let hb = document.getElementById('hotbar'); hb.innerHTML = ""; let itemKeys = Object.keys(inventory);
-                for(let i=0; i<Math.max(5, itemKeys.length); i++) {
-                    let slot = document.createElement('div'); slot.className = "hotbar-slot";
-                    if(i < itemKeys.length) {
-                        let itemId = itemKeys[i]; let qty = inventory[itemId];
-                        if(qty > 0) {
-                            let catItem = craftRecipes.find(c => c.id === itemId);
-                            slot.innerText = catItem.icon; slot.innerHTML += `<div class="hotbar-qty">${qty}</div>`;
-                            if(selectedHotbarItem === itemId) slot.classList.add('active');
-                            slot.onclick = () => { selectedHotbarItem = (selectedHotbarItem === itemId) ? null : itemId; renderHotbar(); };
-                        }
-                    }
-                    hb.appendChild(slot);
-                }
-            } catch(e) { console.error("Render Hotbar Error", e); }
-        }
-
-        function renderDecorations() {
-            try {
-                let layer = document.getElementById('decorations-layer'); layer.innerHTML = "";
-                if(Array.isArray(placedDecorations)) {
-                    placedDecorations.forEach(dec => {
-                        let el = document.createElement('div'); el.className = "decoration-item"; el.innerText = dec.icon;
-                        el.style.left = (dec.x * TILE_SIZE) + 'px'; el.style.top = (dec.y * TILE_SIZE) + 'px'; layer.appendChild(el);
-                    });
-                }
-            } catch(e) { console.error("Render Dec Error", e); }
-        }
-
-        function openCrafting() { document.getElementById('craft-modal').style.display = 'flex'; updateMaterialUI(); renderCraftItems(); }
-        function closeCrafting() { document.getElementById('craft-modal').style.display = 'none'; }
-        
-        function canAffordCraft(cost) {
-            if(cost.log && materials.log < cost.log) return false;
-            if(cost.stone && materials.stone < cost.stone) return false;
-            if(cost.fiber && materials.fiber < cost.fiber) return false;
-            if(cost.sand && materials.sand < cost.sand) return false;
-            if(cost.clay && materials.clay < cost.clay) return false;
-            if(cost.iron && materials.iron < cost.iron) return false;
-            if(cost.gold && materials.gold < cost.gold) return false;
-            if(cost.emerald && emeralds < cost.emerald) return false;
-            return true;
-        }
-
-        function renderCraftItems() {
-            let container = document.getElementById('craft-items-container'); container.innerHTML = "";
-            craftRecipes.forEach(item => {
-                let canAfford = canAffordCraft(item.cost);
-                let btnText = "🔨 合成";
-                let extraDesc = "";
-
-                if (item.id === 'armor') {
-                    if (armorLevel >= 5) {
-                        canAfford = false; btnText = "已滿級"; extraDesc = " <span style='color:#d32f2f;'>(MAX)</span>";
-                    } else { extraDesc = ` <span style='color:#1565c0;'>(當前 Lv.${armorLevel})</span>`; }
-                }
-
-                let costMsg = [];
-                if(item.cost.log) costMsg.push(`🪵${item.cost.log}`); if(item.cost.stone) costMsg.push(`🪨${item.cost.stone}`);
-                if(item.cost.fiber) costMsg.push(`🌾${item.cost.fiber}`); if(item.cost.sand) costMsg.push(`🏜️${item.cost.sand}`);
-                if(item.cost.clay) costMsg.push(`🧱${item.cost.clay}`); if(item.cost.iron) costMsg.push(`🪙${item.cost.iron}`);
-                if(item.cost.gold) costMsg.push(`🌟${item.cost.gold}`); if(item.cost.emerald) costMsg.push(`❇️${item.cost.emerald}`);
-
-                let card = document.createElement('div'); card.className = "craft-card";
-                card.innerHTML = `<div class="craft-item-top"><div class="craft-item-icon">${item.icon}</div><div class="craft-item-info"><h4>${item.name}${extraDesc}</h4><p>${item.desc}</p><div class="craft-cost">需求：${costMsg.join(' ')}</div></div></div><button class="craft-buy-btn" ${canAfford ? '' : 'disabled'} onclick="craftItem('${item.id}')">${btnText}</button>`;
-                container.appendChild(card);
-            });
-        }
-
-        function craftItem(itemId) {
-            let item = craftRecipes.find(i => i.id === itemId);
-            if (canAffordCraft(item.cost)) {
-                sfx.craft(); 
-                if(item.cost.log) materials.log -= item.cost.log; if(item.cost.stone) materials.stone -= item.cost.stone;
-                if(item.cost.fiber) materials.fiber -= item.cost.fiber; if(item.cost.sand) materials.sand -= item.cost.sand;
-                if(item.cost.clay) materials.clay -= item.cost.clay; if(item.cost.iron) materials.iron -= item.cost.iron;
-                if(item.cost.gold) materials.gold -= item.cost.gold; if(item.cost.emerald) emeralds -= item.cost.emerald;
-                
-                if (item.type === 'upgrade') {
-                    if (itemId === 'expand') { gridSize += 2; updateGridSize(); alert("綠地已成功擴大！"); } 
-                    else if (itemId === 'hp_boost') { MAX_HP += 20; hp += 20; alert(`💖 生命上限已提升！目前最大血量：${MAX_HP}`); } 
-                    else if (itemId === 'armor') { armorLevel++; alert(`🛡️ 防護裝甲已升級！目前等級：Lv.${armorLevel} (減少 ${armorLevel * 15}% 傷害)`); }
-                } else { 
-                    if(!inventory[itemId]) inventory[itemId] = 0; 
-                    inventory[itemId]++; renderHotbar(); 
-                }
-                
-                updateMaterialUI(); renderCraftItems();
-                saveGameState();
-            }
-        }
-
-        document.addEventListener('keydown', function(event) {
-            if (document.getElementById('rpg-game').style.display === 'block') {
-                if (event.key === "ArrowUp" || event.key === "w") movePlayer(0, -1);
-                if (event.key === "ArrowDown" || event.key === "s") movePlayer(0, 1);
-                if (event.key === "ArrowLeft" || event.key === "a") movePlayer(-1, 0);
-                if (event.key === "ArrowRight" || event.key === "d") movePlayer(1, 0);
-            }
-        });
-
-        // =====================================
-        // 🚀 初始化執行
-        // =====================================
-        initDatabase();
-        loadGameState();
-
-        // 強制解除舊緩存並註冊新 Service Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                    for(let registration of registrations) {
-                        registration.unregister();
-                    }
-                });
-                navigator.serviceWorker.register('./sw.js?v=' + new Date().getTime()).catch(e => console.error(e));
-            });
-        }
-    </script>
+      }
+    } else if (m.state === 'returning') {
+      const dist = Math.hypot(m.homeX - m.x, m.homeY - m.y);
+      if (dist < 6) {
+        m.x = m.homeX; m.y = m.homeY; m.state = 'idle';
+      } else {
+        const ang = Math.atan2(m.homeY - m.y, m.homeX - m.x);
+        m.x += Math.cos(ang) * 3.8;
+        m.y += Math.sin(ang) * 3.8;
+      }
+    }
+  }
+
+  floatingCoins.forEach(fc => { fc.y -= 1.0; fc.alpha -= 0.02; });
+  floatingCoins = floatingCoins.filter(fc => fc.alpha > 0);
+
+  const targetCamY = player.y - canvas.height * 0.52;
+  cameraY += (targetCamY - cameraY) * 0.16;
+  cameraY = Math.max(0, Math.min(WORLD_H - canvas.height, cameraY));
+}
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  ctx.save();
+  ctx.translate(0, -cameraY);
+
+  // 1. 畫外太空星雲、環形山與科技跑道背景
+  const isChased = nests.some(n => n.monster.state === 'chasing');
+  ctx.fillStyle = (isChased && Math.floor(Date.now() / 300) % 2 === 0) ? '#230b1a' : '#080b1a';
+  ctx.fillRect(0, 0, WORLD_W, WORLD_H);
+
+  // 裝飾性星球與太空隕石坑
+  const planets = [
+    { x: 120, y: 2300, r: 45, c: 'rgba(59, 93, 201, 0.18)' },
+    { x: 640, y: 1750, r: 65, c: 'rgba(168, 85, 247, 0.15)' },
+    { x: 130, y: 1200, r: 55, c: 'rgba(236, 72, 153, 0.15)' },
+    { x: 620, y: 600,  r: 70, c: 'rgba(249, 115, 22, 0.15)' },
+    { x: 380, y: 160,  r: 95, c: 'rgba(239, 68, 68, 0.2)' }
+  ];
+  planets.forEach(p => {
+    ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fillStyle = p.c; ctx.fill();
+  });
+
+  // 星空閃爍粒子
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  for (let i = 0; i < 65; i++) {
+    const sx = (i * 137) % WORLD_W;
+    const sy = (i * 293) % WORLD_H;
+    ctx.fillRect(sx, sy, (i%3)+1, (i%3)+1);
+  }
+
+  // 中央太空霓虹光橋跑道
+  ctx.fillStyle = 'rgba(30, 58, 138, 0.25)';
+  ctx.fillRect(260, 140, 240, 2320);
+  ctx.strokeStyle = 'rgba(65, 166, 246, 0.35)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(260, 140, 240, 2320);
+
+  // 兩側激光護欄
+  ctx.fillStyle = '#04060e';
+  ctx.fillRect(0, 0, 52, WORLD_H);
+  ctx.fillRect(WORLD_W - 52, 0, 52, WORLD_H);
+
+  // 距離標示
+  ctx.font = 'bold 13px sans-serif';
+  ctx.fillStyle = 'rgba(115, 239, 247, 0.4)';
+  for (let y = 300; y < 2400; y += 300) {
+    ctx.fillText(`🚀 太空深度 ${Math.round((2460 - y)/10)}m`, 330, y);
+  }
+
+  // 2. 畫底部 Justin 太空基地 (Y: 2460 ~ 2800)
+  ctx.fillStyle = '#111833';
+  ctx.fillRect(52, 2460, WORLD_W - 104, 340);
+  ctx.strokeStyle = '#73eff7';
+  ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(52, 2460); ctx.lineTo(WORLD_W - 52, 2460); ctx.stroke();
+
+  ctx.fillStyle = '#73eff7';
+  ctx.font = 'bold 16px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('🛸 @XnamX0917 專屬太空基地 (安全區 + 手動破殼孵化器)', WORLD_W/2, 2492);
+
+  // 畫基地中央 3 個太空孵化槽 (Incubators)
+  for (let i = 0; i < 3; i++) {
+    const ix = 250 + i * 130;
+    const iy = 2550;
+    const slot = save.incubators[i];
+
+    ctx.fillStyle = slot && slot.ready ? '#422006' : '#1e293b';
+    ctx.fillRect(ix - 52, iy - 32, 104, 64);
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = slot ? (slot.ready ? '#facc15' : slot.color) : '#475569';
+    ctx.strokeRect(ix - 52, iy - 32, 104, 64);
+
+    if (slot) {
+      ctx.font = '24px sans-serif';
+      ctx.fillText('🥚', ix, iy - 2);
+      ctx.font = 'bold 11px sans-serif';
+      if (slot.ready) {
+        ctx.fillStyle = '#fde047';
+        ctx.fillText('✨行埋嚟破殼!', ix, iy + 22);
+      } else {
+        ctx.fillStyle = slot.color;
+        ctx.fillText(`孵化中: ${slot.timeLeft}s`, ix, iy + 22);
+      }
+    } else {
+      ctx.font = '12px sans-serif';
+      ctx.fillStyle = '#64748b';
+      ctx.fillText(`孵化槽 #${i+1}`, ix, iy + 5);
+    }
+  }
+
+  // 畫基地底部 8 個賺錢神獸展示台
+  for (let i = 0; i < 8; i++) {
+    const px = 125 + i * 72;
+    const py = 2710;
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(px - 26, py - 26, 52, 52);
+    ctx.strokeStyle = '#3b5dc9';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(px - 26, py - 26, 52, 52);
+
+    const petId = save.basePets[i];
+    if (petId) {
+      const petObj = PET_DEX.find(x => x.id === petId);
+      if (petObj) {
+        ctx.font = '25px sans-serif';
+        ctx.fillText(petObj.icon, px, py + 8);
+        ctx.font = 'bold 11px sans-serif';
+        ctx.fillStyle = '#a7f070';
+        ctx.fillText(`+$${petObj.income}/s`, px, py + 40);
+      }
+    }
+  }
+  ctx.textAlign = 'left';
+
+  floatingCoins.forEach(fc => {
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, fc.alpha);
+    ctx.font = 'bold 17px sans-serif';
+    ctx.fillStyle = '#a7f070';
+    ctx.fillText(fc.text, fc.x, fc.y);
+    ctx.restore();
+  });
+
+  // 3. 畫 8 個太空巢穴 (隨機稀有度蛋) & 8 種不同外星怪獸
+  for (const n of nests) {
+    const rObj = RARITY_TIERS.find(r => r.tier === n.eggTier);
+
+    // 畫巢穴科技底座
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, 32, 0, Math.PI * 2);
+    ctx.fillStyle = '#1e293b';
+    ctx.fill();
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = n.hasEgg ? rObj.color : '#475569';
+    ctx.stroke();
+
+    ctx.textAlign = 'center';
+    if (n.hasEgg) {
+      ctx.font = '28px sans-serif';
+      ctx.fillText('🥚', n.x, n.y + 10);
+      ctx.font = 'bold 12px sans-serif';
+      ctx.fillStyle = rObj.color;
+      ctx.fillText(`★ ${rObj.name} ($${rObj.income}/s)`, n.x, n.y - 40);
+    } else {
+      ctx.font = '12px sans-serif';
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText(`重生中 ${Math.ceil(n.respawnTimer/60)}s`, n.x, n.y + 5);
+    }
+
+    // 畫專屬外星怪獸
+    const m = n.monster;
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(m.x, m.y, n.mRadius, 0, Math.PI * 2);
+    ctx.fillStyle = m.state === 'chasing' ? '#dc2626' : n.mColor;
+    ctx.fill();
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = m.stunTimer > 0 ? '#73eff7' : '#ffffff';
+    ctx.stroke();
+
+    ctx.font = `${n.mRadius + 2}px sans-serif`;
+    ctx.fillText(n.mIcon, m.x, m.y + 8);
+
+    ctx.font = 'bold 11px sans-serif';
+    if (m.stunTimer > 0) {
+      ctx.fillStyle = '#73eff7';
+      ctx.fillText(`❄️ 冰封 ${(m.stunTimer/60).toFixed(1)}s`, m.x, m.y - n.mRadius - 8);
+    } else if (m.state === 'chasing') {
+      ctx.fillStyle = '#fca5a5';
+      ctx.fillText(`💢 ${n.monsterName} 狂追中!`, m.x, m.y - n.mRadius - 8);
+    } else {
+      ctx.fillStyle = '#cbd5e1';
+      ctx.fillText(n.monsterName, m.x, m.y - n.mRadius - 8);
+    }
+    ctx.restore();
+    ctx.textAlign = 'left';
+  }
+
+  // 4. 畫全息誘餌公仔 (若有使用)
+  if (activeDecoy) {
+    ctx.save();
+    ctx.globalAlpha = 0.75;
+    drawJustinAvatar(ctx, activeDecoy.x, activeDecoy.y, null, false);
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillStyle = '#fde047';
+    ctx.textAlign = 'center';
+    ctx.fillText(`🤖 誘餌吸引怪獸中 (${(activeDecoy.timer/60).toFixed(1)}s)`, activeDecoy.x, activeDecoy.y - 35);
+    ctx.restore();
+  }
+
+  // 5. 畫主角 Justin (@XnamX0917) 專屬 Roblox 造型！
+  drawJustinAvatar(ctx, player.x, player.y, player.carryingTier, player.jetpackTimer > 0);
+
+  ctx.restore();
+
+  // 6. 右上角太空雷達小地圖
+  drawMinimap();
+
+  requestAnimationFrame(() => { update(); draw(); });
+}
+
+function drawMinimap() {
+  const mw = 28, mh = 185;
+  const mx = canvas.width - mw - 12;
+  const my = 14;
+
+  ctx.fillStyle = 'rgba(5, 6, 12, 0.88)';
+  ctx.fillRect(mx, my, mw, mh);
+  ctx.strokeStyle = '#3b5dc9';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(mx, my, mw, mh);
+
+  // 基地
+  ctx.fillStyle = '#38b764';
+  ctx.fillRect(mx + 3, my + mh - 18, mw - 6, 15);
+
+  // 8 個巢穴稀有度顏色點
+  nests.forEach(n => {
+    const ny = my + (n.y / WORLD_H) * mh;
+    const rObj = RARITY_TIERS.find(r => r.tier === n.eggTier);
+    ctx.fillStyle = n.hasEgg ? rObj.color : '#334155';
+    ctx.fillRect(mx + 5, ny - 2, mw - 10, 5);
+  });
+
+  // 玩家位置
+  const py = my + (player.y / WORLD_H) * mh;
+  ctx.beginPath();
+  ctx.arc(mx + mw/2, py, 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#73eff7';
+  ctx.fill();
+  ctx.strokeStyle = '#fff';
+  ctx.stroke();
+}
+
+/* ============================================================================
+   9. 商店、手動孵化器管理與圖鑑 UI
+============================================================================ */
+function updateUI() {
+  document.getElementById('ui-coins').textContent = save.coins;
+  document.getElementById('ui-income').textContent = getTotalIncomePerSec();
+  document.getElementById('ui-freeze-count').textContent = `x${save.freezeCount}`;
+  document.getElementById('ui-decoy-count').textContent = `x${save.decoyCount}`;
+  document.getElementById('ui-tele-count').textContent = `x${save.teleCount}`;
+
+  const pillInc = document.getElementById('pill-incubator');
+  const txtInc = document.getElementById('ui-incubator');
+  const readyCount = save.incubators.filter(s => s.ready).length;
+
+  if (readyCount > 0) {
+    pillInc.className = 'stat-pill btn-hatch-ready';
+    txtInc.textContent = `✨ ${readyCount}隻可破殼！(點擊孵出)`;
+  } else {
+    pillInc.className = 'stat-pill';
+    txtInc.textContent = `${save.incubators.length}/3 孵化中`;
+  }
+}
+
+function openShop() {
+  gamePaused = true;
+  const speedCost = 150 * save.speedLv;
+  const carryCost = 200 * save.carryLv;
+
+  document.getElementById('txt-speed-lv').textContent = `Lv.${save.speedLv} (提升太空跑速)`;
+  document.getElementById('btn-buy-speed').textContent = `💰 $${speedCost}`;
+
+  document.getElementById('txt-carry-lv').textContent = `Lv.${save.carryLv} (減少抱蛋減速)`;
+  document.getElementById('btn-buy-carry').textContent = `💰 $${carryCost}`;
+
+  document.getElementById('txt-shield-cnt').textContent = `現有護盾: ${save.shieldCount} 個`;
+
+  const doubleBtn = document.getElementById('btn-buy-double');
+  if (save.hasDoubleCoin) {
+    doubleBtn.textContent = '✅ 已啟用';
+    doubleBtn.disabled = true;
+  }
+
+  // 渲染 3 個孵化槽狀態
+  const incList = document.getElementById('incubator-list');
+  incList.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const slot = save.incubators[i];
+    const div = document.createElement('div');
+    div.className = 'item-card';
+    if (!slot) {
+      div.innerHTML = `<div class="item-icon">🕳️</div><div><b>空置孵化槽</b><br><small>去太空偷蛋放入</small></div>`;
+    } else if (slot.ready) {
+      div.innerHTML = `
+        <div class="item-icon">🥚✨</div>
+        <div><b style="color:${slot.color}">${slot.name}</b><br><small style="color:#fde047">孵化完成！</small></div>
+        <button class="btn-ui btn-hatch-ready" onclick="hatchReadyEgg(${i})">🔨 親手破殼！</button>
+      `;
+    } else {
+      div.innerHTML = `
+        <div class="item-icon">⏳</div>
+        <div><b style="color:${slot.color}">${slot.name}</b><br><small>仲要等 ${slot.timeLeft} 秒</small></div>
+      `;
+    }
+    incList.appendChild(div);
+  }
+
+  // 渲染神獸圖鑑
+  const grid = document.getElementById('pet-grid');
+  grid.innerHTML = '';
+  PET_DEX.forEach(pet => {
+    const unlocked = save.unlockedIds.includes(pet.id);
+    const countInBase = save.basePets.filter(id => id === pet.id).length;
+    const card = document.createElement('div');
+    card.className = 'item-card' + (unlocked ? ' unlocked' : '');
+    card.innerHTML = `
+      <div class="item-icon">${unlocked ? pet.icon : '❓'}</div>
+      <div>
+        <b>${unlocked ? pet.name : '未破殼神獸'}</b><br>
+        <small style="color:${pet.color}">[${pet.rarity}] +$${pet.income}/s</small>
+        ${countInBase > 0 ? `<br><small style="color:#a7f070">🛸 基地展示 x${countInBase}</small>` : ''}
+      </div>
+      <div style="font-size:12px; color:#ddd; text-align:left; line-height:1.35;">${unlocked ? pet.note : '偷取對應稀有度太空蛋破殼解鎖！'}</div>
+      ${unlocked ? `<button class="tts-mini" onclick="speakText('${pet.name}重點：${pet.note}')">🔊 聽重點</button>` : ''}
+    `;
+    grid.appendChild(card);
+  });
+
+  document.getElementById('shop-modal').classList.add('show');
+}
+
+function closeShop() {
+  document.getElementById('shop-modal').classList.remove('show');
+  gamePaused = false;
+}
+
+function buyUpgrade(type) {
+  const speedCost = 150 * save.speedLv;
+  const carryCost = 200 * save.carryLv;
+
+  if (type === 'speed' && save.coins >= speedCost) {
+    save.coins -= speedCost; save.speedLv++;
+    showToast(`👟 反重力跑鞋升至 Lv.${save.speedLv}！`);
+  } else if (type === 'carry' && save.coins >= carryCost) {
+    save.coins -= carryCost; save.carryLv++;
+    showToast(`🦾 機械抱蛋臂升至 Lv.${save.carryLv}！`);
+  } else if (type === 'freeze' && save.coins >= 90) {
+    save.coins -= 90; save.freezeCount++;
+    showToast("❄️ 已買時間冰封彈！");
+  } else if (type === 'decoy' && save.coins >= 110) {
+    save.coins -= 110; save.decoyCount++;
+    showToast("🤖 已買全息誘餌公仔！");
+  } else if (type === 'tele' && save.coins >= 220) {
+    save.coins -= 220; save.teleCount++;
+    showToast("🛸 已買瞬間回城傳送器！");
+  } else if (type === 'shield' && save.coins >= 130) {
+    save.coins -= 130; save.shieldCount++;
+    showToast("🛡️ 已買數碼屏幕護盾！");
+  } else if (type === 'hatchboost' && save.coins >= 100) {
+    if (save.incubators.length === 0) return showToast("🥚 孵化槽而家無蛋呀！");
+    save.coins -= 100;
+    save.incubators.forEach(s => {
+      s.timeLeft = Math.max(0, s.timeLeft - 30);
+      if (s.timeLeft === 0) s.ready = true;
+    });
+    showToast("⚡ 所有太空蛋已加速 30 秒！");
+  } else if (type === 'double' && save.coins >= 900 && !save.hasDoubleCoin) {
+    save.coins -= 900; save.hasDoubleCoin = true;
+    showToast("💎 已開啟永久雙倍金幣！");
+  } else {
+    showToast("💰 太空幣唔夠呀！等基地神獸生錢或者去偷多幾隻蛋先！");
+    return;
+  }
+  saveData();
+  openShop();
+}
+
+function openHelp() {
+  document.getElementById('help-modal').classList.add('show');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.style.opacity = '0', 3200);
+}
+
+updateUI();
+draw();
+</script>
 </body>
 </html>
