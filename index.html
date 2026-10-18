@@ -90,7 +90,7 @@
         #player { position: absolute; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; transition: top 0.15s linear, left 0.15s linear; z-index: 10; }
         #player::after { content: ""; display: block; width: 32px; height: 32px; background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%238d6e63'/%3E%3Crect x='1' y='2' width='6' height='6' fill='%23ffcc80'/%3E%3Crect x='0' y='0' width='8' height='2' fill='%235d4037'/%3E%3Crect x='0' y='2' width='1' height='2' fill='%235d4037'/%3E%3Crect x='7' y='2' width='1' height='2' fill='%235d4037'/%3E%3Crect x='2' y='4' width='1' height='1' fill='%23fff'/%3E%3Crect x='2.5' y='4' width='0.5' height='1' fill='%233f51b5'/%3E%3Crect x='5' y='4' width='1' height='1' fill='%23fff'/%3E%3Crect x='5' y='4' width='0.5' height='1' fill='%233f51b5'/%3E%3Crect x='3' y='6' width='2' height='1' fill='%23795548'/%3E%3C/svg%3E"); background-size: cover; image-rendering: pixelated; border: 2px solid #222; border-radius: 3px; box-shadow: 2px 2px 0 rgba(0,0,0,0.4); }
         
-        /* 🛡️ 新增：防護罩特效 */
+        /* 🛡️ 防護罩特效 */
         .shield-active::before {
             content: "";
             position: absolute;
@@ -576,7 +576,7 @@
         }
 
         // =====================================
-        // 💾 題庫系統 
+        // 💾 題庫系統 (無錯別字版)
         // =====================================
         const defaultDatabaseRaw = [
             { student: "Justin", unit: "單元一", word: "人聲鼎沸", meaning: "比喻人聲嘈雜，就像煮沸了水一樣。鼎，古代的煮食器具。", missingFormat: "人聲鼎＿", missingTarget: "沸", fillOptions: ["是", "你", "沸", "地"], synonyms: "喧鬧", antonyms: "鴉雀無聲、萬籟俱寂", sentence1: "酒樓內人聲鼎沸，坐滿了來吃午飯的人。", sentence2: "大家都在為球隊吶喊助威，觀眾席上人聲鼎沸。" },
@@ -712,7 +712,11 @@
         function spawnMapMonsters() {
             activeMapMonsters.forEach(m => m.element.remove());
             activeMapMonsters = [];
-            let numMonsters = Math.min(3, Math.floor(gridSize / 3)); 
+            
+            // 計算小怪數量：基礎 2 隻，每打贏一隻 Boss 就 +1
+            let baseMonsters = 2; 
+            let maxMonstersLimit = Math.max(3, Math.floor((gridSize * gridSize) / 12)); 
+            let numMonsters = Math.min(baseMonsters + bossesDefeated, maxMonstersLimit); 
             
             for(let i=0; i<numMonsters; i++) {
                 let type = MAP_MONSTER_TYPES[Math.floor(Math.random() * MAP_MONSTER_TYPES.length)];
@@ -748,7 +752,8 @@
         }
 
         function moveMapMonsters() {
-            if(!isQuestionActive) return;
+            // 如果未行第一步，怪獸保持靜止 (Standby Mode)
+            if(!isQuestionActive || !hasPlayerMoved) return;
             
             activeMapMonsters.forEach((m, index) => {
                 let dirs = [[0,1], [0,-1], [1,0], [-1,0]];
@@ -949,6 +954,7 @@
                     foodCount = parseInt(state.foodCount) || 0;
                     questionsAnswered = parseInt(state.questionsAnswered) || 0;
                     armorLevel = parseInt(state.armorLevel) || 0;
+                    bossesDefeated = parseInt(state.bossesDefeated) || 0; 
                     gridSize = parseInt(state.gridSize); if(isNaN(gridSize) || gridSize < 6) gridSize = 8;
                     materials = state.materials || { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 };
                     inventory = state.inventory || {};
@@ -960,7 +966,7 @@
 
         function saveGameState() {
             try {
-                let state = { emeralds, materials, inventory, placedDecorations, gridSize, hp, MAX_HP, foodCount, questionsAnswered, armorLevel };
+                let state = { emeralds, materials, inventory, placedDecorations, gridSize, hp, MAX_HP, foodCount, questionsAnswered, armorLevel, bossesDefeated };
                 localStorage.setItem('rpgGameState', JSON.stringify(state));
             } catch(e) { console.error("存檔失敗", e); }
         }
@@ -991,7 +997,7 @@
         function restartGame() {
             if(confirm("⚠️ 警告：確定要重新開始嗎？\n所有的綠寶石、收集的素材與島嶼方塊都會被完全清空！")) {
                 if(confirm("🚨 最後確認：進度清除後將【無法還原】，真的要重置嗎？")) {
-                    emeralds = 0; MAX_HP = 100; hp = MAX_HP; foodCount = 0; questionsAnswered = 0; armorLevel = 0;
+                    emeralds = 0; MAX_HP = 100; hp = MAX_HP; foodCount = 0; questionsAnswered = 0; armorLevel = 0; bossesDefeated = 0;
                     materials = { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 };
                     inventory = {}; placedDecorations = []; selectedHotbarItem = null; gridSize = 8; 
                     updateGridSize(); renderDecorations(); renderHotbar(); updateMaterialUI(); 
@@ -1293,7 +1299,8 @@
                 
                 if (bossHp <= 0) {
                     setTimeout(() => {
-                        alert(`🎉 恭喜！你成功擊敗了 ${currentBoss.name}！\n獲得戰利品：50 綠寶石、🌟黃金x2、🍎蘋果x3！`);
+                        bossesDefeated++; // 擊敗 Boss 次數 +1，令地圖小怪增加
+                        alert(`🎉 恭喜！你成功擊敗了 ${currentBoss.name}！\n獲得戰利品：50 綠寶石、🌟黃金x2、🍎蘋果x3！\n⚠️ 警告：地圖上的小怪數量增加了！`);
                         emeralds += 50; materials.gold += 2; foodCount += 3;
                         updateMaterialUI(); saveGameState();
                         document.getElementById('boss-modal').style.display = 'none';
