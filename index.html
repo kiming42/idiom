@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>學神領域：方塊戰記</title>
+    <title>學神領域：方塊戰記 (終極模組版)</title>
     
     <!-- 📱 PWA Web App 支援設定 -->
     <meta name="theme-color" content="#5b8731">
@@ -12,18 +12,15 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="學神領域">
     
-    <!-- 連結外部 Manifest 與設定 App 圖示 -->
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" href="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%235b8731'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='white'%3E%F0%9F%8C%8D%3C/text%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%235b8731'/%3E%3Ctext x='50' y='68' font-size='60' text-anchor='middle' fill='white'%3E%F0%9F%8C%8D%3C/text%3E%3C/svg%3E">
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
-        /* 基礎設定 */
         body { font-family: "PingFang HK", "Microsoft YaHei", sans-serif; background-color: #5b8731; text-align: center; padding: 10px; margin: 0; color: #333; user-select: none; touch-action: manipulation; transition: background-color 0.1s; }
         .page { display: none; background: #e0e0e0; max-width: 950px; margin: 0 auto; padding: 20px; border: 6px solid #3c3c3c; box-shadow: 10px 10px 0px rgba(0,0,0,0.5); box-sizing: border-box; }
         #main-dashboard { display: block; } 
-        /* 💥 受傷特效 */
         @keyframes flashRed { 0% { background-color: #ff5252; } 100% { background-color: #5b8731; } }
         .damage-flash { animation: flashRed 0.3s forwards; }
         .header-container { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; gap: 10px;}
@@ -35,7 +32,6 @@
         .db-btn:active { transform: translateY(2px); box-shadow: none; }
         .install-btn { background: #ff9800; color: white; border: 3px solid #e65100; box-shadow: 0 2px 0 #e65100; }
         .install-btn:active { transform: translateY(2px); box-shadow: none; }
-        /* 🎯 課題與玩家選擇區 */
         .filter-section { background: #fdfdfd; border: 3px solid #aed581; border-radius: 12px; padding: 20px; margin-bottom: 25px; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .filter-header h3 { color: #1a4231; margin: 0 0 5px 0; font-size: 20px; }
         .filter-header p { color: #666; margin: 0 0 15px 0; font-size: 14px; font-weight: bold;}
@@ -53,7 +49,6 @@
         .mode-icon { background: #fff; border: 2px solid #ccc; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; border-radius: 8px; margin-bottom: 10px; }
         .mode-card h3 { margin: 0 0 5px 0; font-size: 16px; color: #333; }
         .mode-card p { margin: 0; font-size: 12px; color: #666; font-weight: bold; line-height: 1.4; }
-        /* 🎮 RPG 遊戲介面 */
         .rpg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 8px; }
         .header-btn { background: #fff; border: 2px solid #ccc; padding: 8px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; color: #333; display: flex; align-items: center; gap: 5px; }
         .player-status { display: flex; gap: 10px; align-items: center; background: #fff; padding: 6px 12px; border-radius: 8px; border: 3px inset #ccc; font-weight: bold; font-size: 15px; flex-wrap: wrap; justify-content: center; flex-grow: 1;}
@@ -66,7 +61,7 @@
         .mission-panel h3 { margin: 0 0 8px 0; font-size: 18px; color: #555; }
         .mission-panel p { margin: 0; font-size: 20px; font-weight: bold; color: #1a4231; line-height: 1.5; min-height: 30px;}
         .mc-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; font-size: 16px; font-weight: bold; color: #222; background: #f0f0f0; padding: 12px; border-radius: 8px; border: 2px solid #ccc; }
-        .mc-choices div { padding: 5px; }
+        .mc-choices div { padding: 5px; cursor:pointer;}
         .map-wrapper { overflow: hidden; padding: 5px; text-align: center; border-radius: 8px; background: #bdbdbd; box-shadow: inset 0 0 10px rgba(0,0,0,0.3);}
         .island-container { display: inline-block; position: relative; background-color: #689f38; background-image: linear-gradient(#558b2f 2px, transparent 2px), linear-gradient(90deg, #558b2f 2px, transparent 2px); background-size: 40px 40px; border: 6px solid #3c3c3c; box-shadow: 5px 5px 0px rgba(0,0,0,0.3); cursor: crosshair; box-sizing: content-box; vertical-align: top; }
         #player { position: absolute; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; transition: top 0.15s linear, left 0.15s linear; z-index: 10; }
@@ -82,7 +77,6 @@
         .hotbar-slot.active { border: 3px solid #ffeb3b; background: #a6a6a6; }
         .hotbar-qty { position: absolute; bottom: -2px; right: 2px; font-size: 13px; color: white; font-weight: bold; text-shadow: 1px 1px 0 #000; }
         .next-btn { display: none; margin: 15px auto 0; padding: 12px 30px; background-color: #ff9800; color: #fff; border: none; border-radius: 8px; cursor: pointer; font-size: 18px; font-weight: bold; box-shadow: 0 4px 0 #e65100; font-family: 'DotGothic16', sans-serif;}
-        /* 🔨 彈出視窗 Modal */
         .db-modal, .craft-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; padding: 10px; }
         .db-wrapper, .craft-wrapper { background: #fff; width: 100%; max-width: 700px; max-height: 90vh; border-radius: 12px; padding: 20px; text-align: left; box-sizing: border-box; display: flex; flex-direction: column; overflow-y: auto;}
         .db-actions { display: flex; justify-content: space-between; margin-top: 15px; gap: 8px; flex-wrap: wrap; }
@@ -108,7 +102,6 @@
         .craft-buy-btn:active { transform: translateY(2px); }
         .craft-buy-btn:disabled { background: #9e9e9e; border-color: #757575; color: #e0e0e0; cursor: not-allowed; }
         @media (max-width: 600px) { .craft-grid { grid-template-columns: 1fr; } .mc-choices { grid-template-columns: 1fr; } .page { padding: 10px; border-width: 4px; } }
-        /* 標準模式 UI */
         #question-area-std { background: #e0e0e0; border: 4px inset #fff; padding: 20px; margin-bottom: 20px; text-align: left; position: relative;}
         #question-text-std { font-size: 22px; color: #111; line-height: 1.6; font-weight: bold; font-family: "PingFang HK", "Microsoft YaHei", sans-serif; margin-top: 10px;}
         .std-option-btn { display: block; width: 100%; margin: 8px 0; padding: 15px; font-size: 18px; background-color: #d6d6d6; border: 4px outset #ffffff; color: #111; cursor: pointer; text-align: center; font-weight: bold; box-sizing: border-box; }
@@ -116,7 +109,6 @@
         .tts-btn { display: inline-flex; align-items: center; gap: 6px; background: #2196F3; color: white; border: 2px solid #0d47a1; border-radius: 8px; padding: 6px 12px; font-size: 15px; font-weight: bold; cursor: pointer; margin-bottom: 0px; box-shadow: 0 3px 0 #0d47a1; transition: 0.1s;}
         .tts-btn:active { transform: translateY(3px); box-shadow: none; }
         .tts-btn.playing { background: #4CAF50; border-color: #1b5e20; box-shadow: 0 3px 0 #1b5e20; }
-        /* 🐉 Boss 戰 Modal */
         .boss-modal { background: rgba(30,0,0,0.95); }
         .boss-wrapper { background: #3e2723; color: white; border: 6px solid #b71c1c; text-align: center; max-width: 600px; }
         .boss-img { display: inline-block; margin: 10px; animation: float 2s infinite ease-in-out; }
@@ -127,38 +119,28 @@
     </style>
 </head>
 <body>
-
-    <!-- 🌟 首頁大本營 -->
     <div id="main-dashboard" class="page">
         <div class="header-container">
             <div class="title-area">
                 <h1>⛏️ 學神領域：方塊戰記</h1>
-                <p class="subtitle">Domain of the Study God: Block Chronicles</p>
+                <p class="subtitle">Domain of the Study God (Ultimate Module Edition)</p>
             </div>
             <div class="header-btns-group">
                 <button class="db-btn" onclick="checkParentPassword()">⚙️ 設定與題庫</button>
                 <button class="db-btn install-btn" onclick="installApp()" id="install-button">📱 安裝成 App</button>
             </div>
         </div>
-        
         <div class="filter-section">
             <div class="filter-header">
                 <h3>歡迎來到知識世界，你是誰？</h3>
                 <p>請先選擇玩家，系統會為你準備專屬的溫習範圍。</p>
             </div>
             <div class="filter-controls">
-                <div class="filter-group">
-                    <label>👤 玩家選擇</label>
-                    <select id="student-select" onchange="updateUnitDropdown()"></select>
-                </div>
-                <div class="filter-group">
-                    <label>📚 單元選擇</label>
-                    <select id="unit-select" onchange="updateScopeInfo()"></select>
-                </div>
+                <div class="filter-group"><label>👤 玩家選擇</label><select id="student-select" onchange="updateUnitDropdown()"></select></div>
+                <div class="filter-group"><label>📚 單元選擇</label><select id="unit-select" onchange="updateScopeInfo()"></select></div>
             </div>
             <p id="scope-info" class="scope-info-text">準備中...</p>
         </div>
-
         <div class="section-title">▶ 準備區</div>
         <div class="modes-grid" style="grid-template-columns: 1fr;">
             <div class="mode-card" onclick="openLearningArea()" style="background: #e3f2fd; border-color: #64b5f6;">
@@ -167,26 +149,13 @@
                 <p>正式挑戰前，先溫習一下目前範圍的所有字詞與解釋吧！</p>
             </div>
         </div>
-
-        <div class="section-title">
-            <span>▶ 傳統溫習區 (賺取寶石)</span>
-            <span class="emerald-display">❇️ <span id="em-menu">0</span></span>
-        </div>
+        <div class="section-title"><span>▶ 傳統溫習區 (賺取寶石)</span><span class="emerald-display">❇️ <span id="em-menu">0</span></span></div>
         <div class="modes-grid">
-            <div class="mode-card" onclick="startStandardGame('word-to-meaning')">
-                <div class="mode-icon">詞</div><h3>詞語選意思</h3><p>找正確解釋</p>
-            </div>
-            <div class="mode-card" onclick="startStandardGame('meaning-to-word')">
-                <div class="mode-icon">意</div><h3>意思找詞語</h3><p>讀解釋選詞語</p>
-            </div>
-            <div class="mode-card" onclick="startStandardGame('fill-blank')">
-                <div class="mode-icon">填</div><h3>詞語填空</h3><p>補回缺少的一字</p>
-            </div>
-            <div class="mode-card" onclick="startStandardGame('sentence')">
-                <div class="mode-icon">用</div><h3>情境用法</h3><p>把詞語放進句子</p>
-            </div>
+            <div class="mode-card" onclick="startStandardGame('word-to-meaning')"><div class="mode-icon">詞</div><h3>詞語選意思</h3><p>找正確解釋</p></div>
+            <div class="mode-card" onclick="startStandardGame('meaning-to-word')"><div class="mode-icon">意</div><h3>意思找詞語</h3><p>讀解釋選詞語</p></div>
+            <div class="mode-card" onclick="startStandardGame('fill-blank')"><div class="mode-icon">填</div><h3>詞語填空</h3><p>補回缺少的一字</p></div>
+            <div class="mode-card" onclick="startStandardGame('sentence')"><div class="mode-icon">用</div><h3>情境用法</h3><p>把詞語放進句子</p></div>
         </div>
-
         <div class="section-title">▶ 創世冒險與建設 (採集素材)</div>
         <div class="modes-grid" style="grid-template-columns: 1fr;">
             <div class="mode-card" onclick="startRPGGame()" style="background: #e8f5e9; border-color: #8bc34a;">
@@ -197,24 +166,15 @@
         </div>
     </div>
 
-    <!-- 📚 學習區 Page -->
     <div id="learning-area" class="page">
-        <div class="rpg-header">
-            <button class="header-btn" onclick="goToMenu()">⬅️ 返回大本營</button>
-            <h2 style="margin:0; color:#1565c0; font-size: 24px;">📚 詞語學習區</h2>
-        </div>
+        <div class="rpg-header"><button class="header-btn" onclick="goToMenu()">⬅️ 返回大本營</button><h2 style="margin:0; color:#1565c0; font-size: 24px;">📚 詞語學習區</h2></div>
         <div id="learning-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 12px; text-align: left;"></div>
     </div>
 
-    <!-- 📚 標準答題區 -->
     <div id="standard-game" class="page">
         <div class="rpg-header">
             <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
-            <div class="player-status">
-                <span style="color:#d32f2f;">❤️ <span id="hp-std">100 / 100</span></span>
-                <span style="color:#d84315;">🍎 <span id="food-std">0</span></span>
-                <button class="eat-btn" onclick="eatFood()">吃 (+30)</button>
-            </div>
+            <div class="player-status"><span style="color:#d32f2f;">❤️ <span id="hp-std">100 / 100</span></span><span style="color:#d84315;">🍎 <span id="food-std">0</span></span><button class="eat-btn" onclick="eatFood()">吃 (+30)</button></div>
             <span class="emerald-display">❇️ <span id="em-std2">0</span></span>
         </div>
         <div id="question-area-std">
@@ -230,32 +190,19 @@
         <button class="next-btn" id="std-next-btn" onclick="loadStandardQuestion()">繼續挑戰 ➡️</button>
     </div>
 
-    <!-- ⛏️ Minecraft RPG 世界 -->
     <div id="rpg-game" class="page">
         <div class="rpg-header">
             <button class="header-btn" onclick="goToMenu()">⬅️ 返回</button>
-            <div class="player-status" style="padding: 4px 8px;">
-                <span style="color:#d32f2f;">❤️ <span id="hp-rpg">100 / 100</span></span>
-                <span style="color:#d84315;">🍎 <span id="food-rpg">0</span></span>
-                <button class="eat-btn" onclick="eatFood()">吃</button>
-            </div>
-            <div style="display: flex; gap: 5px;">
-                <button class="header-btn" onclick="openCrafting()" style="background: #5d4037; color: white; border-color: #3e2723; padding: 6px;">🔨 裝備</button>
-                <button class="header-btn" onclick="restartGame()" style="background: #d32f2f; color: white; border-color: #b71c1c; padding: 6px;">🔄 重置</button>
-            </div>
+            <div class="player-status" style="padding: 4px 8px;"><span style="color:#d32f2f;">❤️ <span id="hp-rpg">100 / 100</span></span><span style="color:#d84315;">🍎 <span id="food-rpg">0</span></span><button class="eat-btn" onclick="eatFood()">吃</button></div>
+            <div style="display: flex; gap: 5px;"><button class="header-btn" onclick="openCrafting()" style="background: #5d4037; color: white; border-color: #3e2723; padding: 6px;">🔨 裝備</button><button class="header-btn" onclick="restartGame()" style="background: #d32f2f; color: white; border-color: #b71c1c; padding: 6px;">🔄 重置</button></div>
         </div>
-        
         <div class="rpg-content">
             <div class="rpg-map-side">
                 <div class="map-wrapper">
-                    <div class="island-container" id="island" style="width: 320px; height: 320px;" onclick="handleGridClick(event)">
-                        <div id="decorations-layer"></div>
-                        <div id="player"></div>
-                    </div>
+                    <div class="island-container" id="island" onclick="handleGridClick(event)"><div id="decorations-layer"></div><div id="player"></div></div>
                 </div>
                 <div class="hotbar" id="hotbar"></div>
             </div>
-            
             <div class="rpg-quest-side mission-panel">
                 <button class="tts-btn" id="tts-btn-rpg" onclick="readQuestionTTS()" style="float: right;">🔊 朗讀</button>
                 <h3 id="rpg-mission-title">📜 任務：載入中...</h3>
@@ -267,20 +214,14 @@
         </div>
     </div>
 
-    <!-- 獨立放置的所有彈出視窗 (Modals) -->
+    <!-- 彈出視窗 (Modals) -->
     <div class="craft-modal" id="craft-modal">
         <div class="craft-wrapper">
             <div class="craft-close" onclick="closeCrafting()">✖</div>
             <div class="craft-title">🔨 創世裝備與工作台</div>
             <div class="material-stats">
-                <span>🪵 <span id="mat-log">0</span></span>
-                <span>🪨 <span id="mat-stone">0</span></span>
-                <span>🌾 <span id="mat-fiber">0</span></span>
-                <span>🏜️ <span id="mat-sand">0</span></span>
-                <span>🧱 <span id="mat-clay">0</span></span>
-                <span>🧊 <span id="mat-iron">0</span></span>
-                <span>🌟 <span id="mat-gold">0</span></span>
-                <span>❇️ <span id="mat-em">0</span></span>
+                <span>🪵 <span id="mat-log">0</span></span><span>🪨 <span id="mat-stone">0</span></span><span>🌾 <span id="mat-fiber">0</span></span><span>🏜️ <span id="mat-sand">0</span></span>
+                <span>🧱 <span id="mat-clay">0</span></span><span>🧊 <span id="mat-iron">0</span></span><span>🌟 <span id="mat-gold">0</span></span><span>❇️ <span id="mat-em">0</span></span>
             </div>
             <div class="craft-grid" id="craft-items-container"></div>
         </div>
@@ -289,15 +230,10 @@
     <div class="db-modal" id="db-modal">
         <div class="db-wrapper">
             <h2>⚙️ 家長專區：自訂題庫</h2>
-            <p style="font-size: 14px; font-weight: bold; color: #333; margin-top: 10px;">📚 題庫資料 (JSON格式)：</p>
             <textarea id="db-textarea" style="flex-grow: 1; min-height: 350px; font-family: monospace; padding: 10px;"></textarea>
             <div class="db-actions">
                 <button class="btn-cancel" onclick="closeDBManager()">取消</button>
-                <div class="db-actions-right">
-                    <button class="btn-clear" onclick="clearDBTextarea()">🗑️ 清除全部</button>
-                    <button class="btn-reset" onclick="resetToDefaultDB()">還原預設</button>
-                    <button class="btn-save" onclick="saveCustomDB()">💾 儲存並套用</button>
-                </div>
+                <div class="db-actions-right"><button class="btn-clear" onclick="clearDBTextarea()">🗑️ 清除全部</button><button class="btn-reset" onclick="resetToDefaultDB()">還原預設</button><button class="btn-save" onclick="saveCustomDB()">💾 儲存</button></div>
             </div>
         </div>
     </div>
@@ -307,613 +243,335 @@
             <h2 id="boss-title-text" style="color:#ff5252; margin-top:0;">🔥 Boss 突襲！🔥</h2>
             <div class="boss-img" id="boss-icon"></div>
             <div class="boss-hp-bar"><div class="boss-hp-fill" id="boss-hp-fill"></div></div>
-            <p style="color:#ffcc80; font-weight:bold; font-size:16px;">高等怪物攔住了去路！連續答對 3 題擊退牠！</p>
-            <h3 id="boss-q-title" style="color:#fff; border-bottom: 1px solid #777; padding-bottom: 5px;">載入中...</h3>
+            <h3 id="boss-q-title" style="color:#fff; border-bottom: 1px solid #777; padding-bottom: 5px;">連續答對擊退！</h3>
             <p id="boss-q-text" style="font-size:22px; font-weight:bold; color: #fff;">...</p>
-            <div id="boss-choices" class="boss-choices" style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
+            <div id="boss-choices" class="boss-choices"></div>
         </div>
     </div>
 
     <script type="module">
-        // 1. 從三個獨立模組引入功能 (注意路徑)
+        // 💎 1. 引入 6 粒無限寶石 (外部模組)
         import { defaultDatabaseRaw } from './data.js';
         import { initAudio, sfx, speakText, stopTTS } from './audio.js';
         import { craftRecipes, canAffordCraft } from './shop.js';
+        import { state, loadGameState, saveGameState, resetGameState, calculateDamage } from './player.js';
+        import { BOSS_LIST, bossState, setupBossEncounter, processBossAnswer } from './boss.js';
+        import { MAP_MONSTER_TYPES, mapState, getTilePosition, spawnMonsters, checkCollision } from './map.js';
 
-        // 🚨 將 function 暴露畀 HTML onclick 使用
-        window.checkParentPassword = checkParentPassword;
-        window.installApp = installApp;
-        window.updateUnitDropdown = updateUnitDropdown;
-        window.updateScopeInfo = updateScopeInfo;
-        window.openLearningArea = openLearningArea;
-        window.startStandardGame = startStandardGame;
-        window.startRPGGame = startRPGGame;
-        window.goToMenu = goToMenu;
-        window.eatFood = eatFood;
-        window.readQuestionTTS = readQuestionTTS;
-        window.loadStandardQuestion = loadStandardQuestion;
-        window.openCrafting = openCrafting;
-        window.restartGame = restartGame;
-        window.handleGridClick = handleGridClick;
-        window.loadRPGQuest = loadRPGQuest;
-        window.closeCrafting = closeCrafting;
-        window.closeDBManager = closeDBManager;
-        window.clearDBTextarea = clearDBTextarea;
-        window.resetToDefaultDB = resetToDefaultDB;
-        window.saveCustomDB = saveCustomDB;
-        window.checkBossAnswer = checkBossAnswer;
-        window.readLearningTTS = readLearningTTS;
-        window.craftItem = craftItem;
+        // 🔗 2. 暴露函數畀 HTML 按鈕使用
+        window.checkParentPassword = checkParentPassword; window.installApp = installApp; window.updateUnitDropdown = updateUnitDropdown; window.updateScopeInfo = updateScopeInfo; window.openLearningArea = openLearningArea; window.startStandardGame = startStandardGame; window.startRPGGame = startRPGGame; window.goToMenu = goToMenu; window.eatFood = eatFood; window.readQuestionTTS = readQuestionTTS; window.loadStandardQuestion = loadStandardQuestion; window.openCrafting = openCrafting; window.restartGame = restartGame; window.handleGridClick = handleGridClick; window.loadRPGQuest = loadRPGQuest; window.closeCrafting = closeCrafting; window.closeDBManager = closeDBManager; window.clearDBTextarea = clearDBTextarea; window.resetToDefaultDB = resetToDefaultDB; window.saveCustomDB = saveCustomDB; window.checkBossAnswer = checkBossAnswer; window.readLearningTTS = readLearningTTS; window.craftItem = craftItem;
 
-        // 🔐 全域變數宣告區
-        let emeralds = 0; 
-        let materials = { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 }; 
-        let inventory = {}; let placedDecorations = []; let selectedHotbarItem = null; 
-        const TILE_SIZE = 40; let gridSize = 8; let pX = 3, pY = 3; 
-        let questBlocks = []; let rpgQuestType = ""; let rpgCorrectAnswer = ""; 
-        let isQuestionActive = false; let currentTargetData = null;
+        // 🧠 3. 遊戲核心緩存變數 (無需存檔)
+        let activeSentenceText = ""; let currentQuestionCount = 0; let totalStdQuestions = 0; 
+        let database = []; let currentDatabase = []; let questionDeck = []; let currentStdMode = ""; 
+        let isPlayingAudio = false; let selectedHotbarItem = null; let currentTargetData = null;
 
-        let activeSentenceText = ""; 
-        let currentQuestionCount = 0; 
-        let totalStdQuestions = 0;
-        let hasPlayerMoved = false; 
-        
-        let MAX_HP = 100; let hp = 100; let foodCount = 0; let questionsAnswered = 0;
-        let armorLevel = 0; let bossesDefeated = 0; const BOSS_TRIGGER_COUNT = 8;
-        let bossHp = 3; const BOSS_MAX_HP = 3; let bossTargetData = null; let bossCorrectAnswer = ""; let bossQuestType = "";
-        
-        let isShieldActive = false; let activeMapMonsters = []; let monsterInterval = null;
-        let database = []; let currentDatabase = []; let questionDeck = []; let currentStdMode = ""; let currentBoss = null;
-        let isPlayingAudio = false; // 語音狀態
+        window.onerror = function(msg, url, lineNo, columnNo, error) { console.error("Error:", msg); return false; };
 
-        // 🔐 防崩潰自動修復機制
-        window.onerror = function(msg, url, lineNo, columnNo, error) {
-            console.error("Game System Error:", msg, error);
-            let nextBtn1 = document.getElementById('std-next-btn'); let nextBtn2 = document.getElementById('rpg-next-btn');
-            if(nextBtn1) nextBtn1.style.display = 'block'; if(nextBtn2) nextBtn2.style.display = 'block';
-            return false;
-        };
-
+        // ⚙️ 基礎設定與 UI
         function getSafeData(dataObj) {
-            if(!dataObj) dataObj = {};
-            let word = String(dataObj.word || "未知"); let meaning = String(dataObj.meaning || "無解釋");
+            if(!dataObj) dataObj = {}; let word = String(dataObj.word || "未知"); let meaning = String(dataObj.meaning || "無解釋");
             let mFormat = String(dataObj.missingFormat || word); let mTarget = String(dataObj.missingTarget || word.charAt(0) || "字");
-            let sentence = String(dataObj.sentence || "無例句");
-            let sentence1 = dataObj.sentence1 ? String(dataObj.sentence1) : ""; let sentence2 = dataObj.sentence2 ? String(dataObj.sentence2) : "";
+            let sentence = String(dataObj.sentence || "無例句"); let sentence1 = dataObj.sentence1 ? String(dataObj.sentence1) : ""; let sentence2 = dataObj.sentence2 ? String(dataObj.sentence2) : "";
             let synonyms = dataObj.synonyms ? String(dataObj.synonyms) : ""; let antonyms = dataObj.antonyms ? String(dataObj.antonyms) : "";
             let unit = String(dataObj.unit || "未分類"); let fillOpts = Array.isArray(dataObj.fillOptions) ? dataObj.fillOptions : [];
             return { word, meaning, mFormat, mTarget, sentence, sentence1, sentence2, synonyms, antonyms, unit, fillOpts };
         }
+        function checkParentPassword() { let pin = prompt("🔒 請輸入密碼 (1234):"); if (pin === "1234") openDBManager(); else if (pin) alert("❌ 密碼錯誤！"); }
+        function installApp() { alert("💡 安裝教學：請使用瀏覽器選單「加至主畫面」。"); }
 
-        function checkParentPassword() {
-            let pin = prompt("🔒 這是家長專區：\n請輸入 4 位數密碼以進入設定與題庫 (預設密碼：1234)");
-            if (pin === "1234") openDBManager(); else if (pin !== null) alert("❌ 密碼錯誤！請由家長輸入。");
-        }
-
-        let deferredPrompt; window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; });
-        function installApp() {
-            if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { deferredPrompt = null; }); } 
-            else { alert("💡 安裝至手機教學：\n\n【Android / Chrome 用戶】\n請點擊右上角「⋮」選單，選擇「加至主畫面」。\n\n【iPhone / Safari 用戶】\n請點擊底部「分享」圖示，選擇「加入主畫面」。"); }
-        }
-
-        // 🎙️ 語音橋接系統 (連接 audio.js)
-        function readLearningTTS(word, meaning) {
-            isPlayingAudio = true;
-            speakText(word + "。解釋是：" + meaning, () => { isPlayingAudio = false; });
-        }
-
+        // 🔊 語音橋接
+        function readLearningTTS(word, meaning) { isPlayingAudio = true; speakText(word + "。解釋是：" + meaning, () => { isPlayingAudio = false; }); }
         function readQuestionTTS() {
-            if(!currentTargetData || isPlayingAudio) return;
-            let textToRead = "";
-            let mode = document.getElementById('standard-game').style.display === 'block' ? currentStdMode : rpgQuestType;
-            if(document.getElementById('boss-modal').style.display === 'flex') mode = bossQuestType;
-
-            let targetData = document.getElementById('boss-modal').style.display === 'flex' ? bossTargetData : currentTargetData;
-            let safe = getSafeData(targetData);
-
-            if (mode === 'meaning-to-word') textToRead = safe.meaning;
-            else if (mode === 'word-to-meaning') textToRead = safe.word;
+            if(!currentTargetData || isPlayingAudio) return; let textToRead = "";
+            let mode = document.getElementById('standard-game').style.display === 'block' ? currentStdMode : mapState.rpgQuestType;
+            if(document.getElementById('boss-modal').style.display === 'flex') mode = bossState.questType;
+            let targetData = document.getElementById('boss-modal').style.display === 'flex' ? bossState.targetData : currentTargetData; let safe = getSafeData(targetData);
+            if (mode === 'meaning-to-word') textToRead = safe.meaning; else if (mode === 'word-to-meaning') textToRead = safe.word;
             else if (mode === 'sentence') textToRead = activeSentenceText.replace(/[＿【】_]+/g, "甚麼").replace(new RegExp(safe.word, "g"), "甚麼");
             else if (mode === 'fill-blank') textToRead = safe.mFormat.replace(/[＿_]+/g, "甚麼");
-            
             if(textToRead) {
-                isPlayingAudio = true;
-                let btnStd = document.getElementById('tts-btn-std'); let btnRpg = document.getElementById('tts-btn-rpg');
+                isPlayingAudio = true; let btnStd = document.getElementById('tts-btn-std'); let btnRpg = document.getElementById('tts-btn-rpg');
                 if(btnStd && document.getElementById('standard-game').style.display === 'block') { btnStd.classList.add('playing'); btnStd.innerText = "🔊 播放中..."; }
                 if(btnRpg && document.getElementById('rpg-game').style.display === 'block') { btnRpg.classList.add('playing'); btnRpg.innerText = "🔊 播放中..."; }
                 speakText(textToRead, resetTTSBtn);
             }
         }
-
-        function resetTTSBtn() {
-            isPlayingAudio = false;
-            let btnStd = document.getElementById('tts-btn-std'); let btnRpg = document.getElementById('tts-btn-rpg');
-            if(btnStd) { btnStd.classList.remove('playing'); btnStd.innerText = "🔊 朗讀題目"; }
-            if(btnRpg) { btnRpg.classList.remove('playing'); btnRpg.innerText = "🔊 朗讀"; }
-        }
+        function resetTTSBtn() { isPlayingAudio = false; let btnStd = document.getElementById('tts-btn-std'); let btnRpg = document.getElementById('tts-btn-rpg'); if(btnStd) { btnStd.classList.remove('playing'); btnStd.innerText = "🔊 朗讀題目"; } if(btnRpg) { btnRpg.classList.remove('playing'); btnRpg.innerText = "🔊 朗讀"; } }
 
         function buildWordDeck() { return [...currentDatabase].sort(() => 0.5 - Math.random()); }
         function buildSentenceDeck() {
-            let deck = [];
-            currentDatabase.forEach(item => {
-                let safe = getSafeData(item);
-                let item1 = { ...item };
-                if (safe.sentence1) item1.activeSentence = safe.sentence1; else if (safe.sentence && safe.sentence !== "無例句") item1.activeSentence = safe.sentence; else item1.activeSentence = "無例句";
-                deck.push(item1);
+            let deck = []; currentDatabase.forEach(item => { let safe = getSafeData(item); let item1 = { ...item };
+                if (safe.sentence1) item1.activeSentence = safe.sentence1; else if (safe.sentence && safe.sentence !== "無例句") item1.activeSentence = safe.sentence; else item1.activeSentence = "無例句"; deck.push(item1);
                 if (safe.sentence2) { let item2 = { ...item }; item2.activeSentence = safe.sentence2; deck.push(item2); }
-            });
-            return deck.sort(() => 0.5 - Math.random());
+            }); return deck.sort(() => 0.5 - Math.random());
         }
 
-        const MAP_MONSTER_TYPES = [ { name: "殭屍", icon: "🧟", dmg: 10 }, { name: "骷髏", icon: "💀", dmg: 15 }, { name: "蜘蛛", icon: "🕷️", dmg: 10 } ];
-
-        function spawnMapMonsters() {
-            activeMapMonsters.forEach(m => m.element.remove()); activeMapMonsters = [];
-            let baseMonsters = 2; let maxMonstersLimit = Math.max(3, Math.floor((gridSize * gridSize) / 12)); 
-            let numMonsters = Math.min(baseMonsters + bossesDefeated, maxMonstersLimit); 
-            for(let i=0; i<numMonsters; i++) {
-                let type = MAP_MONSTER_TYPES[Math.floor(Math.random() * MAP_MONSTER_TYPES.length)]; let randX, randY; let attempts = 0;
-                do { randX = Math.floor(Math.random() * gridSize); randY = Math.floor(Math.random() * gridSize); attempts++;
-                } while (attempts < 50 && ((Math.abs(randX - pX) <= 1 && Math.abs(randY - pY) <= 1) || questBlocks.some(b => b.x === randX && b.y === randY) || activeMapMonsters.some(m => m.x === randX && m.y === randY)));
-                let el = document.createElement('div'); el.className = 'decoration-item'; el.innerText = type.icon;
-                el.style.left = (randX * TILE_SIZE) + 'px'; el.style.top = (randY * TILE_SIZE) + 'px'; el.style.zIndex = 6; el.style.transition = "top 0.3s, left 0.3s";
-                document.getElementById('island').appendChild(el); activeMapMonsters.push({ x: randX, y: randY, type: type, element: el });
-            }
-            if(monsterInterval) clearInterval(monsterInterval); monsterInterval = setInterval(moveMapMonsters, 1000);
-        }
-
+        // 🗺️ 地圖與怪物 AI
         function moveMapMonsters() {
-            if(!isQuestionActive) return;
-            activeMapMonsters.forEach((m, index) => {
+            if(!mapState.isQuestionActive) return;
+            mapState.activeMapMonsters.forEach((m, index) => {
                 let dirs = [[0,1], [0,-1], [1,0], [-1,0]];
-                if (Math.random() < 0.7) {
-                    let dx = pX - m.x; let dy = pY - m.y;
-                    if (Math.abs(dx) > Math.abs(dy)) { dirs = dx > 0 ? [[1,0], [0,1], [0,-1], [-1,0]] : [[-1,0], [0,1], [0,-1], [1,0]]; } 
-                    else { dirs = dy > 0 ? [[0,1], [1,0], [-1,0], [0,-1]] : [[0,-1], [1,0], [-1,0], [0,1]]; }
-                } else { dirs = dirs.sort(() => 0.5 - Math.random()); }
+                if (Math.random() < 0.7) { let dx = mapState.pX - m.x; let dy = mapState.pY - m.y;
+                    if (Math.abs(dx) > Math.abs(dy)) dirs = dx > 0 ? [[1,0],[0,1],[0,-1],[-1,0]] : [[-1,0],[0,1],[0,-1],[1,0]]; 
+                    else dirs = dy > 0 ? [[0,1],[1,0],[-1,0],[0,-1]] : [[0,-1],[1,0],[-1,0],[0,1]];
+                } else dirs = dirs.sort(() => 0.5 - Math.random());
                 for(let i=0; i<dirs.length; i++) {
-                    let nx = m.x + dirs[i][0]; let ny = m.y + dirs[i][1];
-                    let isProtectedTile = isShieldActive && nx === pX && ny === pY;
-                    if(nx >= 0 && nx < gridSize && ny >= 0 && ny < gridSize && !questBlocks.some(b => b.x === nx && b.y === ny && !b.broken) && !activeMapMonsters.some(other => other !== m && other.x === nx && other.y === ny) && !isProtectedTile) {
-                        m.x = nx; m.y = ny; m.element.style.left = (nx * TILE_SIZE) + 'px'; m.element.style.top = (ny * TILE_SIZE) + 'px'; break;
+                    let nx = m.x + dirs[i][0]; let ny = m.y + dirs[i][1]; let isProtectedTile = mapState.isShieldActive && nx === mapState.pX && ny === mapState.pY;
+                    if(nx >= 0 && nx < state.gridSize && ny >= 0 && ny < state.gridSize && !mapState.questBlocks.some(b => b.x === nx && b.y === ny && !b.broken) && !mapState.activeMapMonsters.some(other => other !== m && other.x === nx && other.y === ny) && !isProtectedTile) {
+                        m.x = nx; m.y = ny; let pos = getTilePosition(nx, ny); m.element.style.left = pos.left; m.element.style.top = pos.top; break;
                     }
-                }
-                checkMonsterCollision(m, index);
+                } 
+                if(checkCollision(m, (dmg, name) => takeDamage(dmg, `被 ${name} 襲擊`))) { mapState.activeMapMonsters.splice(index, 1); }
             });
         }
-        
-        function checkMonsterCollision(m, index) {
-            if(m.x === pX && m.y === pY && !isShieldActive) {
-                let dmg = calculateDamage(m.type.dmg); takeDamage(dmg, `被 ${m.type.name} 襲擊`); m.element.remove(); activeMapMonsters.splice(index, 1);
+
+        // 💾 資料庫管理
+        function initDatabase() {
+            database = [...defaultDatabaseRaw].map(item => { if(item && item.idiom) { item.word = item.idiom; delete item.idiom; } return item; });
+            let studentSelect = document.getElementById('student-select');
+            if (studentSelect) {
+                studentSelect.innerHTML = ''; let students = [...new Set(database.map(item => item.student || "未分類"))];
+                students.forEach(s => { let opt = document.createElement('option'); opt.value = s; opt.innerText = s; studentSelect.appendChild(opt); });
+                let allOpt = document.createElement('option'); allOpt.value = 'all'; allOpt.innerText = '所有玩家大挑戰'; studentSelect.appendChild(allOpt); updateUnitDropdown();
             }
         }
-
-        function calculateDamage(amount) { let reduction = armorLevel * 0.15; if (reduction > 0.75) reduction = 0.75; return Math.max(1, Math.floor(amount * (1 - reduction))); }
-
-        // 🧠 載入題庫
-        function initDatabase() {
-            try {
-                database = [...defaultDatabaseRaw];
-                database = database.map(item => { if(item && item.idiom) { item.word = item.idiom; delete item.idiom; } return item; }).filter(item => item != null);
-                let studentSelect = document.getElementById('student-select');
-                if (studentSelect) {
-                    studentSelect.innerHTML = ''; let students = [...new Set(database.map(item => item.student || "未分類"))];
-                    students.forEach(s => { let opt = document.createElement('option'); opt.value = s; opt.innerText = s; studentSelect.appendChild(opt); });
-                    let allOpt = document.createElement('option'); allOpt.value = 'all'; allOpt.innerText = '所有玩家大挑戰'; studentSelect.appendChild(allOpt);
-                    updateUnitDropdown();
-                }
-            } catch(e) { console.error("Init DB Error", e); updateUnitDropdown(); }
-        }
-
         function updateUnitDropdown() {
-            try {
-                let studentSelect = document.getElementById('student-select'); if(!studentSelect) return;
-                let student = studentSelect.value || "Justin"; let select = document.getElementById('unit-select');
-                if(select) {
-                    select.innerHTML = '<option value="all">所有範圍 (綜合挑戰)</option>';
-                    let studentDB = (student === 'all') ? database : database.filter(item => item.student === student);
-                    let units = [...new Set(studentDB.map(item => item.unit || "未分類"))];
-                    units.forEach(u => { let opt = document.createElement('option'); opt.value = u; opt.innerText = u; select.appendChild(opt); });
-                }
-                updateScopeInfo();
-            } catch(e) { console.error(e); }
+            let studentSelect = document.getElementById('student-select'); if(!studentSelect) return;
+            let select = document.getElementById('unit-select');
+            if(select) { select.innerHTML = '<option value="all">所有範圍 (綜合挑戰)</option>'; let studentDB = (studentSelect.value === 'all') ? database : database.filter(item => item.student === studentSelect.value);
+                [...new Set(studentDB.map(item => item.unit || "未分類"))].forEach(u => { let opt = document.createElement('option'); opt.value = u; opt.innerText = u; select.appendChild(opt); });
+            } updateScopeInfo();
         }
-
         function updateScopeInfo() {
-            try {
-                let studentSelect = document.getElementById('student-select'); if(!studentSelect) return;
-                let student = studentSelect.value || "Justin"; let unitSelect = document.getElementById('unit-select'); let unit = unitSelect ? unitSelect.value : "all";
-                let filteredDB = (student === 'all') ? database : database.filter(item => item.student === student);
-                currentDatabase = (unit === 'all') ? filteredDB : filteredDB.filter(item => item.unit === unit);
-                if (!currentDatabase || currentDatabase.length === 0) { currentDatabase = database.length > 0 ? [...database] : [...defaultDatabaseRaw]; }
-                let infoEl = document.getElementById('scope-info'); if(infoEl) infoEl.innerText = `這個範圍共有 ${currentDatabase.length} 個字詞。`;
-            } catch(e) { console.error(e); }
+            let student = document.getElementById('student-select').value || "Justin"; let unit = document.getElementById('unit-select').value || "all";
+            let filteredDB = (student === 'all') ? database : database.filter(item => item.student === student);
+            currentDatabase = (unit === 'all') ? filteredDB : filteredDB.filter(item => item.unit === unit);
+            if (!currentDatabase.length) currentDatabase = database.length ? [...database] : [...defaultDatabaseRaw];
+            document.getElementById('scope-info').innerText = `這個範圍共有 ${currentDatabase.length} 個字詞。`;
         }
-
         function openDBManager() { document.getElementById('db-textarea').value = JSON.stringify(database, null, 4); document.getElementById('db-modal').style.display = 'flex'; }
         function closeDBManager() { document.getElementById('db-modal').style.display = 'none'; }
-        function clearDBTextarea() { let textarea = document.getElementById('db-textarea'); textarea.value = ""; textarea.focus(); }
+        function clearDBTextarea() { let ta = document.getElementById('db-textarea'); ta.value = ""; ta.focus(); }
         function saveCustomDB() {
-            try {
-                let textValue = document.getElementById('db-textarea').value; if(textValue.trim() === "") throw new Error("資料不可為空！");
-                let newDB = JSON.parse(textValue); if (!Array.isArray(newDB) || newDB.length === 0) throw new Error("必須是包含資料的陣列格式");
-                database = newDB.map(item => { if(item.idiom) { item.word = item.idiom; delete item.idiom; } return item; });
-                try { localStorage.setItem('customVocabDB', JSON.stringify(database)); } catch(e){}
-                initDatabase(); closeDBManager(); alert("題庫已成功更新並儲存於瀏覽器！");
-            } catch(e) { alert("儲存失敗！JSON 格式有誤。\n錯誤訊息: " + e.message); }
+            try { let textValue = document.getElementById('db-textarea').value; if(textValue.trim() === "") throw new Error("資料不可為空！");
+                database = JSON.parse(textValue).map(item => { if(item.idiom) { item.word = item.idiom; delete item.idiom; } return item; });
+                initDatabase(); closeDBManager(); alert("題庫更新成功！");
+            } catch(e) { alert("儲存失敗！" + e.message); }
         }
-
         function resetToDefaultDB() {
-            if(confirm("確定要還原成預設題庫嗎？這將捨棄所有手機舊紀錄。")) {
-                let currentDefaultStr = JSON.stringify(defaultDatabaseRaw); database = JSON.parse(currentDefaultStr);
-                database = database.map(item => { if(item.idiom) { item.word = item.idiom; delete item.idiom; } return item; });
-                try { localStorage.setItem('customVocabDB', JSON.stringify(database)); localStorage.setItem('lastDefaultDB', currentDefaultStr); } catch(e){}
-                document.getElementById('db-textarea').value = JSON.stringify(database, null, 4); initDatabase(); alert("已成功還原並修復題庫！");
-            }
+            if(confirm("確定要還原成預設題庫嗎？")) { database = [...defaultDatabaseRaw].map(item => { if(item.idiom) { item.word = item.idiom; delete item.idiom; } return item; });
+                document.getElementById('db-textarea').value = JSON.stringify(database, null, 4); initDatabase(); alert("已成功還原！"); }
         }
 
-        function loadGameState() {
-            let savedState = null; try { savedState = localStorage.getItem('rpgGameState'); } catch(e){}
-            if (savedState) {
-                try {
-                    let state = JSON.parse(savedState);
-                    emeralds = parseInt(state.emeralds) || 0; MAX_HP = parseInt(state.MAX_HP); if(isNaN(MAX_HP)) MAX_HP = 100;
-                    hp = parseInt(state.hp); if(isNaN(hp)) hp = MAX_HP; foodCount = parseInt(state.foodCount) || 0; questionsAnswered = parseInt(state.questionsAnswered) || 0;
-                    armorLevel = parseInt(state.armorLevel) || 0; bossesDefeated = parseInt(state.bossesDefeated) || 0; 
-                    gridSize = parseInt(state.gridSize); if(isNaN(gridSize) || gridSize < 6) gridSize = 8;
-                    materials = state.materials || { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 };
-                    inventory = state.inventory || {}; placedDecorations = Array.isArray(state.placedDecorations) ? state.placedDecorations : [];
-                } catch(e) { console.error("載入遊戲紀錄失敗", e); gridSize = 8; }
-            }
-            updateMaterialUI(); updateGridSize();
-        }
-
-        function saveGameState() { try { let state = { emeralds, materials, inventory, placedDecorations, gridSize, hp, MAX_HP, foodCount, questionsAnswered, armorLevel, bossesDefeated }; localStorage.setItem('rpgGameState', JSON.stringify(state)); } catch(e) { console.error("存檔失敗", e); } }
-
+        // ❤️ 玩家狀態 UI
         function updateMaterialUI() {
-            try {
-                const safeSet = (id, val) => { let el = document.getElementById(id); if(el) el.innerText = val; };
-                safeSet('em-menu', emeralds); safeSet('em-std', emeralds); safeSet('em-std2', emeralds); safeSet('mat-em', emeralds);
-                safeSet('mat-log', materials.log); safeSet('mat-stone', materials.stone); safeSet('mat-fiber', materials.fiber);
-                safeSet('mat-sand', materials.sand); safeSet('mat-clay', materials.clay); safeSet('mat-iron', materials.iron); safeSet('mat-gold', materials.gold);
-                safeSet('hp-std', `${hp} / ${MAX_HP}`); safeSet('hp-rpg', `${hp} / ${MAX_HP}`); safeSet('food-std', foodCount); safeSet('food-rpg', foodCount);
-            } catch(e) { console.error("UI Update Error", e); }
+            const safeSet = (id, val) => { let el = document.getElementById(id); if(el) el.innerText = val; };
+            safeSet('em-menu', state.emeralds); safeSet('em-std2', state.emeralds); safeSet('mat-em', state.emeralds);
+            safeSet('mat-log', state.materials.log); safeSet('mat-stone', state.materials.stone); safeSet('mat-fiber', state.materials.fiber);
+            safeSet('mat-sand', state.materials.sand); safeSet('mat-clay', state.materials.clay); safeSet('mat-iron', state.materials.iron); safeSet('mat-gold', state.materials.gold);
+            safeSet('hp-std', `${state.hp} / ${state.MAX_HP}`); safeSet('hp-rpg', `${state.hp} / ${state.MAX_HP}`);
+            safeSet('food-std', state.foodCount); safeSet('food-rpg', state.foodCount);
         }
-
-        function goToMenu() { try { if(monsterInterval) clearInterval(monsterInterval); document.querySelectorAll('.page').forEach(p => p.style.display = 'none'); document.getElementById('main-dashboard').style.display = 'block'; resetTTSBtn(); isQuestionActive = false; } catch(e) { console.error("返回大本營出錯:", e); } }
-
-        function restartGame() {
-            if(confirm("⚠️ 警告：確定要重新開始嗎？\n所有的綠寶石、收集的素材與島嶼方塊都會被完全清空！")) {
-                if(confirm("🚨 最後確認：進度清除後將【無法還原】，真的要重置嗎？")) {
-                    emeralds = 0; MAX_HP = 100; hp = MAX_HP; foodCount = 0; questionsAnswered = 0; armorLevel = 0; bossesDefeated = 0;
-                    materials = { log: 0, stone: 0, fiber: 0, sand: 0, clay: 0, iron: 0, gold: 0 };
-                    inventory = {}; placedDecorations = []; selectedHotbarItem = null; gridSize = 8; 
-                    updateGridSize(); renderDecorations(); renderHotbar(); updateMaterialUI(); saveGameState(); 
-                    questionDeck = buildWordDeck(); loadRPGQuest(); alert("🔄 遊戲紀錄已完全重置！開始新的冒險吧！");
-                }
-            }
-        }
-
-        window.addEventListener('DOMContentLoaded', () => { initDatabase(); loadGameState(); });
+        function goToMenu() { if(mapState.monsterInterval) clearInterval(mapState.monsterInterval); document.querySelectorAll('.page').forEach(p => p.style.display = 'none'); document.getElementById('main-dashboard').style.display = 'block'; resetTTSBtn(); mapState.isQuestionActive = false; }
+        function restartGame() { if(confirm("確定重新開始？所有收集會被清空！")) resetGameState(() => { updateGridSize(); renderDecorations(); renderHotbar(); updateMaterialUI(); questionDeck = buildWordDeck(); loadRPGQuest(); alert("🔄 已重置！"); }); }
+        
+        window.addEventListener('DOMContentLoaded', () => { initDatabase(); loadGameState(() => { updateMaterialUI(); updateGridSize(); }); });
 
         function highlightSentence(sentence, word) {
             if (!sentence || sentence === "無例句") return sentence; let highlighted = `<span style="color:#d32f2f; font-weight:bold; border-bottom: 2px solid #d32f2f;">${word}</span>`;
-            if (sentence.includes("＿")) { return sentence.replace(/＿+|_+/g, highlighted); } else { return sentence.replace(new RegExp(word, 'g'), highlighted); }
+            return sentence.includes("＿") ? sentence.replace(/＿+|_+/g, highlighted) : sentence.replace(new RegExp(word, 'g'), highlighted);
         }
-
         function openLearningArea() {
-            try {
-                if(!currentDatabase || currentDatabase.length === 0) return alert("目前範圍沒有題目！請先選擇玩家與單元。");
-                document.querySelectorAll('.page').forEach(p => p.style.display = 'none'); document.getElementById('learning-area').style.display = 'block';
-                let titleSize = "28px"; let meaningSize = "22px"; let sentenceSize = "20px"; let listContent = "";
-                currentDatabase.forEach(item => {
-                    let safe = getSafeData(item); let unitBadge = safe.unit ? `<span style="background:#1565c0; color:#fff; font-size:14px; padding:2px 6px; border-radius:4px; margin-right:8px; vertical-align:middle;">[${safe.unit}]</span>` : "";
-                    let safeWord = safe.word.replace(/'/g, "\\'"); let safeMeaning = safe.meaning.replace(/'/g, "\\'");
-                    let extraInfo = "";
-                    if (safe.synonyms) extraInfo += `<p style="margin: 0 0 5px 0; font-size: ${sentenceSize}; color: #43a047;"><strong>同義詞：</strong>${safe.synonyms}</p>`;
-                    if (safe.antonyms) extraInfo += `<p style="margin: 0 0 8px 0; font-size: ${sentenceSize}; color: #e53935;"><strong>反義詞：</strong>${safe.antonyms}</p>`;
-                    let sentenceHtml = "";
-                    if (safe.sentence1) sentenceHtml += `<p style="margin: 0 0 5px 0; font-size: ${sentenceSize}; color: #666; font-style: italic;">💡 例句 1：${highlightSentence(safe.sentence1, safe.word)}</p>`;
-                    if (safe.sentence2) sentenceHtml += `<p style="margin: 0 0 5px 0; font-size: ${sentenceSize}; color: #666; font-style: italic;">💡 例句 2：${highlightSentence(safe.sentence2, safe.word)}</p>`;
-                    if (!safe.sentence1 && !safe.sentence2 && safe.sentence !== "無例句") { sentenceHtml += `<p style="margin: 0 0 5px 0; font-size: ${sentenceSize}; color: #666; font-style: italic;">💡 例句：${highlightSentence(safe.sentence, safe.word)}</p>`; }
-                    listContent += `
-                        <div style="background: #fff; border: 3px solid #ccc; border-radius: 8px; padding: 15px; box-shadow: 0 3px 0 #999; position: relative;">
-                            <button onclick="readLearningTTS('${safeWord}', '${safeMeaning}')" style="position: absolute; right: 12px; top: 12px; background: #2196F3; color: white; border: 2px solid #0d47a1; border-radius: 6px; padding: 6px 10px; font-weight: bold; cursor: pointer; transition: 0.1s;">🔊 朗讀</button>
-                            <h3 style="margin: 0 0 8px 0; color: #1565c0; font-size: ${titleSize}; display: flex; align-items: center; padding-right: 70px;">${unitBadge}${safe.word}</h3>
-                            <p style="margin: 0 0 10px 0; font-size: ${meaningSize}; font-weight: bold; color: #333; padding-right: 70px; line-height: 1.4;">📖 ${safe.meaning}</p>
-                            ${extraInfo} ${sentenceHtml}
-                        </div>`;
-                });
-                document.getElementById('learning-list').innerHTML = listContent;
-            } catch(e) { console.error("打開學習區出錯:", e); }
+            if(!currentDatabase.length) return alert("目前範圍沒有題目！"); document.querySelectorAll('.page').forEach(p => p.style.display = 'none'); document.getElementById('learning-area').style.display = 'block';
+            let listContent = ""; currentDatabase.forEach(item => {
+                let safe = getSafeData(item); let unitBadge = safe.unit ? `<span style="background:#1565c0; color:#fff; font-size:14px; padding:2px 6px; border-radius:4px; margin-right:8px;">[${safe.unit}]</span>` : "";
+                let sentenceHtml = ""; if (safe.sentence1) sentenceHtml += `<p style="margin: 0 0 5px 0; font-size: 20px; color: #666;">💡 例句 1：${highlightSentence(safe.sentence1, safe.word)}</p>`;
+                if (safe.sentence2) sentenceHtml += `<p style="margin: 0 0 5px 0; font-size: 20px; color: #666;">💡 例句 2：${highlightSentence(safe.sentence2, safe.word)}</p>`;
+                listContent += `<div style="background: #fff; border: 3px solid #ccc; border-radius: 8px; padding: 15px; box-shadow: 0 3px 0 #999; position: relative; margin-bottom:10px;">
+                    <button onclick="readLearningTTS('${safe.word}', '${safe.meaning}')" style="position: absolute; right: 12px; top: 12px; background: #2196F3; color: white; border: 2px solid #0d47a1; border-radius: 6px; padding: 6px 10px; font-weight: bold; cursor: pointer;">🔊 朗讀</button>
+                    <h3 style="margin: 0 0 8px 0; color: #1565c0; font-size: 28px;">${unitBadge}${safe.word}</h3><p style="margin: 0 0 10px 0; font-size: 22px; font-weight: bold; color: #333;">📖 ${safe.meaning}</p>${sentenceHtml}</div>`;
+            }); document.getElementById('learning-list').innerHTML = listContent;
         }
 
         function takeDamage(amount, reason) {
-            hp = parseInt(hp); if(isNaN(hp)) hp = MAX_HP; hp -= amount; sfx.hit(); document.body.classList.add('damage-flash'); setTimeout(() => document.body.classList.remove('damage-flash'), 300);
-            if (hp <= 0) {
-                hp = 0; updateMaterialUI(); if(monsterInterval) clearInterval(monsterInterval);
-                setTimeout(() => { alert(`💀 遊戲結束：${reason}\n你被擊倒了，失去 30% 綠寶石。你已被送回大本營休息。`); emeralds = Math.floor(emeralds * 0.7); hp = MAX_HP; saveGameState(); document.getElementById('boss-modal').style.display = 'none'; goToMenu(); }, 100);
+            state.hp -= amount; sfx.hit(); document.body.classList.add('damage-flash'); setTimeout(() => document.body.classList.remove('damage-flash'), 300);
+            if (state.hp <= 0) { state.hp = 0; updateMaterialUI(); if(mapState.monsterInterval) clearInterval(mapState.monsterInterval);
+                setTimeout(() => { alert(`💀 遊戲結束：${reason}\n你被擊倒了，失去 30% 綠寶石。`); state.emeralds = Math.floor(state.emeralds * 0.7); state.hp = state.MAX_HP; saveGameState(); document.getElementById('boss-modal').style.display = 'none'; goToMenu(); }, 100);
             } else { updateMaterialUI(); saveGameState(); }
         }
+        function eatFood() { if (state.foodCount > 0 && state.hp < state.MAX_HP) { sfx.eat(); state.foodCount--; state.hp = Math.min(state.MAX_HP, state.hp + 30); updateMaterialUI(); saveGameState(); } else if (state.hp >= state.MAX_HP) { alert("血量已滿！"); } else { alert("沒有蘋果了！"); } }
+        function checkBossTrigger() { if (state.questionsAnswered > 0 && state.questionsAnswered % 8 === 0) { setTimeout(() => { startBossFight(); }, 1200); } }
 
-        function eatFood() {
-            if (foodCount > 0 && hp < MAX_HP) { sfx.eat(); foodCount--; hp = Math.min(MAX_HP, hp + 30); updateMaterialUI(); saveGameState(); } 
-            else if (hp >= MAX_HP) { alert("血量已經滿了，不需要吃東西！"); } 
-            else { alert("沒有蘋果了！答對題目有機會掉落蘋果！"); }
-        }
-
-        function checkBossTrigger() { if (questionsAnswered > 0 && questionsAnswered % BOSS_TRIGGER_COUNT === 0) { setTimeout(() => { startBossFight(); }, 1200); } }
-
+        // 📚 標準模式
         function startStandardGame(mode) {
-            initAudio(); if(!currentDatabase || currentDatabase.length === 0) return alert("目前範圍沒有題目！請在設定檢查題庫。");
-            currentStdMode = mode; if (mode === 'sentence') questionDeck = buildSentenceDeck(); else questionDeck = buildWordDeck();
+            initAudio(); if(!currentDatabase.length) return alert("沒有題目！");
+            currentStdMode = mode; questionDeck = (mode === 'sentence') ? buildSentenceDeck() : buildWordDeck();
             totalStdQuestions = questionDeck.length; currentQuestionCount = 0; document.querySelectorAll('.page').forEach(p => p.style.display = 'none'); document.getElementById('standard-game').style.display = 'block';
-            const titles = { 'meaning-to-word': "📖 意思找詞語", 'word-to-meaning': "📖 詞語選意思", 'fill-blank': "📖 詞語填空", 'sentence': "📖 情境用法" };
-            document.getElementById('std-title').innerText = titles[mode]; loadStandardQuestion();
+            const titles = { 'meaning-to-word': "📖 意思找詞語", 'word-to-meaning': "📖 詞語選意思", 'fill-blank': "📖 詞語填空", 'sentence': "📖 情境用法" }; document.getElementById('std-title').innerText = titles[mode]; loadStandardQuestion();
         }
-
         function generateOptions(correctAnswer, keyType) {
-            if (!correctAnswer) correctAnswer = "正確答案"; let options = [correctAnswer]; let shuffledDb = [...currentDatabase].sort(() => 0.5 - Math.random());
-            for(let i = 0; i < shuffledDb.length; i++) { let val = shuffledDb[i][keyType]; if(val && val !== correctAnswer && options.length < 4 && !options.includes(val)) options.push(val); }
+            let options = [correctAnswer || "答案"]; let shuffledDb = [...currentDatabase].sort(() => 0.5 - Math.random());
+            for(let i = 0; i < shuffledDb.length; i++) { let val = shuffledDb[i][keyType]; if(val && val !== options[0] && options.length < 4 && !options.includes(val)) options.push(val); }
             let dummies = ["的", "了", "是", "在", "不", "有", "個", "人", "這", "上", "中", "大", "他", "我", "你", "好"];
-            while (options.length < 4) { let d = dummies[Math.floor(Math.random() * dummies.length)]; if (!options.includes(d)) options.push(d); }
-            return options.sort(() => 0.5 - Math.random()); 
+            while (options.length < 4) { let d = dummies[Math.floor(Math.random() * dummies.length)]; if (!options.includes(d)) options.push(d); } return options.sort(() => 0.5 - Math.random()); 
         }
-
         function loadStandardQuestion() {
-            try {
-                document.getElementById('std-next-btn').style.display = 'none'; document.getElementById('feedback-std').innerText = "";
-                let optionsContainer = document.getElementById('options-container'); optionsContainer.innerHTML = "";
-                if (!questionDeck || questionDeck.length === 0) { alert("🎉 恭喜！你已經完成本單元的所有題目！"); goToMenu(); return; }
-                currentTargetData = questionDeck.pop(); currentQuestionCount++; document.getElementById('std-q-counter').innerText = `題號: ${currentQuestionCount} / ${totalStdQuestions}`;
-                let safe = getSafeData(currentTargetData); let options = [];
-                if (currentStdMode === 'meaning-to-word') { document.getElementById('question-text-std').innerText = safe.meaning; options = generateOptions(safe.word, 'word'); } 
-                else if (currentStdMode === 'word-to-meaning') { document.getElementById('question-text-std').innerText = safe.word; options = generateOptions(safe.meaning, 'meaning'); } 
-                else if (currentStdMode === 'sentence') { let sText = currentTargetData.activeSentence || "無例句"; activeSentenceText = sText; let displaySentence = sText;
-                    if (!displaySentence.includes("＿")) displaySentence = displaySentence.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】"); else displaySentence = displaySentence.replace(/＿＿＿＿/g, "【 ＿＿ 】");
-                    document.getElementById('question-text-std').innerText = displaySentence; options = generateOptions(safe.word, 'word');
-                } else if (currentStdMode === 'fill-blank') { document.getElementById('question-text-std').innerText = safe.mFormat; options = safe.fillOpts.length > 0 ? [...safe.fillOpts].sort(() => 0.5 - Math.random()) : generateOptions(safe.mTarget, 'missingTarget'); }
-                renderStdButtons(options, "std-option-btn"); resetTTSBtn();
-            } catch(e) { console.error("Load Standard Q Error", e); }
+            document.getElementById('std-next-btn').style.display = 'none'; document.getElementById('feedback-std').innerText = ""; let optionsContainer = document.getElementById('options-container'); optionsContainer.innerHTML = "";
+            if (!questionDeck.length) { alert("🎉 完成本單元！"); goToMenu(); return; }
+            currentTargetData = questionDeck.pop(); currentQuestionCount++; document.getElementById('std-q-counter').innerText = `題號: ${currentQuestionCount} / ${totalStdQuestions}`;
+            let safe = getSafeData(currentTargetData); let options = [];
+            if (currentStdMode === 'meaning-to-word') { document.getElementById('question-text-std').innerText = safe.meaning; options = generateOptions(safe.word, 'word'); } 
+            else if (currentStdMode === 'word-to-meaning') { document.getElementById('question-text-std').innerText = safe.word; options = generateOptions(safe.meaning, 'meaning'); } 
+            else if (currentStdMode === 'sentence') { let sText = currentTargetData.activeSentence || "無例句"; activeSentenceText = sText; document.getElementById('question-text-std').innerText = sText.includes("＿") ? sText.replace(/＿＿＿＿/g, "【 ＿＿ 】") : sText.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】"); options = generateOptions(safe.word, 'word'); } 
+            else if (currentStdMode === 'fill-blank') { document.getElementById('question-text-std').innerText = safe.mFormat; options = safe.fillOpts.length > 0 ? [...safe.fillOpts].sort(() => 0.5 - Math.random()) : generateOptions(safe.mTarget, 'missingTarget'); }
+            options.forEach(opt => { let btn = document.createElement("button"); btn.className = "std-option-btn"; btn.innerText = opt; btn.onclick = function() { checkStandardAnswer(this.innerText, this); }; optionsContainer.appendChild(btn); }); resetTTSBtn();
         }
-
-        function renderStdButtons(optionsArray, className) {
-            let container = document.getElementById('options-container');
-            optionsArray.forEach(opt => { let btn = document.createElement(className === "std-char-block" ? "div" : "button"); btn.className = className; btn.innerText = opt; btn.onclick = function() { checkStandardAnswer(this.innerText, this); }; container.appendChild(btn); });
-        }
-
         function checkStandardAnswer(selectedText, clickedElement) {
-            try {
-                let safe = getSafeData(currentTargetData); let feedback = document.getElementById('feedback-std');
-                let correctAnswer = (currentStdMode === 'word-to-meaning') ? safe.meaning : (currentStdMode === 'fill-blank' ? safe.mTarget : safe.word);
-                Array.from(document.getElementById('options-container').children).forEach(btn => { btn.style.pointerEvents = 'none'; if(btn.className !== "std-char-block") btn.style.filter = 'brightness(0.8)'; });
-                if(selectedText === correctAnswer) {
-                    sfx.correct(); feedback.innerText = "✅ 答對了！獲得 5 綠寶石！"; feedback.style.color = "#2e7d32";
-                    if(clickedElement.className !== "std-char-block") clickedElement.style.backgroundColor = "#c5e1a5"; emeralds += 5; 
-                    if (Math.random() < 0.3) { foodCount++; feedback.innerText += " (並幸運獲得 🍎x1)"; }
-                    updateMaterialUI(); saveGameState(); 
-                    if (currentStdMode === 'fill-blank') document.getElementById('question-text-std').innerText = safe.mFormat.replace(/＿|_/g, `【${correctAnswer}】`);
-                } else {
-                    let dmg = calculateDamage(15); feedback.innerText = `❌ 答錯了！遭受小妖精襲擊，扣 ${dmg} 血！答案是：` + correctAnswer; feedback.style.color = "#d32f2f";
-                    if(clickedElement.className !== "std-char-block") clickedElement.style.backgroundColor = "#ffcdd2"; takeDamage(dmg, "被小妖精襲擊");
-                }
-            } catch(e) { console.error("Check Ans Error", e); }
-            let nextBtn = document.getElementById('std-next-btn');
-            if (questionDeck.length === 0) { nextBtn.innerText = "完成挑戰 ➡️"; } else { nextBtn.innerText = "繼續挑戰 ➡️"; } nextBtn.style.display = 'block';
+            let safe = getSafeData(currentTargetData); let feedback = document.getElementById('feedback-std'); let correctAnswer = (currentStdMode === 'word-to-meaning') ? safe.meaning : (currentStdMode === 'fill-blank' ? safe.mTarget : safe.word);
+            Array.from(document.getElementById('options-container').children).forEach(btn => { btn.style.pointerEvents = 'none'; btn.style.filter = 'brightness(0.8)'; });
+            if(selectedText === correctAnswer) {
+                sfx.correct(); feedback.innerText = "✅ 答對了！獲得 5 綠寶石！"; feedback.style.color = "#2e7d32"; clickedElement.style.backgroundColor = "#c5e1a5"; state.emeralds += 5; 
+                if (Math.random() < 0.3) { state.foodCount++; feedback.innerText += " (獲得 🍎x1)"; } updateMaterialUI(); saveGameState(); 
+                if (currentStdMode === 'fill-blank') document.getElementById('question-text-std').innerText = safe.mFormat.replace(/＿|_/g, `【${correctAnswer}】`);
+            } else {
+                let dmg = calculateDamage(15); feedback.innerText = `❌ 答錯了！遭受小妖精襲擊，扣 ${dmg} 血！答案是：` + correctAnswer; feedback.style.color = "#d32f2f"; clickedElement.style.backgroundColor = "#ffcdd2"; takeDamage(dmg, "被小妖精襲擊");
+            }
+            let nextBtn = document.getElementById('std-next-btn'); nextBtn.innerText = questionDeck.length === 0 ? "完成挑戰 ➡️" : "繼續挑戰 ➡️"; nextBtn.style.display = 'block';
         }
 
-        const BOSS_LIST = [
-            { name: "終界龍 (Ender Dragon)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%231a1a1a'/%3E%3Crect x='1' y='3' width='2' height='1' fill='%23d800d8'/%3E%3Crect x='5' y='3' width='2' height='1' fill='%23d800d8'/%3E%3Crect x='2' y='5' width='4' height='3' fill='%230a0a0a'/%3E%3C/svg%3E", dmg: 60 },
-            { name: "苦力怕 (Creeper)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%2355FF55'/%3E%3Crect x='1' y='2' width='2' height='2' fill='%23000'/%3E%3Crect x='5' y='2' width='2' height='2' fill='%23000'/%3E%3Crect x='3' y='4' width='2' height='3' fill='%23000'/%3E%3Crect x='2' y='5' width='1' height='2' fill='%23000'/%3E%3Crect x='5' y='5' width='1' height='2' fill='%23000'/%3E%3C/svg%3E", dmg: 40 },
-            { name: "末影人 (Enderman)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%23111'/%3E%3Crect x='0' y='4' width='3' height='1' fill='%23FF55FF'/%3E%3Crect x='5' y='4' width='3' height='1' fill='%23FF55FF'/%3E%3C/svg%3E", dmg: 35 },
-            { name: "地獄幽靈 (Ghast)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%23eee'/%3E%3Crect x='1' y='3' width='2' height='1' fill='%23000'/%3E%3Crect x='5' y='3' width='2' height='1' fill='%23000'/%3E%3Crect x='3' y='5' width='2' height='1' fill='%23000'/%3E%3Crect x='1' y='7' width='1' height='1' fill='%23aaa'/%3E%3Crect x='3' y='7' width='1' height='1' fill='%23aaa'/%3E%3Crect x='5' y='7' width='1' height='1' fill='%23aaa'/%3E%3C/svg%3E", dmg: 45 },
-            { name: "監守者 (Warden)", icon: "data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%23004c4c'/%3E%3Crect x='2' y='2' width='4' height='4' fill='%23002222'/%3E%3Crect x='3' y='4' width='2' height='2' fill='%23118888'/%3E%3Crect x='0' y='1' width='1' height='3' fill='%23008888'/%3E%3Crect x='7' y='1' width='1' height='3' fill='%23008888'/%3E%3C/svg%3E", dmg: 80 }
-        ];
-
+        // 🐉 Boss 戰
         function startBossFight() {
-            initAudio(); sfx.boss(); bossHp = BOSS_MAX_HP; currentBoss = BOSS_LIST[Math.floor(Math.random() * BOSS_LIST.length)];
-            document.getElementById('boss-title-text').innerText = `🔥 ${currentBoss.name} 突襲！🔥`;
-            document.getElementById('boss-icon').innerHTML = `<img src="${currentBoss.icon}" style="width: 100px; height: 100px; image-rendering: pixelated; border: 4px solid #333; box-shadow: 0 0 15px #ff5252; border-radius: 12px; background: #fff;">`;
+            let boss = setupBossEncounter();
+            document.getElementById('boss-title-text').innerText = `🔥 ${boss.name} 突襲！🔥`;
+            document.getElementById('boss-icon').innerHTML = `<img src="${boss.icon}" style="width: 100px; height: 100px; image-rendering: pixelated; border: 4px solid #333; box-shadow: 0 0 15px #ff5252; border-radius: 12px; background: #fff;">`;
             document.getElementById('boss-hp-fill').style.width = '100%'; document.getElementById('boss-modal').style.display = 'flex'; loadBossQuestion();
         }
-
         function loadBossQuestion() {
-            try {
-                bossTargetData = currentDatabase[Math.floor(Math.random() * currentDatabase.length)]; let safe = getSafeData(bossTargetData);
-                const types = ['meaning-to-word', 'word-to-meaning', 'fill-blank', 'sentence']; bossQuestType = types[Math.floor(Math.random() * types.length)];
-                let qText = "", rawOptions = [], actualAns = ""; let fillOpts = safe.fillOpts.length > 0 ? safe.fillOpts : generateOptions(safe.mTarget, 'missingTarget');
-                if (bossQuestType === 'meaning-to-word') { qText = safe.meaning; actualAns = safe.word; rawOptions = generateOptions(actualAns, 'word'); }
-                else if (bossQuestType === 'word-to-meaning') { qText = safe.word; actualAns = safe.meaning; rawOptions = generateOptions(actualAns, 'meaning'); }
-                else if (bossQuestType === 'fill-blank') { qText = safe.mFormat; actualAns = safe.mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random()); }
-                else if (bossQuestType === 'sentence') { 
-                    let possibleSentences = []; if (safe.sentence && safe.sentence !== "無例句") possibleSentences.push(safe.sentence);
-                    if (safe.sentence1) possibleSentences.push(safe.sentence1); if (safe.sentence2) possibleSentences.push(safe.sentence2);
-                    let sText = possibleSentences.length > 0 ? possibleSentences[Math.floor(Math.random() * possibleSentences.length)] : "無例句";
-                    activeSentenceText = sText; if (!sText.includes("＿")) qText = sText.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】"); else qText = sText.replace(/＿＿＿＿/g, "【 ＿＿ 】");
-                    actualAns = safe.word; rawOptions = generateOptions(actualAns, 'word'); 
-                }
-                document.getElementById('boss-q-text').innerText = qText;
-                let choicesHTML = ""; rawOptions.forEach((opt) => { choicesHTML += `<div onclick="checkBossAnswer('${opt}', this)">${opt}</div>`; if (opt === actualAns) bossCorrectAnswer = opt; });
-                document.getElementById('boss-choices').innerHTML = choicesHTML; resetTTSBtn();
-            } catch(e) { console.error("Boss Load Error", e); }
+            bossState.targetData = currentDatabase[Math.floor(Math.random() * currentDatabase.length)]; let safe = getSafeData(bossState.targetData);
+            const types = ['meaning-to-word', 'word-to-meaning', 'fill-blank', 'sentence']; bossState.questType = types[Math.floor(Math.random() * types.length)];
+            let qText = "", rawOptions = [], actualAns = ""; let fillOpts = safe.fillOpts.length > 0 ? safe.fillOpts : generateOptions(safe.mTarget, 'missingTarget');
+            if (bossState.questType === 'meaning-to-word') { qText = safe.meaning; actualAns = safe.word; rawOptions = generateOptions(actualAns, 'word'); }
+            else if (bossState.questType === 'word-to-meaning') { qText = safe.word; actualAns = safe.meaning; rawOptions = generateOptions(actualAns, 'meaning'); }
+            else if (bossState.questType === 'fill-blank') { qText = safe.mFormat; actualAns = safe.mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random()); }
+            else if (bossState.questType === 'sentence') { 
+                let possibleSentences = []; if (safe.sentence && safe.sentence !== "無例句") possibleSentences.push(safe.sentence); if (safe.sentence1) possibleSentences.push(safe.sentence1); if (safe.sentence2) possibleSentences.push(safe.sentence2);
+                activeSentenceText = possibleSentences.length > 0 ? possibleSentences[Math.floor(Math.random() * possibleSentences.length)] : "無例句";
+                qText = activeSentenceText.includes("＿") ? activeSentenceText.replace(/＿＿＿＿/g, "【 ＿＿ 】") : activeSentenceText.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】"); actualAns = safe.word; rawOptions = generateOptions(actualAns, 'word'); 
+            }
+            document.getElementById('boss-q-text').innerText = qText; let choicesHTML = "";
+            rawOptions.forEach((opt) => { choicesHTML += `<div onclick="checkBossAnswer('${opt}', this)">${opt}</div>`; if (opt === actualAns) bossState.correctAnswer = opt; });
+            document.getElementById('boss-choices').innerHTML = choicesHTML; resetTTSBtn();
         }
-
         function checkBossAnswer(selectedText, btn) {
             Array.from(document.getElementById('boss-choices').children).forEach(b => b.style.pointerEvents = 'none');
-            if (selectedText === bossCorrectAnswer) {
-                sfx.mine(); setTimeout(sfx.correct, 100); btn.style.backgroundColor = "#c5e1a5"; bossHp--; document.getElementById('boss-hp-fill').style.width = (bossHp / BOSS_MAX_HP * 100) + '%';
-                if (bossHp <= 0) {
-                    setTimeout(() => {
-                        bossesDefeated++; alert(`🎉 恭喜！你成功擊敗了 ${currentBoss.name}！\n獲得戰利品：50 綠寶石、🌟黃金x2、🍎蘋果x3！\n⚠️ 警告：地圖上的小怪數量增加了！`);
-                        emeralds += 50; materials.gold += 2; foodCount += 3; updateMaterialUI(); saveGameState(); document.getElementById('boss-modal').style.display = 'none';
+            let result = processBossAnswer(selectedText === bossState.correctAnswer);
+            if (selectedText === bossState.correctAnswer) {
+                btn.style.backgroundColor = "#c5e1a5"; document.getElementById('boss-hp-fill').style.width = (bossState.hp / bossState.MAX_HP * 100) + '%';
+                if (result.defeated) { setTimeout(() => {
+                        state.bossesDefeated++; alert(`🎉 恭喜擊敗 ${bossState.currentBoss.name}！\n獲得：50 綠寶石、🌟黃金x2、🍎蘋果x3！`); state.emeralds += 50; state.materials.gold += 2; state.foodCount += 3; updateMaterialUI(); saveGameState(); document.getElementById('boss-modal').style.display = 'none';
                         if(document.getElementById('rpg-game').style.display === 'block') loadRPGQuest(); else loadStandardQuestion();
                     }, 500);
                 } else { setTimeout(() => { loadBossQuestion(); }, 1000); }
-            } else {
-                btn.style.backgroundColor = "#ffcdd2"; let dmg = calculateDamage(currentBoss.dmg);
-                alert(`❌ 答錯了！正確答案是：「${bossCorrectAnswer}」\n${currentBoss.name} 對你發動攻擊，扣 ${dmg} 血！`); takeDamage(dmg, `被 ${currentBoss.name} 擊殺`);
-                if (hp > 0) setTimeout(() => { loadBossQuestion(); }, 1200);
-            }
+            } else { btn.style.backgroundColor = "#ffcdd2"; alert(`❌ 答錯了！答案是：「${bossState.correctAnswer}」\n扣 ${result.dmg} 血！`); takeDamage(result.dmg, `被 ${bossState.currentBoss.name} 擊殺`); if (state.hp > 0) setTimeout(() => { loadBossQuestion(); }, 1200); }
         }
 
-        function updateGridSize() {
-            try { gridSize = parseInt(gridSize); if (isNaN(gridSize) || gridSize < 6) gridSize = 8; let island = document.getElementById('island'); if(!island) return;
-                let sizePx = (gridSize * TILE_SIZE) + 'px'; island.style.cssText = `width: ${sizePx}; height: ${sizePx}; min-width: ${sizePx}; min-height: ${sizePx}; display: inline-block; position: relative;`;
-            } catch(e) { console.error("Grid Size Error:", e); }
-        }
-
-        function startRPGGame() {
-            initAudio(); if(!currentDatabase || currentDatabase.length === 0) return alert("目前範圍沒有題目！");
-            document.querySelectorAll('.page').forEach(p => p.style.display = 'none'); document.getElementById('rpg-game').style.display = 'block';
-            updateGridSize(); renderDecorations(); renderHotbar(); questionDeck = buildSentenceDeck(); loadRPGQuest();
-        }
-
+        // ⛏️ RPG 地圖控制
+        function updateGridSize() { let island = document.getElementById('island'); if(!island) return; let sizePx = (state.gridSize * mapState.TILE_SIZE) + 'px'; island.style.cssText = `width: ${sizePx}; height: ${sizePx}; min-width: ${sizePx}; min-height: ${sizePx}; display: inline-block; position: relative;`; }
+        function startRPGGame() { initAudio(); if(!currentDatabase.length) return alert("沒有題目！"); document.querySelectorAll('.page').forEach(p => p.style.display = 'none'); document.getElementById('rpg-game').style.display = 'block'; updateGridSize(); renderDecorations(); renderHotbar(); questionDeck = buildSentenceDeck(); loadRPGQuest(); }
         function loadRPGQuest() {
-            try {
-                isQuestionActive = true; hasPlayerMoved = false; isShieldActive = true; document.getElementById('player').classList.add('shield-active');
-                resetTTSBtn(); document.getElementById('rpg-next-btn').style.display = 'none';
-                document.getElementById('feedback-rpg').innerText = "🛡️ 你已受保護罩庇護！行出第一步保護罩即會消失！"; document.getElementById('feedback-rpg').style.color = "#1565c0";
-                
-                if (!questionDeck || questionDeck.length === 0) questionDeck = buildSentenceDeck(); currentTargetData = questionDeck.pop();
-                let safe = getSafeData(currentTargetData); const types = ['meaning-to-word', 'word-to-meaning', 'fill-blank', 'sentence']; rpgQuestType = types[Math.floor(Math.random() * types.length)];
-                let title = "", question = "", rawOptions = [], actualCorrectAnswer = ""; let fillOpts = safe.fillOpts.length > 0 ? safe.fillOpts : generateOptions(safe.mTarget, 'missingTarget');
-
-                if (rpgQuestType === 'meaning-to-word') { title = "📜 任務：尋找匹配字詞"; question = safe.meaning; actualCorrectAnswer = safe.word; rawOptions = generateOptions(safe.word, 'word'); } 
-                else if (rpgQuestType === 'word-to-meaning') { title = "📜 任務：解讀告示牌"; question = safe.word; actualCorrectAnswer = safe.meaning; rawOptions = generateOptions(safe.meaning, 'meaning'); } 
-                else if (rpgQuestType === 'fill-blank') { title = "📜 任務：修補殘缺字詞"; question = safe.mFormat; actualCorrectAnswer = safe.mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random()); } 
-                else if (rpgQuestType === 'sentence') { 
-                    title = "📜 任務：填補情境對白"; let possibleSentences = [];
-                    if (safe.sentence && safe.sentence !== "無例句") possibleSentences.push(safe.sentence); if (safe.sentence1) possibleSentences.push(safe.sentence1); if (safe.sentence2) possibleSentences.push(safe.sentence2);
-                    let sText = possibleSentences.length > 0 ? possibleSentences[Math.floor(Math.random() * possibleSentences.length)] : "無例句";
-                    activeSentenceText = sText; if (!sText.includes("＿")) question = sText.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】"); else question = sText.replace(/＿＿＿＿/g, "【 ＿＿ 】");
-                    actualCorrectAnswer = safe.word; rawOptions = generateOptions(safe.word, 'word'); 
-                }
-
-                document.getElementById('rpg-mission-title').innerText = title; document.getElementById('rpg-question-text').innerText = question;
-                const letters = ["A", "B", "C", "D"]; let choicesHTML = "";
-                rawOptions.forEach((opt, idx) => { choicesHTML += `<div>[${letters[idx]}] ${opt}</div>`; if (opt === actualCorrectAnswer) rpgCorrectAnswer = letters[idx]; });
-                document.getElementById('mc-choices').innerHTML = choicesHTML;
-                
-                pX = Math.floor(gridSize / 2); pY = Math.floor(gridSize / 2); updatePlayerDOM();
-                document.querySelectorAll('.quest-block').forEach(el => el.remove()); questBlocks = [];
-                letters.forEach(label => {
-                    let el = document.createElement('div'); el.className = 'quest-block'; el.innerText = label; let randX, randY;
-                    do { randX = Math.floor(Math.random() * gridSize); randY = Math.floor(Math.random() * gridSize); } while ((randX === pX && randY === pY) || questBlocks.some(b => b.x === randX && b.y === randY));
-                    el.style.left = (randX * TILE_SIZE) + 'px'; el.style.top = (randY * TILE_SIZE) + 'px'; document.getElementById('island').appendChild(el); questBlocks.push({ element: el, label: label, x: randX, y: randY, broken: false });
-                });
-                spawnMapMonsters();
-            } catch(e) { console.error("RPG Load Error", e); document.getElementById('rpg-question-text').innerText = "載入出現錯誤，請返回大本營重試。"; }
-        }
-
-        function updatePlayerDOM() { let p = document.getElementById('player'); p.style.left = (pX * TILE_SIZE) + 'px'; p.style.top = (pY * TILE_SIZE) + 'px'; }
-
-        function movePlayer(dx, dy) {
-            if(!isQuestionActive) return; 
-            if (isShieldActive) { isShieldActive = false; hasPlayerMoved = true; document.getElementById('player').classList.remove('shield-active'); document.getElementById('feedback-rpg').innerText = "⚠️ 保護罩已消失！小心避開主動追蹤的怪物！"; document.getElementById('feedback-rpg').style.color = "#d32f2f"; }
-            let nextX = pX + dx; let nextY = pY + dy; if (nextX < 0 || nextX >= gridSize || nextY < 0 || nextY >= gridSize) return;
-            let block = questBlocks.find(b => b.x === nextX && b.y === nextY && !b.broken); sfx.move(); 
-            if (block) { mineBlock(block); } else { pX = nextX; pY = nextY; updatePlayerDOM(); for (let i = activeMapMonsters.length - 1; i >= 0; i--) { checkMonsterCollision(activeMapMonsters[i], i); } }
-        }
-
-        function mineBlock(block) {
-            try {
-                let feedback = document.getElementById('feedback-rpg');
-                if (block.label === rpgCorrectAnswer) {
-                    if(monsterInterval) clearInterval(monsterInterval); sfx.mine(); setTimeout(sfx.correct, 150); block.broken = true; block.element.classList.add('broken'); isQuestionActive = false; 
-                    let dropCounts = {log:0, stone:0, fiber:0, sand:0, clay:0, iron:0, gold:0}; let dropPool = ['log','log','stone','stone','fiber','fiber','sand','sand','clay','clay','iron','gold'];
-                    let numDrops = Math.floor(Math.random() * 2) + 1; for(let i=0; i<numDrops; i++) { let t = dropPool[Math.floor(Math.random() * dropPool.length)]; dropCounts[t]++; materials[t]++; }
-                    emeralds += 2; if (Math.random() < 0.4) { foodCount++; dropCounts['food'] = 1; } questionsAnswered++; updateMaterialUI(); saveGameState(); 
-                    
-                    let icons = {log:'🪵', stone:'🪨', fiber:'🌾', sand:'🏜️', clay:'🧱', iron:'🪙', gold:'🌟', food:'🍎'};
-                    let dropMsg = []; for(let key in dropCounts) { if(dropCounts[key] > 0) dropMsg.push(`${icons[key]}x${dropCounts[key]}`); }
-                    feedback.innerHTML = `<span style="color:#2e7d32">✨ 採集成功！獲得: ${dropMsg.join(' ')} 及 ❇️x2</span>`;
-                    
-                    let safe = getSafeData(currentTargetData); let foundEl = Array.from(document.getElementById('mc-choices').children).find(div => div.innerText.startsWith(`[${rpgCorrectAnswer}]`)); let realAnsText = foundEl ? foundEl.innerText.substring(4) : safe.word;
-                    if(rpgQuestType === 'fill-blank') document.getElementById('rpg-question-text').innerText = safe.mFormat.replace(/＿|_/g, `【${realAnsText}】`);
-                    else if(rpgQuestType === 'sentence') { document.getElementById('rpg-question-text').innerText = activeSentenceText.replace(/＿＿＿＿/g, `【${realAnsText}】`).replace(new RegExp(safe.word, "g"), `【${realAnsText}】`); }
-                    checkBossTrigger();
-                } else {
-                    let dmg = calculateDamage(20); block.element.classList.add('wrong'); feedback.innerText = `💥 答錯了！觸動了陷阱扣 ${dmg} 血！怪物加速接近中！`; feedback.style.color = "#d32f2f"; takeDamage(dmg, "在採集時被陷阱擊殺");
-                }
-            } catch(e) { console.error("Mine Block Error", e); }
-            if (block.label === rpgCorrectAnswer) { document.getElementById('rpg-next-btn').style.display = 'block'; }
-        }
-
-        function handleGridClick(e) {
-            const rect = document.getElementById('island').getBoundingClientRect(); const targetX = Math.floor((e.clientX - rect.left) / TILE_SIZE); const targetY = Math.floor((e.clientY - rect.top) / TILE_SIZE);
-            if (selectedHotbarItem && inventory[selectedHotbarItem] > 0) {
-                if (questBlocks.some(b => b.x === targetX && b.y === targetY && !b.broken)) return;
-                sfx.mine(); inventory[selectedHotbarItem]--; let catItem = craftRecipes.find(c => c.id === selectedHotbarItem);
-                placedDecorations.push({ icon: catItem.icon, x: targetX, y: targetY }); if(inventory[selectedHotbarItem] === 0) selectedHotbarItem = null;
-                renderDecorations(); renderHotbar(); saveGameState(); return;
+            mapState.isQuestionActive = true; mapState.isShieldActive = true; document.getElementById('player').classList.add('shield-active'); resetTTSBtn(); document.getElementById('rpg-next-btn').style.display = 'none'; document.getElementById('feedback-rpg').innerText = "🛡️ 保護罩已啟動！"; document.getElementById('feedback-rpg').style.color = "#1565c0";
+            if (!questionDeck.length) questionDeck = buildSentenceDeck(); currentTargetData = questionDeck.pop();
+            let safe = getSafeData(currentTargetData); const types = ['meaning-to-word', 'word-to-meaning', 'fill-blank', 'sentence']; mapState.rpgQuestType = types[Math.floor(Math.random() * types.length)];
+            let title = "", question = "", rawOptions = [], actualCorrectAnswer = ""; let fillOpts = safe.fillOpts.length > 0 ? safe.fillOpts : generateOptions(safe.mTarget, 'missingTarget');
+            if (mapState.rpgQuestType === 'meaning-to-word') { title = "📜 尋找匹配字詞"; question = safe.meaning; actualCorrectAnswer = safe.word; rawOptions = generateOptions(safe.word, 'word'); } 
+            else if (mapState.rpgQuestType === 'word-to-meaning') { title = "📜 解讀告示牌"; question = safe.word; actualCorrectAnswer = safe.meaning; rawOptions = generateOptions(safe.meaning, 'meaning'); } 
+            else if (mapState.rpgQuestType === 'fill-blank') { title = "📜 修補殘缺字詞"; question = safe.mFormat; actualCorrectAnswer = safe.mTarget; rawOptions = [...fillOpts].sort(() => 0.5 - Math.random()); } 
+            else if (mapState.rpgQuestType === 'sentence') { title = "📜 填補情境對白"; let possibleSentences = []; if (safe.sentence && safe.sentence !== "無例句") possibleSentences.push(safe.sentence); if (safe.sentence1) possibleSentences.push(safe.sentence1); if (safe.sentence2) possibleSentences.push(safe.sentence2);
+                activeSentenceText = possibleSentences.length > 0 ? possibleSentences[Math.floor(Math.random() * possibleSentences.length)] : "無例句"; question = activeSentenceText.includes("＿") ? activeSentenceText.replace(/＿＿＿＿/g, "【 ＿＿ 】") : activeSentenceText.replace(new RegExp(safe.word, "g"), "【 ＿＿ 】"); actualCorrectAnswer = safe.word; rawOptions = generateOptions(safe.word, 'word'); 
             }
-            if (!isQuestionActive) return; const diffX = targetX - pX; const diffY = targetY - pY;
+            document.getElementById('rpg-mission-title').innerText = title; document.getElementById('rpg-question-text').innerText = question;
+            const letters = ["A", "B", "C", "D"]; let choicesHTML = ""; rawOptions.forEach((opt, idx) => { choicesHTML += `<div>[${letters[idx]}] ${opt}</div>`; if (opt === actualCorrectAnswer) mapState.rpgCorrectAnswer = letters[idx]; });
+            document.getElementById('mc-choices').innerHTML = choicesHTML;
+            mapState.pX = Math.floor(state.gridSize / 2); mapState.pY = Math.floor(state.gridSize / 2); updatePlayerDOM();
+            document.querySelectorAll('.quest-block').forEach(el => el.remove()); mapState.questBlocks = [];
+            letters.forEach(label => {
+                let el = document.createElement('div'); el.className = 'quest-block'; el.innerText = label; let randX, randY;
+                do { randX = Math.floor(Math.random() * state.gridSize); randY = Math.floor(Math.random() * state.gridSize); } while ((randX === mapState.pX && randY === mapState.pY) || mapState.questBlocks.some(b => b.x === randX && b.y === randY));
+                let pos = getTilePosition(randX, randY); el.style.left = pos.left; el.style.top = pos.top; document.getElementById('island').appendChild(el); mapState.questBlocks.push({ element: el, label: label, x: randX, y: randY, broken: false });
+            }); 
+            spawnMonsters(document.getElementById('island'));
+            if(mapState.monsterInterval) clearInterval(mapState.monsterInterval); mapState.monsterInterval = setInterval(moveMapMonsters, 1000);
+        }
+        function updatePlayerDOM() { let p = document.getElementById('player'); let pos = getTilePosition(mapState.pX, mapState.pY); p.style.left = pos.left; p.style.top = pos.top; }
+        function movePlayer(dx, dy) {
+            if(!mapState.isQuestionActive) return; 
+            if (mapState.isShieldActive) { mapState.isShieldActive = false; document.getElementById('player').classList.remove('shield-active'); document.getElementById('feedback-rpg').innerText = "⚠️ 保護罩已消失！"; document.getElementById('feedback-rpg').style.color = "#d32f2f"; }
+            let nextX = mapState.pX + dx; let nextY = mapState.pY + dy; if (nextX < 0 || nextX >= state.gridSize || nextY < 0 || nextY >= state.gridSize) return;
+            let block = mapState.questBlocks.find(b => b.x === nextX && b.y === nextY && !b.broken); sfx.move(); 
+            if (block) { mineBlock(block); } else { 
+                mapState.pX = nextX; mapState.pY = nextY; updatePlayerDOM(); 
+                for (let i = mapState.activeMapMonsters.length - 1; i >= 0; i--) { if(checkCollision(mapState.activeMapMonsters[i], (dmg, name) => takeDamage(dmg, `被 ${name} 襲擊`))) { mapState.activeMapMonsters.splice(i, 1); } } 
+            }
+        }
+        function mineBlock(block) {
+            let feedback = document.getElementById('feedback-rpg');
+            if (block.label === mapState.rpgCorrectAnswer) {
+                if(mapState.monsterInterval) clearInterval(mapState.monsterInterval); sfx.mine(); setTimeout(sfx.correct, 150); block.broken = true; block.element.classList.add('broken'); mapState.isQuestionActive = false; 
+                let dropCounts = {log:0, stone:0, fiber:0, sand:0, clay:0, iron:0, gold:0}; let dropPool = ['log','log','stone','stone','fiber','fiber','sand','sand','clay','clay','iron','gold'];
+                let numDrops = Math.floor(Math.random() * 2) + 1; for(let i=0; i<numDrops; i++) { let t = dropPool[Math.floor(Math.random() * dropPool.length)]; dropCounts[t]++; state.materials[t]++; }
+                state.emeralds += 2; if (Math.random() < 0.4) { state.foodCount++; dropCounts['food'] = 1; } state.questionsAnswered++; updateMaterialUI(); saveGameState(); 
+                let icons = {log:'🪵', stone:'🪨', fiber:'🌾', sand:'🏜️', clay:'🧱', iron:'🪙', gold:'🌟', food:'🍎'}; let dropMsg = []; for(let key in dropCounts) { if(dropCounts[key] > 0) dropMsg.push(`${icons[key]}x${dropCounts[key]}`); }
+                feedback.innerHTML = `<span style="color:#2e7d32">✨ 採集成功！獲得: ${dropMsg.join(' ')} 及 ❇️x2</span>`;
+                let safe = getSafeData(currentTargetData); let foundEl = Array.from(document.getElementById('mc-choices').children).find(div => div.innerText.startsWith(`[${mapState.rpgCorrectAnswer}]`)); let realAnsText = foundEl ? foundEl.innerText.substring(4) : safe.word;
+                if(mapState.rpgQuestType === 'fill-blank') document.getElementById('rpg-question-text').innerText = safe.mFormat.replace(/＿|_/g, `【${realAnsText}】`); else if(mapState.rpgQuestType === 'sentence') { document.getElementById('rpg-question-text').innerText = activeSentenceText.replace(/＿＿＿＿/g, `【${realAnsText}】`).replace(new RegExp(safe.word, "g"), `【${realAnsText}】`); }
+                checkBossTrigger(); document.getElementById('rpg-next-btn').style.display = 'block';
+            } else { let dmg = calculateDamage(20); block.element.classList.add('wrong'); feedback.innerText = `💥 答錯了！觸動陷阱扣 ${dmg} 血！`; feedback.style.color = "#d32f2f"; takeDamage(dmg, "被陷阱擊殺"); }
+        }
+        function handleGridClick(e) {
+            const rect = document.getElementById('island').getBoundingClientRect(); const targetX = Math.floor((e.clientX - rect.left) / mapState.TILE_SIZE); const targetY = Math.floor((e.clientY - rect.top) / mapState.TILE_SIZE);
+            if (selectedHotbarItem && state.inventory[selectedHotbarItem] > 0) {
+                if (mapState.questBlocks.some(b => b.x === targetX && b.y === targetY && !b.broken)) return; sfx.mine(); state.inventory[selectedHotbarItem]--; let catItem = craftRecipes.find(c => c.id === selectedHotbarItem);
+                state.placedDecorations.push({ icon: catItem.icon, x: targetX, y: targetY }); if(state.inventory[selectedHotbarItem] === 0) selectedHotbarItem = null; renderDecorations(); renderHotbar(); saveGameState(); return;
+            }
+            if (!mapState.isQuestionActive) return; const diffX = targetX - mapState.pX; const diffY = targetY - mapState.pY;
             if (Math.abs(diffX) > Math.abs(diffY)) movePlayer(diffX > 0 ? 1 : -1, 0); else if (Math.abs(diffY) > 0) movePlayer(0, diffY > 0 ? 1 : -1);
         }
 
+        // 🔨 建築與合成
         function renderHotbar() {
-            try {
-                let hb = document.getElementById('hotbar'); hb.innerHTML = ""; let itemKeys = Object.keys(inventory);
-                for(let i=0; i<Math.max(5, itemKeys.length); i++) {
-                    let slot = document.createElement('div'); slot.className = "hotbar-slot";
-                    if(i < itemKeys.length) {
-                        let itemId = itemKeys[i]; let qty = inventory[itemId];
-                        if(qty > 0) {
-                            let catItem = craftRecipes.find(c => c.id === itemId); slot.innerText = catItem.icon; slot.innerHTML += `<div class="hotbar-qty">${qty}</div>`;
-                            if(selectedHotbarItem === itemId) slot.classList.add('active'); slot.onclick = () => { selectedHotbarItem = (selectedHotbarItem === itemId) ? null : itemId; renderHotbar(); };
-                        }
-                    } hb.appendChild(slot);
-                }
-            } catch(e) { console.error("Render Hotbar Error", e); }
+            let hb = document.getElementById('hotbar'); hb.innerHTML = ""; let itemKeys = Object.keys(state.inventory);
+            for(let i=0; i<Math.max(5, itemKeys.length); i++) { let slot = document.createElement('div'); slot.className = "hotbar-slot";
+                if(i < itemKeys.length) { let itemId = itemKeys[i]; let qty = state.inventory[itemId];
+                    if(qty > 0) { let catItem = craftRecipes.find(c => c.id === itemId); slot.innerText = catItem.icon; slot.innerHTML += `<div class="hotbar-qty">${qty}</div>`; if(selectedHotbarItem === itemId) slot.classList.add('active'); slot.onclick = () => { selectedHotbarItem = (selectedHotbarItem === itemId) ? null : itemId; renderHotbar(); }; }
+                } hb.appendChild(slot);
+            }
         }
-
         function renderDecorations() {
-            try {
-                let layer = document.getElementById('decorations-layer'); layer.innerHTML = "";
-                if(Array.isArray(placedDecorations)) { placedDecorations.forEach(dec => { let el = document.createElement('div'); el.className = "decoration-item"; el.innerText = dec.icon; el.style.left = (dec.x * TILE_SIZE) + 'px'; el.style.top = (dec.y * TILE_SIZE) + 'px'; layer.appendChild(el); }); }
-            } catch(e) { console.error("Render Dec Error", e); }
+            let layer = document.getElementById('decorations-layer'); layer.innerHTML = "";
+            if(Array.isArray(state.placedDecorations)) { state.placedDecorations.forEach(dec => { let el = document.createElement('div'); el.className = "decoration-item"; el.innerText = dec.icon; let pos = getTilePosition(dec.x, dec.y); el.style.left = pos.left; el.style.top = pos.top; layer.appendChild(el); }); }
         }
-
         function openCrafting() { document.getElementById('craft-modal').style.display = 'flex'; updateMaterialUI(); renderCraftItems(); }
         function closeCrafting() { document.getElementById('craft-modal').style.display = 'none'; }
-        
         function renderCraftItems() {
             let container = document.getElementById('craft-items-container'); container.innerHTML = "";
             craftRecipes.forEach(item => {
-                let canAfford = canAffordCraft(item.cost, materials, emeralds); let btnText = "🔨 合成"; let extraDesc = "";
-                if (item.id === 'armor') { if (armorLevel >= 5) { canAfford = false; btnText = "已滿級"; extraDesc = " <span style='color:#d32f2f;'>(MAX)</span>"; } else { extraDesc = ` <span style='color:#1565c0;'>(當前 Lv.${armorLevel})</span>`; } }
-                let costMsg = [];
-                if(item.cost.log) costMsg.push(`🪵${item.cost.log}`); if(item.cost.stone) costMsg.push(`🪨${item.cost.stone}`); if(item.cost.fiber) costMsg.push(`🌾${item.cost.fiber}`); if(item.cost.sand) costMsg.push(`🏜️${item.cost.sand}`);
-                if(item.cost.clay) costMsg.push(`🧱${item.cost.clay}`); if(item.cost.iron) costMsg.push(`🪙${item.cost.iron}`); if(item.cost.gold) costMsg.push(`🌟${item.cost.gold}`); if(item.cost.emerald) costMsg.push(`❇️${item.cost.emerald}`);
-                let card = document.createElement('div'); card.className = "craft-card";
-                card.innerHTML = `<div class="craft-item-top"><div class="craft-item-icon">${item.icon}</div><div class="craft-item-info"><h4>${item.name}${extraDesc}</h4><p>${item.desc}</p><div class="craft-cost">需求：${costMsg.join(' ')}</div></div></div><button class="craft-buy-btn" ${canAfford ? '' : 'disabled'} onclick="craftItem('${item.id}')">${btnText}</button>`;
-                container.appendChild(card);
+                let canAfford = canAffordCraft(item.cost, state.materials, state.emeralds); let btnText = "🔨 合成"; let extraDesc = "";
+                if (item.id === 'armor') { if (state.armorLevel >= 5) { canAfford = false; btnText = "已滿級"; extraDesc = " <span style='color:#d32f2f;'>(MAX)</span>"; } else { extraDesc = ` <span style='color:#1565c0;'>(當前 Lv.${state.armorLevel})</span>`; } }
+                let costMsg = []; if(item.cost.log) costMsg.push(`🪵${item.cost.log}`); if(item.cost.stone) costMsg.push(`🪨${item.cost.stone}`); if(item.cost.fiber) costMsg.push(`🌾${item.cost.fiber}`); if(item.cost.sand) costMsg.push(`🏜️${item.cost.sand}`); if(item.cost.clay) costMsg.push(`🧱${item.cost.clay}`); if(item.cost.iron) costMsg.push(`🪙${item.cost.iron}`); if(item.cost.gold) costMsg.push(`🌟${item.cost.gold}`); if(item.cost.emerald) costMsg.push(`❇️${item.cost.emerald}`);
+                let card = document.createElement('div'); card.className = "craft-card"; card.innerHTML = `<div class="craft-item-top"><div class="craft-item-icon">${item.icon}</div><div class="craft-item-info"><h4>${item.name}${extraDesc}</h4><p>${item.desc}</p><div class="craft-cost">需求：${costMsg.join(' ')}</div></div></div><button class="craft-buy-btn" ${canAfford ? '' : 'disabled'} onclick="craftItem('${item.id}')">${btnText}</button>`; container.appendChild(card);
             });
         }
-
         function craftItem(itemId) {
             let item = craftRecipes.find(i => i.id === itemId);
-            if (canAffordCraft(item.cost, materials, emeralds)) {
-                sfx.craft(); 
-                if(item.cost.log) materials.log -= item.cost.log; if(item.cost.stone) materials.stone -= item.cost.stone; if(item.cost.fiber) materials.fiber -= item.cost.fiber; if(item.cost.sand) materials.sand -= item.cost.sand;
-                if(item.cost.clay) materials.clay -= item.cost.clay; if(item.cost.iron) materials.iron -= item.cost.iron; if(item.cost.gold) materials.gold -= item.cost.gold; if(item.cost.emerald) emeralds -= item.cost.emerald;
-                
-                if (item.type === 'upgrade') {
-                    if (itemId === 'expand') { gridSize += 2; updateGridSize(); alert("綠地已成功擴大！"); } else if (itemId === 'hp_boost') { MAX_HP += 20; hp += 20; alert(`💖 生命上限已提升！目前最大血量：${MAX_HP}`); } else if (itemId === 'armor') { armorLevel++; alert(`🛡️ 防護裝甲已升級！目前等級：Lv.${armorLevel} (減少 ${armorLevel * 15}% 傷害)`); }
-                } else { if(!inventory[itemId]) inventory[itemId] = 0; inventory[itemId]++; renderHotbar(); }
+            if (canAffordCraft(item.cost, state.materials, state.emeralds)) { sfx.craft(); 
+                if(item.cost.log) state.materials.log -= item.cost.log; if(item.cost.stone) state.materials.stone -= item.cost.stone; if(item.cost.fiber) state.materials.fiber -= item.cost.fiber; if(item.cost.sand) state.materials.sand -= item.cost.sand; if(item.cost.clay) state.materials.clay -= item.cost.clay; if(item.cost.iron) state.materials.iron -= item.cost.iron; if(item.cost.gold) state.materials.gold -= item.cost.gold; if(item.cost.emerald) state.emeralds -= item.cost.emerald;
+                if (item.type === 'upgrade') { if (itemId === 'expand') { state.gridSize += 2; updateGridSize(); alert("綠地已擴大！"); } else if (itemId === 'hp_boost') { state.MAX_HP += 20; state.hp += 20; alert(`💖 生命上限提升至 ${state.MAX_HP}`); } else if (itemId === 'armor') { state.armorLevel++; alert(`🛡️ 裝甲升級至 Lv.${state.armorLevel}`); }
+                } else { if(!state.inventory[itemId]) state.inventory[itemId] = 0; state.inventory[itemId]++; renderHotbar(); }
                 updateMaterialUI(); renderCraftItems(); saveGameState();
             }
         }
-
-        document.addEventListener('keydown', function(event) {
-            if (document.getElementById('rpg-game').style.display === 'block') {
-                if (event.key === "ArrowUp" || event.key === "w") movePlayer(0, -1); if (event.key === "ArrowDown" || event.key === "s") movePlayer(0, 1);
-                if (event.key === "ArrowLeft" || event.key === "a") movePlayer(-1, 0); if (event.key === "ArrowRight" || event.key === "d") movePlayer(1, 0);
-            }
-        });
-
-        window.addEventListener('DOMContentLoaded', () => { initDatabase(); loadGameState(); });
-
+        document.addEventListener('keydown', function(event) { if (document.getElementById('rpg-game').style.display === 'block') { if (event.key === "ArrowUp" || event.key === "w") movePlayer(0, -1); if (event.key === "ArrowDown" || event.key === "s") movePlayer(0, 1); if (event.key === "ArrowLeft" || event.key === "a") movePlayer(-1, 0); if (event.key === "ArrowRight" || event.key === "d") movePlayer(1, 0); } });
     </script>
 </body>
 </html>
